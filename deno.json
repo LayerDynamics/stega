@@ -6,7 +6,7 @@
 		"allowUnreachableCode": false
 	},
 	"tasks": {
-		"dev": "deno run --watch main.ts",
+		"dev": "deno run --watch src/main.ts",
 		"test": "deno test --allow-read --allow-env --allow-write --coverage",
 		"start": "deno run --allow-all src/index.ts",
 		"build": "deno run --allow-run --allow-read --allow-write --allow-env src/commands/build.ts",
