@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "lib": ["deno.window", "deno.ns"],
+    "strict": true,
+    "types": ["./src/types/deno.run.d.ts"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}

@@ -1,0 +1,16 @@
+{
+    "available_commands": "Available Commands:",
+
+    "command": "Command",
+    "options": "Options",
+    "default": "default",
+    "command_not_found": "Command \"{command}\" not found.",
+    "subcommand_not_found": "Subcommand \"{subcommand}\" not found.",
+    "error": "Error: {message}",
+    "unexpected_error": "Unexpected Error: {message}",
+    "use_help": "Use \"stega help [command]\" for more information on a specific command.",
+    "enter_project_name": "Enter project name:",
+    "confirm_create_project": "Create project '{name}'?",
+    "project_creation_cancelled": "Project creation cancelled.",
+    "project_created": "Project created successfully."
+}

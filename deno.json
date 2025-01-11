@@ -1,0 +1,21 @@
+{
+	"compilerOptions": {
+		"lib": ["deno.window", "deno.ns"],
+		"strict": true,
+		"allowUnusedLabels": false,
+		"allowUnreachableCode": false
+	},
+	"tasks": {
+		"dev": "deno run --watch main.ts",
+		"test": "deno test --allow-read --allow-env --allow-write --coverage",
+		"start": "deno run --allow-all src/index.ts",
+		"build": "deno run --allow-run --allow-read --allow-write --allow-env src/commands/build.ts",
+		"build:linux": "deno task build --output=./dist/stega-linux --target=linux --allow-read --allow-env",
+		"build:windows": "deno task build --output=./dist/stega-windows.exe --target=windows --allow-read --allow-env",
+		"build:macos": "deno task build --output=./dist/stega-macos --target=darwin --allow-read --allow-env",
+		"build:all": "deno task build:linux && deno task build:windows && deno task build:macos"
+	},
+	"imports": {
+		"@std/assert": "jsr:@std/assert@1"
+	}
+}
