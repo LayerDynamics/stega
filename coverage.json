@@ -1,0 +1,7 @@
+{
+	"coverage": {
+		"directory": ".coverage",
+		"excludes": ["test/**/*"],
+		"includes": ["src/**/*"]
+	}
+}
