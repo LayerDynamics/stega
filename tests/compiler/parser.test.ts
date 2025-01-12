@@ -1,4 +1,5 @@
-import { assertEquals } from "@std/assert";
+// tests/compiler/parserf.test.ts
+import {assertEquals} from "@std/assert";
 import { Parser } from "../../src/compiler/parser.ts";
 
 Deno.test("Parser - parses TypeScript code correctly", () => {

@@ -1,4 +1,5 @@
-// test/setup.ts
+// tests/setup.ts
+
 import {FileSystemTracker} from "./helpers/fs-tracker.ts";
 
 // Run before all tests

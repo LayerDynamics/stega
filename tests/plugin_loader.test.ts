@@ -1,3 +1,4 @@
+// tests/plugin_loader.test.ts
 import { PluginLoader } from "../src/plugin_loader.ts";
 import { CLI } from "../src/core.ts";
 import { assertEquals } from "https://deno.land/std@0.203.0/testing/asserts.ts";

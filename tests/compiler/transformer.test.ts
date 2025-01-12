@@ -1,4 +1,5 @@
-import { assertEquals } from "@std/assert";
+// tests/transformer.test.ts
+import {assertEquals} from "@std/assert";
 import { Transformer } from "../../src/compiler/transformer.ts";
 import { Project, ts } from "https://deno.land/x/ts_morph@17.0.1/mod.ts";
 

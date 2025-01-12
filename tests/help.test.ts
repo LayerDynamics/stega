@@ -1,4 +1,5 @@
-import { assert } from "@std/assert";
+// tests/help.test.ts
+import {assert} from "@std/assert";
 import { CommandRegistry } from "../src/command.ts";
 import { Help } from "../src/help.ts";
 import { I18n } from "../src/i18n.ts";
