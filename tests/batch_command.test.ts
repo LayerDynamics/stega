@@ -3,8 +3,8 @@ import {
 	assertEquals,
 	assertRejects,
 } from "https://deno.land/std@0.203.0/testing/asserts.ts";
-import {CLI} from "../src/core.ts"; // Correct import path
-import {batchCommand} from "../src/commands/batch_command.ts"; // Correct import path
+import {CLI} from "../src/core.ts";
+import {createBatchCommand} from "../src/commands/batch_command.ts"; // Import factory function
 import {CommandNotFoundError} from "../src/error.ts"; // Ensure this path is correct
 
 /**
@@ -51,7 +51,9 @@ Deno.test("Batch command - parallel execution",async () => {
 	const mockLogger=(cli.logger) as MockLogger;
 
 	// Register commands with execution tracking
+	const batchCommand=createBatchCommand(cli);
 	cli.register(batchCommand);
+
 	cli.register({
 		name: "cmd1",
 		description: "First test command",
@@ -105,7 +107,9 @@ Deno.test("Batch command - sequential execution",async () => {
 	const mockLogger=(cli.logger) as MockLogger;
 
 	// Register commands with execution tracking
+	const batchCommand=createBatchCommand(cli);
 	cli.register(batchCommand);
+
 	cli.register({
 		name: "cmd1",
 		description: "First test command",
@@ -153,6 +157,7 @@ Deno.test("Batch command - error handling with missing command",async () => {
 	const mockLogger=(cli.logger) as MockLogger;
 
 	// Register only batchCommand without registering 'nonexistent'
+	const batchCommand=createBatchCommand(cli);
 	cli.register(batchCommand);
 
 	// Execute batch command with a non-existent command
@@ -181,6 +186,7 @@ Deno.test("Batch command - single command execution",async () => {
 	const mockLogger=(cli.logger) as MockLogger;
 
 	// Register batchCommand and a single command
+	const batchCommand=createBatchCommand(cli);
 	cli.register(batchCommand);
 	cli.register({
 		name: "single-cmd",

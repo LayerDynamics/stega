@@ -1,6 +1,6 @@
 // mod.ts
 export {CLI} from "./src/core.ts";
-export type {Command,Option,Args} from "./src/core.ts";
+export type {Command,Option,Args} from "./src/command.ts";
 export {CommandRegistry} from "./src/command.ts";
 export {Parser} from "./src/parser.ts";
 export {Help} from "./src/help.ts";

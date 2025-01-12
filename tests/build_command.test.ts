@@ -1,5 +1,5 @@
 // tests/build_command.test.ts
-import {buildCommand} from "../src/commands/build.ts";
+import {createBuildCommand} from "../src/commands/build.ts";
 import {CLI} from "../src/core.ts";
 import {
 	assertEquals,
@@ -68,7 +68,7 @@ Deno.test({
 
 				constructor(cmd: string|URL,options?: Deno.CommandOptions) {
 					this.#cmd=cmd.toString();
-					this.#options=options??{args: []}; // Remove cmd property
+					this.#options=options??{args: []};
 					capturedArgs=[this.#cmd,...(this.#options.args??[])];
 				}
 
@@ -118,6 +118,7 @@ Deno.test({
 			await Deno.mkdir("src",{recursive: true});
 			await Deno.writeTextFile("src/test.ts","console.log('test');");
 
+			const buildCommand=createBuildCommand(cli);
 			cli.register(buildCommand);
 			await cli.runCommand([
 				"build",
@@ -179,8 +180,7 @@ Deno.test({
 
 		// Mock Command to ensure successful build
 		const originalCommand=Deno.Command;
-		// Declare originalGetPlugins outside try block
-		const originalGetPlugins = cli.getLoadedPlugins.bind(cli) as typeof cli.getLoadedPlugins;
+		const originalGetPlugins=cli.getLoadedPlugins.bind(cli) as typeof cli.getLoadedPlugins;
 		class MockCommand implements Deno.Command {
 			constructor(_cmd: string|URL,_options?: Deno.CommandOptions) {}
 
@@ -224,8 +224,9 @@ Deno.test({
 
 		try {
 			// Mock plugin loader using the public method with proper typing
-			cli.getLoadedPlugins = () => [mockPlugin];
+			cli.getLoadedPlugins=() => [mockPlugin];
 
+			const buildCommand=createBuildCommand(cli);
 			cli.register(buildCommand);
 			await Deno.mkdir("src",{recursive: true});
 			await Deno.writeTextFile("src/test.ts","console.log('test');");
@@ -257,7 +258,7 @@ Deno.test({
 			);
 		} finally {
 			// Restore original methods
-			cli.getLoadedPlugins = originalGetPlugins;
+			cli.getLoadedPlugins=originalGetPlugins;
 			(Deno as unknown as {Command: typeof Deno.Command}).Command=originalCommand;
 			await Deno.remove("src/test.ts").catch(() => {});
 			await Deno.remove("src",{recursive: true}).catch(() => {});
@@ -299,8 +300,7 @@ Deno.test({
 
 		// Mock Command implementation
 		const originalCommand=Deno.Command;
-		// Declare originalGetPlugins outside try block
-		const originalGetPlugins = cli.getLoadedPlugins.bind(cli) as typeof cli.getLoadedPlugins;
+		const originalGetPlugins=cli.getLoadedPlugins.bind(cli) as typeof cli.getLoadedPlugins;
 		class MockCommand implements Deno.Command {
 			constructor(_cmd: string|URL,_options?: Deno.CommandOptions) {
 				buildAttempted=true;
@@ -346,8 +346,9 @@ Deno.test({
 
 		try {
 			// Mock plugin loader using the public method with proper typing
-			cli.getLoadedPlugins = () => [mockPlugin];
+			cli.getLoadedPlugins=() => [mockPlugin];
 
+			const buildCommand=createBuildCommand(cli);
 			cli.register(buildCommand);
 			await Deno.mkdir("src",{recursive: true});
 			await Deno.writeTextFile("src/test.ts","console.log('test');");
@@ -376,7 +377,7 @@ Deno.test({
 			);
 		} finally {
 			// Restore original methods
-			cli.getLoadedPlugins = originalGetPlugins;
+			cli.getLoadedPlugins=originalGetPlugins;
 			(Deno as unknown as {Command: typeof Deno.Command}).Command=originalCommand;
 			await Deno.remove("src/test.ts").catch(() => {});
 			await Deno.remove("src",{recursive: true}).catch(() => {});
