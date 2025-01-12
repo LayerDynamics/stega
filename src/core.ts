@@ -12,6 +12,8 @@ import {PluginLoader} from "./plugin_loader.ts";
 import {Plugin} from "./plugin.ts";
 import type {LevelName} from "https://deno.land/std@0.224.0/log/levels.ts";
 import type { ILogger } from "./logger_interface.ts";
+import type { Args } from "./types.ts";
+import type { Command } from "./command.ts";
 
 export interface Option {
 	name: string;
@@ -20,21 +22,6 @@ export interface Option {
 	type: 'boolean'|'string'|'number'|'array';
 	default?: FlagValue;
 	required?: boolean;
-}
-
-export interface Command {
-	name: string;
-	description?: string;
-	options?: Option[];
-	subcommands?: Command[];
-	action: (args: Args) => void|Promise<void>;
-	aliases?: string[];
-}
-
-export interface Args {
-	command: string[];
-	flags: Record<string,FlagValue>;
-	cli: CLI; // Made cli required
 }
 
 export interface BuildOptions {
@@ -306,11 +293,11 @@ export class CLI {
 			}
 		}
 
-		// Set log level if specified
+		 // Fix logger setup configuration
 		const logLevel=processedFlags["log-level"];
 		if(logLevel&&typeof logLevel==="string") {
 			const level=logLevel.toUpperCase() as LevelName;
-			await setup({loggers: {default: {level}}});
+			await setup({loggers: {default: {level,handlers: ["console"]}}});
 		}
 
 		command.action=this.wrapAction(command.action,processedFlags);

@@ -1,5 +1,6 @@
 // src/types.ts
 import {FlagValue} from "./flag.ts";
+import type { CLI } from "./core.ts";  // Add import for CLI type
 
 /**
  * Represents the arguments passed to a command's action.
@@ -7,6 +8,7 @@ import {FlagValue} from "./flag.ts";
 export interface Args {
 	command: string[];
 	flags: Record<string,FlagValue>;
+	cli: CLI;  // Add required CLI property
 }
 
 export type JsTarget="es5"|"es6"|"es2017"|"es2020";
