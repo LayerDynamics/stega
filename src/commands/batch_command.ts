@@ -1,8 +1,13 @@
-// src/commands/batch_command.ts
 import {Command} from "../core.ts";
 import {CLI} from "../core.ts";
 import {FlagValue} from "../flag.ts";
 import {CommandNotFoundError} from "../error.ts";
+
+interface CommandExecutionResult {
+    command: string;
+    success: boolean;
+    error?: Error;
+}
 
 export interface Args {
     command: string[];
@@ -42,57 +47,66 @@ export const batchCommand: Command={
         }
 
         args.cli.logger.info(
-            `Executing ${commandNames.length} command(s) ${isParallel? "in parallel":"sequentially"
-            }`
+            `Executing ${commandNames.length} command(s) ${isParallel? "in parallel":"sequentially"}`
         );
 
-        const executeCommand=async (cmdName: string): Promise<void> => {
+        const results: CommandExecutionResult[]=[];
+
+        const executeCommand=async (cmdName: string): Promise<CommandExecutionResult> => {
             const cmd=args.cli.findCommand(cmdName);
             if(!cmd) {
+                const error=new CommandNotFoundError(cmdName);
                 args.cli.logger.error(`Command "${cmdName}" not found.`);
-                throw new CommandNotFoundError(cmdName);
+                return {command: cmdName,success: false,error};
             }
 
-            // Create a new args object for the command
             const cmdArgs={
                 command: [cmdName],
                 flags: {},
                 cli: args.cli,
             };
 
-            await cmd.action(cmdArgs);
+            try {
+                await Promise.resolve(cmd.action(cmdArgs));
+                args.cli.logger.info(`Command "${cmdName}" executed successfully`);
+                return {command: cmdName,success: true};
+            } catch(error) {
+                const execError=error instanceof Error? error:new Error(String(error));
+                args.cli.logger.error(`Command "${cmdName}" failed: ${execError.message}`);
+                return {command: cmdName,success: false,error: execError};
+            }
         };
 
         try {
             if(isParallel) {
-                const promises=commandNames.map((cmdName) => executeCommand(cmdName));
-                const results=await Promise.allSettled(promises);
-                const failures=results.filter(
-                    (r): r is PromiseRejectedResult => r.status==="rejected"
+                const executions=await Promise.all(
+                    commandNames.map((cmdName) => executeCommand(cmdName))
                 );
-
-                if(failures.length>0) {
-                    for(const failure of failures) {
-                        if(failure.reason instanceof CommandNotFoundError) {
-                            throw failure.reason;
-                        }
-                    }
-                    throw failures[0].reason;
-                }
+                results.push(...executions);
             } else {
                 for(const cmdName of commandNames) {
-                    await executeCommand(cmdName);
+                    const result=await executeCommand(cmdName);
+                    results.push(result);
+                    if(!result.success) break;
                 }
             }
 
+            const failedCommands=results.filter(r => !r.success);
+            if(failedCommands.length>0) {
+                const firstFailure=failedCommands[0];
+                if(firstFailure.error instanceof CommandNotFoundError) {
+                    throw firstFailure.error;
+                }
+                throw new Error(`Batch execution failed: ${firstFailure.error?.message||'Unknown error'}`);
+            }
+
             args.cli.logger.info("Batch execution completed successfully");
-        } catch(error: unknown) {
+        } catch(error) {
             if(error instanceof CommandNotFoundError) {
                 throw error;
             }
             throw new Error(
-                `Batch execution failed: ${error instanceof Error? error.message:String(error)
-                }`
+                `Batch execution failed: ${error instanceof Error? error.message:String(error)}`
             );
         }
     },

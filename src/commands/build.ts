@@ -1,19 +1,14 @@
-// src/commands/build.ts
 import {Command} from "../core.ts";
 import {CLI} from "../core.ts";
 import {logger} from "../logger.ts";
 import {Args} from "../core.ts";
 import {Input,Select} from "https://deno.land/x/cliffy@v0.25.7/prompt/mod.ts";
-import type {Plugin as _Plugin,BuildOptions} from "../plugin.ts";
+import type {Plugin,BuildOptions} from "../plugin.ts";
 
-// Constants for supported targets and permissions
 const supportedTargets=[
 	"x86_64-unknown-linux-gnu",
 	"x86_64-pc-windows-msvc",
-	"x86_64-apple-darwin",
-	"aarch64-unknown-linux-gnu",
-	"aarch64-pc-windows-msvc",
-	"aarch64-apple-darwin",
+	"x86_64-apple-darwin"
 ];
 
 const validPermissions=[
@@ -25,14 +20,39 @@ const validPermissions=[
 	"ffi",
 	"hrtime",
 	"plugin",
-	"unstable",
+	"unstable"
 ];
 
 const targetAliases: Record<string,string>={
 	linux: "x86_64-unknown-linux-gnu",
 	windows: "x86_64-pc-windows-msvc",
-	darwin: "x86_64-apple-darwin",
+	darwin: "x86_64-apple-darwin"
 };
+
+async function runPluginHooks(
+	plugins: Plugin[],
+	hookName: 'beforeBuild'|'afterBuild',
+	buildOptions: BuildOptions,
+	success?: boolean
+): Promise<boolean> {
+	for(const plugin of plugins) {
+		try {
+			if(hookName==='beforeBuild'&&plugin.beforeBuild) {
+				const result=await plugin.beforeBuild(buildOptions);
+				if(result===false) {
+					logger.info(`Build cancelled by plugin: ${plugin.metadata.name}`);
+					return false;
+				}
+			} else if(hookName==='afterBuild'&&plugin.afterBuild) {
+				await plugin.afterBuild(buildOptions,success??false);
+			}
+		} catch(error) {
+			logger.error(`Plugin ${plugin.metadata.name} ${hookName} hook failed: ${error}`);
+			if(hookName==='beforeBuild') return false;
+		}
+	}
+	return true;
+}
 
 export const buildCommand: Command={
 	name: "build",
@@ -79,7 +99,6 @@ export const buildCommand: Command={
 		const allowPermissions=args.flags.allow as string[];
 		const entry=args.flags.entry as string;
 
-		// Handle interactive input if needed
 		if(!output) {
 			output=await Input.prompt({
 				message: "Enter output binary path:",
@@ -98,20 +117,16 @@ export const buildCommand: Command={
 			});
 		}
 
-		// Resolve target alias
 		if(target in targetAliases) {
 			target=targetAliases[target];
 			logger.info(`Using target: ${target}`);
 		}
 
-		// Validate target
 		if(!supportedTargets.includes(target)) {
 			logger.error(`Unsupported target: ${target}`);
-			logger.info(`Supported targets: ${supportedTargets.join(", ")}`);
-			Deno.exit(1);
+			throw new Error(`Unsupported target: ${target}`);
 		}
 
-		// Validate permissions
 		for(const perm of allowPermissions) {
 			if(!validPermissions.includes(perm)) {
 				logger.warn(`Unrecognized permission: --allow-${perm}`);
@@ -125,49 +140,29 @@ export const buildCommand: Command={
 			entry,
 		};
 
-		try {
-			const plugins=cli.getLoadedPlugins?.()||[];
+		const plugins=cli.getLoadedPlugins?.()||[];
 
+		try {
 			// Execute beforeBuild hooks
-			for(const plugin of plugins) {
-				if(plugin.beforeBuild) {
-					const result=await plugin.beforeBuild(buildOptions);
-					// undefined (void) means continue, only explicit false cancels
-					if(result!==undefined&&result===false) {
-						throw new Error("Build cancelled by plugin");
-					}
-				}
+			const shouldContinue=await runPluginHooks(plugins,'beforeBuild',buildOptions);
+			if(!shouldContinue) {
+				throw new Error("Build cancelled by plugin");
 			}
 
-			// Execute build
 			const success=await executeBuild(buildOptions);
 
 			// Execute afterBuild hooks
-			await Promise.all(
-				plugins.map(async (plugin) => {
-					if(plugin.afterBuild) {
-						await plugin.afterBuild(buildOptions,success);
-					}
-				})
-			);
+			await runPluginHooks(plugins,'afterBuild',buildOptions,success);
 
 			if(!success) {
-				Deno.exit(1);
+				throw new Error("Build failed");
 			}
 		} catch(error) {
-			logger.error(
-				`Build failed: ${error instanceof Error? error.message:String(error)
-				}`
-			);
+			logger.error(`Build failed: ${error instanceof Error? error.message:String(error)}`);
+
 			// Call plugin afterBuild hooks with failure
-			const plugins=cli.getLoadedPlugins?.()||[];
-			await Promise.all(
-				plugins.map(async (plugin) => {
-					if(plugin.afterBuild) {
-						await plugin.afterBuild(buildOptions,false);
-					}
-				})
-			);
+			await runPluginHooks(plugins,'afterBuild',buildOptions,false);
+
 			throw error;
 		}
 	},
@@ -189,7 +184,6 @@ async function executeBuild(options: BuildOptions): Promise<boolean> {
 	};
 
 	const command=new Deno.Command("deno",commandOptions);
-
 	const process=command.spawn();
 	const status=await process.status;
 

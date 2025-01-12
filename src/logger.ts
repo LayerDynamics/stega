@@ -1,53 +1,76 @@
 // src/logger.ts
-import { getLogger, setup as logSetup, ConsoleHandler, LogRecord, Logger } from "https://deno.land/std@0.224.0/log/mod.ts";
-import type { Command } from "./core.ts"; // Import only if necessary
-import type { LogLevel } from "https://deno.land/std@0.224.0/log/levels.ts";
-import { ILogger } from "./logger_interface.ts";
+import {setup as logSetup,ConsoleHandler,LogRecord} from "https://deno.land/std@0.224.0/log/mod.ts";
+import type {LevelName} from "https://deno.land/std@0.224.0/log/levels.ts";
+import {ILogger} from "./logger_interface.ts";
 
-export interface Args {
-    flags: Record<string, unknown>;
+export interface LogConfig {
+	loggers?: {
+		default: {
+			level: LevelName;
+			handlers: string[];
+		}
+	}
 }
 
-export { type LogLevel }; // Re-export the standard LogLevel type
+export class ConsoleLogger implements ILogger {
+	protected logLevel: LevelName;
 
-class ConsoleLogger implements ILogger {
-    info(message: string): void {
-        console.info(message);
-    }
-    error(message: string): void {
-        console.error(message);
-    }
-    debug(message: string): void {
-        console.debug(message);
-    }
-    warn(message: string): void { // Implemented warn method
-        console.warn(message);
-    }
+	constructor(logLevel: LevelName="INFO") {
+		this.logLevel=logLevel;
+	}
+
+	private formatMessage(level: string,message: string): string {
+		return `${level} ${message}`;
+	}
+
+	info(message: string): void {
+		const formattedMessage=this.formatMessage("INFO",message);
+		console.log(formattedMessage);
+	}
+
+	error(message: string): void {
+		const formattedMessage=this.formatMessage("ERROR",message);
+		console.error(formattedMessage);
+	}
+
+	debug(message: string): void {
+		const formattedMessage=this.formatMessage("DEBUG",message);
+		console.debug(formattedMessage);
+	}
+
+	warn(message: string): void {
+		const formattedMessage=this.formatMessage("WARN",message);
+		console.warn(formattedMessage);
+	}
 }
 
-export const logger: ILogger = new ConsoleLogger();
+export const logger=new ConsoleLogger();
 
-export const loggingMiddleware = (args: Args, command: Command) => {
-    logger.info(`Executing command: ${command.name}`);
-    if (Object.keys(args.flags).length > 0) {
-        logger.debug(`Command flags: ${JSON.stringify(args.flags)}`);
-    }
+export const setup=async (options?: LogConfig) => {
+	const defaultConfig={
+		handlers: {
+			console: new ConsoleHandler("DEBUG" as LevelName,{
+				formatter: (logRecord: LogRecord) => {
+					return `${logRecord.levelName} ${logRecord.msg}`;
+				},
+			}),
+		},
+		loggers: {
+			default: {
+				level: "DEBUG" as LevelName,
+				handlers: ["console"],
+			},
+		},
+	};
+
+	await logSetup(options??defaultConfig);
 };
 
-export const setup = logSetup;
+export const loggingMiddleware=(args: Record<string,unknown>,command: {name: string}) => {
+	logger.info(`Executing command: ${command.name}`);
+	if(Object.keys(args).length>0) {
+		logger.debug(`Command arguments: ${JSON.stringify(args)}`);
+	}
+};
 
-await setup({
-    handlers: {
-        console: new ConsoleHandler("DEBUG", {
-            formatter: (logRecord: LogRecord) => {
-                return `${logRecord.levelName} ${logRecord.msg}`;
-            },
-        }),
-    },
-    loggers: {
-        default: {
-            level: "DEBUG",
-            handlers: ["console"],
-        },
-    },
-});
+export type {LevelName};
