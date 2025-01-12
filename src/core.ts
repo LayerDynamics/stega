@@ -11,6 +11,7 @@ import {I18n} from "./i18n.ts";
 import {PluginLoader} from "./plugin_loader.ts";
 import {Plugin} from "./plugin.ts";
 import type {LevelName} from "https://deno.land/std@0.224.0/log/levels.ts";
+import type { ILogger } from "./logger_interface.ts";
 
 export interface Option {
 	name: string;
@@ -55,13 +56,13 @@ export class CLI {
 	private pluginLoader: PluginLoader;
 
 	// Injected logger instance
-	public readonly logger: typeof logger;
+	public readonly logger: ILogger;
 
 	constructor(
 		configPath?: string,
 		skipConfig=false,
 		testMode=false,
-		injectedLogger?: typeof logger
+		injectedLogger?: ILogger
 	) {
 		this.registry=new CommandRegistry();
 		this.parser=new Parser();

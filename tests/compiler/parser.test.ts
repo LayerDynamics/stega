@@ -18,7 +18,7 @@ Deno.test("Parser - parses TypeScript code correctly", () => {
     assertEquals(result.dependencies[0], './bar');
 });
 
-Deno.test("Parser - handles syntax errors", async () => {
+Deno.test("Parser - handles syntax errors", () => {
     const parser = new Parser();
     const invalidCode = `
         import { foo from './bar';  // Missing closing brace
