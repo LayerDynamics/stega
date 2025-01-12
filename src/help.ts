@@ -1,6 +1,5 @@
 // src/help.ts
-import { CommandRegistry } from "./command.ts";
-import type { Command } from "./core.ts";
+import { CommandRegistry, Command } from "./command.ts";  // Import Command from command.ts
 import { I18n } from "./i18n.ts";
 
 export class Help {

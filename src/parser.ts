@@ -1,5 +1,5 @@
 // src/parser.ts
-import { Args } from "./core.ts";
+import type { Args } from "./types.ts";  // Change import source to types.ts
 import type { CLI } from "./core.ts"; // Import CLI
 
 export class Parser {
