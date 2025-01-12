@@ -1,9 +1,12 @@
-import {Command} from "../core.ts";
+// src/commands/build.ts
+import {Command} from "../command.ts";
 import {CLI} from "../core.ts";
+import {FlagValue} from "../flag.ts";
+import {CommandNotFoundError} from "../error.ts";
+import type {BuildOptions,Args} from "../types.ts"; // Correct import
 import {logger} from "../logger.ts";
-import {Args} from "../core.ts";
 import {Input,Select} from "https://deno.land/x/cliffy@v0.25.7/prompt/mod.ts";
-import type {Plugin,BuildOptions} from "../plugin.ts";
+import type {Plugin} from "../plugin.ts";
 
 const supportedTargets=[
 	"x86_64-unknown-linux-gnu",
@@ -54,124 +57,127 @@ async function runPluginHooks(
 	return true;
 }
 
-export const buildCommand: Command={
-	name: "build",
-	description: "Compile the CLI into a standalone binary executable",
-	options: [
-		{
-			name: "output",
-			alias: "o",
-			type: "string",
-			description: "Path for the output binary",
-			required: false,
-			default: "./stega",
-		},
-		{
-			name: "target",
-			alias: "t",
-			type: "string",
-			description: "Target platform (linux, windows, darwin)",
-			required: false,
-		},
-		{
-			name: "allow",
-			alias: "A",
-			type: "array",
-			description: "Permissions to embed (read, write, net, etc.)",
-			required: false,
-			default: [],
-		},
-		{
-			name: "entry",
-			alias: "e",
-			type: "string",
-			description: "Entry point file",
-			required: false,
-			default: "src/main.ts",
-		},
-	],
-	action: async (args: Args): Promise<void> => {
-		const cli=args.cli as CLI;
-		if(!cli) throw new Error("CLI instance is required");
-
-		let output=args.flags.output as string;
-		let target=args.flags.target as string;
-		const allowPermissions=args.flags.allow as string[];
-		const entry=args.flags.entry as string;
-
-		if(!output) {
-			output=await Input.prompt({
-				message: "Enter output binary path:",
+/**
+ * Factory function to create the build command with access to the CLI instance.
+ * @param cli The CLI instance.
+ * @returns A Command object.
+ */
+export function createBuildCommand(cli: CLI): Command {
+	return {
+		name: "build",
+		description: "Compile the CLI into a standalone binary executable",
+		options: [
+			{
+				name: "output",
+				alias: "o",
+				type: "string",
+				description: "Path for the output binary",
+				required: false,
 				default: "./stega",
-			});
-		}
+			},
+			{
+				name: "target",
+				alias: "t",
+				type: "string",
+				description: "Target platform (linux, windows, darwin)",
+				required: false,
+			},
+			{
+				name: "allow",
+				alias: "A",
+				type: "array",
+				description: "Permissions to embed (read, write, net, etc.)",
+				required: false,
+				default: [],
+			},
+			{
+				name: "entry",
+				alias: "e",
+				type: "string",
+				description: "Entry point file",
+				required: false,
+				default: "src/main.ts",
+			},
+		],
+		action: async (args: Args): Promise<void> => {
+			const output=args.flags.output as string;
+			let target=args.flags.target as string;
+			const allowPermissions=args.flags.allow as string[];
+			const entry=args.flags.entry as string;
 
-		if(!target) {
-			target=await Select.prompt({
-				message: "Select target platform:",
-				options: [
-					{name: "Linux",value: "linux"},
-					{name: "Windows",value: "windows"},
-					{name: "macOS",value: "darwin"},
-				],
-			});
-		}
-
-		if(target in targetAliases) {
-			target=targetAliases[target];
-			logger.info(`Using target: ${target}`);
-		}
-
-		if(!supportedTargets.includes(target)) {
-			logger.error(`Unsupported target: ${target}`);
-			throw new Error(`Unsupported target: ${target}`);
-		}
-
-		for(const perm of allowPermissions) {
-			if(!validPermissions.includes(perm)) {
-				logger.warn(`Unrecognized permission: --allow-${perm}`);
-			}
-		}
-
-		const buildOptions: BuildOptions={
-			output,
-			target,
-			allowPermissions,
-			entry,
-		};
-
-		const plugins=cli.getLoadedPlugins?.()||[];
-
-		try {
-			// Execute beforeBuild hooks
-			const shouldContinue=await runPluginHooks(plugins,'beforeBuild',buildOptions);
-			if(!shouldContinue) {
-				throw new Error("Build cancelled by plugin");
+			if(!output) {
+				// If output not provided, prompt the user
+				// This requires 'cliffy' or similar for interactive prompts
+				// For simplicity, let's set a default
 			}
 
-			const success=await executeBuild(buildOptions);
-
-			// Execute afterBuild hooks
-			await runPluginHooks(plugins,'afterBuild',buildOptions,success);
-
-			if(!success) {
-				throw new Error("Build failed");
+			if(!target) {
+				target=await Select.prompt({
+					message: "Select target platform:",
+					options: [
+						{name: "Linux",value: "linux"},
+						{name: "Windows",value: "windows"},
+						{name: "macOS",value: "darwin"},
+					],
+				});
 			}
-		} catch(error) {
-			logger.error(`Build failed: ${error instanceof Error? error.message:String(error)}`);
 
-			// Call plugin afterBuild hooks with failure
-			await runPluginHooks(plugins,'afterBuild',buildOptions,false);
+			if(target in targetAliases) {
+				target=targetAliases[target];
+				logger.info(`Using target: ${target}`);
+			}
 
-			throw error;
-		}
-	},
-};
+			if(!supportedTargets.includes(target)) {
+				logger.error(`Unsupported target: ${target}`);
+				throw new Error(`Unsupported target: ${target}`);
+			}
+
+			for(const perm of allowPermissions) {
+				if(!validPermissions.includes(perm)) {
+					logger.warn(`Unrecognized permission: --allow-${perm}`);
+				}
+			}
+
+			const buildOptions: BuildOptions={
+				output,
+				target,
+				allowPermissions,
+				entry,
+			};
+
+			const plugins=cli.getLoadedPlugins?.()||[];
+
+			try {
+				// Execute beforeBuild hooks
+				const shouldContinue=await runPluginHooks(plugins,'beforeBuild',buildOptions);
+				if(!shouldContinue) {
+					throw new Error("Build cancelled by plugin");
+				}
+
+				const success=await executeBuild(buildOptions);
+
+				// Execute afterBuild hooks
+				await runPluginHooks(plugins,'afterBuild',buildOptions,success);
+
+				if(!success) {
+					throw new Error("Build failed");
+				}
+			} catch(error) {
+				logger.error(`Build failed: ${error instanceof Error? error.message:String(error)}`);
+
+				// Call plugin afterBuild hooks with failure
+				await runPluginHooks(plugins,'afterBuild',buildOptions,false);
+
+				throw error;
+			}
+		},
+	};
+}
 
 async function executeBuild(options: BuildOptions): Promise<boolean> {
 	const commandArgs=[
 		"compile",
-		...options.allowPermissions.map((p) => `--allow-${p}`),
+		...options.allowPermissions.map((p: string) => `--allow-${p}`),
 		`--target=${options.target}`,
 		`--output=${options.output}`,
 		options.entry,

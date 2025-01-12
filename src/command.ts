@@ -1,7 +1,30 @@
 // src/command.ts
-import type { Command } from "./core.ts";
+import {FlagValue} from "./flag.ts"; // Import FlagValue
+import type {Args} from "./types.ts"; // Import Args from types.ts
 
-export { Command };
+/**
+ * Represents an option for a command.
+ */
+export interface Option {
+	name: string;
+	alias?: string;
+	description?: string;
+	type: 'boolean'|'string'|'number'|'array';
+	default?: FlagValue;
+	required?: boolean;
+}
+
+/**
+ * Represents a command in the CLI.
+ */
+export interface Command {
+	name: string;
+	description?: string;
+	options?: Option[];
+	subcommands?: Command[];
+	action: (args: Args) => void|Promise<void>;
+	aliases?: string[];
+}
 
 export class CommandRegistry {
 	private commands: Command[]=[];
@@ -58,3 +81,6 @@ export class CommandRegistry {
 		return currentCommand;
 	}
 }
+
+// Removed the following line to prevent duplicate exports
+// export { Command };
