@@ -1,8 +1,8 @@
 // tests/build_command.test.ts
 import {assertEquals,assertRejects} from "https://deno.land/std@0.224.0/testing/asserts.ts";
-import {createBuildCommand}from "../src/commands/build.ts";
-import {createTestCLI}from "./test_utils.ts";
-import type {Plugin,BuildOptions}from "../src/plugin.ts";
+import {createBuildCommand} from "../src/commands/build.ts";
+import {createTestCLI} from "./test_utils.ts";
+import type {Plugin,BuildOptions} from "../src/plugin.ts";
 
 // Mock Process class for testing
 class MockProcess implements Deno.ChildProcess {
@@ -22,12 +22,20 @@ class MockProcess implements Deno.ChildProcess {
 		});
 	}
 
+	stderrOutput(): Promise<Uint8Array> {
+		return Promise.resolve(new Uint8Array());
+	}
+
 	ref() {}
 	unref() {}
-	kill() {}
+	kill() {
+		// Cleanup implementation
+		this.stdin.close?.();
+		(this.stdout as any).cancel?.();
+		(this.stderr as any).cancel?.();
+	}
 
 	async [Symbol.asyncDispose](): Promise<void> {
-		// Cleanup implementation
 		this.kill();
 		return Promise.resolve();
 	}
@@ -47,57 +55,52 @@ class MockCommand {
 	}
 }
 
-Deno.test("Build Command", async (t) => {
-    await t.step("basic build", async () => {
-        const { cli } = await createTestCLI();
-        const buildCommand = createBuildCommand(cli);
+Deno.test("Build Command",async (t) => {
+	await t.step("basic build",async () => {
+		const {cli}=await createTestCLI();
+		const buildCommand=createBuildCommand(cli);
 
-        const originalCommand=Deno.Command;
-        try {
-            // @ts-ignore: Mock implementation
-            Deno.Command=MockCommand;
+		const originalCommand=Deno.Command;
+		try {
+			// @ts-ignore: Mock implementation
+			Deno.Command=MockCommand;
 
-            // Create temporary test environment
-            const tempDir=await Deno.makeTempDir({prefix: "build_test_"});
-            const testFilePath=`${tempDir}/test.ts`;
-            await Deno.writeTextFile(testFilePath,"console.log('test');");
+			// Create temporary test environment
+			const tempDir=await Deno.makeTempDir({prefix: "build_test_"});
+			const testFilePath=`${tempDir}/test.ts`;
+			await Deno.writeTextFile(testFilePath,"console.log('test');");
 
-            // Register and run build command
-            cli.register(buildCommand);
-            await cli.runCommand([
-                "build",
-                "--output","test-bin",
-                "--target","linux",
-                "--entry",testFilePath,
-            ]);
+			// Register and run build command
+			cli.register(buildCommand);
+			await cli.runCommand([
+				"build",
+				"--output","test-bin",
+				"--target","linux",
+				"--entry",testFilePath,
+			]);
 
-            // Verify command construction
-            assertEquals(MockCommand.lastArgs[0],"deno","First argument should be deno");
-            assertEquals(MockCommand.lastArgs[1],"compile","Second argument should be compile");
-            assertEquals(
-                MockCommand.lastArgs.includes("--output=test-bin"),
-                true,
-                "Should include output path"
-            );
-            assertEquals(
-                MockCommand.lastArgs.includes(testFilePath),
-                true,
-                "Should include entry file"
-            );
+			// Verify command construction
+			assertEquals(MockCommand.lastArgs[0],"deno","First argument should be deno");
+			assertEquals(MockCommand.lastArgs[1],"compile","Second argument should be compile");
+			assertEquals(
+				MockCommand.lastArgs.includes("--output=test-bin"),
+				true,
+				"Should include output path"
+			);
+			assertEquals(
+				MockCommand.lastArgs.includes(testFilePath),
+				true,
+				"Should include entry file"
+			);
 
-            // Cleanup
-            await Deno.remove(tempDir,{recursive: true});
-        } finally {
-            // Restore original Deno.Command
-            // @ts-ignore: Restoration
-            Deno.Command=originalCommand;
-        }
-    });
-
-    await t.step("advanced build", async () => {
-        const { cli } = await createTestCLI();
-        // ...existing code...
-    });
+			// Cleanup
+			await Deno.remove(tempDir,{recursive: true});
+		} finally {
+			// Restore original Deno.Command
+			// @ts-ignore: Restoration
+			Deno.Command=originalCommand;
+		}
+	});
 });
 
 Deno.test({
@@ -109,7 +112,7 @@ Deno.test({
 		env: true,
 	},
 	async fn() {
-		const { cli } = await createTestCLI();
+		const {cli}=await createTestCLI();
 		const hooksCalled={
 			before: false,
 			after: false,
@@ -181,7 +184,7 @@ Deno.test({
 		env: true,
 	},
 	async fn() {
-		const { cli } = await createTestCLI();
+		const {cli}=await createTestCLI();
 		let buildAttempted=false;
 
 		// Create mock plugin that cancels the build
