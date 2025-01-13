@@ -1,16 +1,14 @@
-# .github/workflows/ci.yml
-
 name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v3
@@ -20,15 +18,26 @@ jobs:
         with:
           deno-version: v1.34.0
 
-      - name: Cache Deno dependencies
+      - name: Cache Deno Dependencies
         uses: actions/cache@v3
         with:
-          path: |
-            ~/.cache/deno
-            ~/.cache/dein
-          key: ${{ runner.os }}-deno-${{ hashFiles('**/deno.json') }}
+          path: ~/.cache/deno
+          key: ${{ runner.os }}-deno-${{ hashFiles('**/deno.json', '**/deno.lock') }}
           restore-keys: |
             ${{ runner.os }}-deno-
 
+      - name: Lint Code
+        run: deno lint
+
+      - name: Validate Lockfile
+        run: deno cache --lock=deno.lock
+
       - name: Run Tests
-        run: deno test --allow-read --allow-env --allow-write --allow-net
+        run: deno test --allow-read --allow-env --allow-write --allow-net --jobs=4 --coverage=cov
+
+      - name: Save Test Results
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: cov
