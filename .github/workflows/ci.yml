@@ -22,22 +22,12 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/deno
-          key: ${{ runner.os }}-deno-${{ hashFiles('**/deno.json') }}
+          key: ${{ runner.os }}-deno-${{ hashFiles('**/deno.json', '**/deno.lock') }}
           restore-keys: |
             ${{ runner.os }}-deno-
 
-      - name: Clean and Initialize Lockfile
-        run: |
-          rm -f deno.lock
-          deno cache --reload mod.ts
-
-      - name: Generate Lockfile
-        run: |
-          deno cache --lock=deno.lock --lock-write mod.ts
-
       - name: Verify Dependencies
-        run: |
-          deno cache mod.ts
+        run: deno cache --lock=deno.lock mod.ts
 
       - name: Lint Code
         run: deno lint
@@ -56,7 +46,5 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: test-results
-          path: |
-            cov.lcov
-            deno.lock
+          path: cov.lcov
           if-no-files-found: warn
