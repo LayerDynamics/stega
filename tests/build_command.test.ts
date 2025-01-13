@@ -6,30 +6,31 @@ import type {Plugin,BuildOptions}from "../src/plugin.ts";
 
 // Mock Process class for testing
 class MockProcess implements Deno.ChildProcess {
-    pid = 1234;
-    stdin = new WritableStream();
-    stdout = new ReadableStream();
-    stderr = new ReadableStream();
-    status = Promise.resolve({ success: true, code: 0, signal: null });
+	pid=1234;
+	stdin=new WritableStream();
+	stdout=new ReadableStream();
+	stderr=new ReadableStream();
+	status=Promise.resolve({success: true,code: 0,signal: null});
 
-    output() {
-        return Promise.resolve({
-            code: 0,
-            success: true,
-            stdout: new Uint8Array(),
-            stderr: new Uint8Array(),
-            signal: null,
-        });
-    }
+	output() {
+		return Promise.resolve({
+			code: 0,
+			success: true,
+			stdout: new Uint8Array(),
+			stderr: new Uint8Array(),
+			signal: null,
+		});
+	}
 
-    ref() {}
-    unref() {}
-    kill() {}
-    close() { return Promise.resolve(); }
+	ref() {}
+	unref() {}
+	kill() {}
 
-    [Symbol.asyncDispose](): Promise<void> {
-        return this.close();
-    }
+	async [Symbol.asyncDispose](): Promise<void> {
+		// Cleanup implementation
+		this.kill();
+		return Promise.resolve();
+	}
 }
 
 // Mock Command class for testing

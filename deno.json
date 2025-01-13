@@ -3,7 +3,8 @@
 		"lib": ["deno.window", "deno.ns"],
 		"strict": true,
 		"allowUnusedLabels": false,
-		"allowUnreachableCode": false
+		"allowUnreachableCode": false,
+		"types": ["./src/types/symbols.d.ts"]
 	},
 	"lint": {
 		"include": ["src/", "tests/"],
@@ -37,8 +38,6 @@
 		"build:windows": "deno task build --output=./dist/stega-windows.exe --target=windows --allow-read --allow-env",
 		"build:macos": "deno task build --output=./dist/stega-macos --target=darwin --allow-read --allow-env",
 		"build:all": "deno task build:linux && deno task build:windows && deno task build:macos",
-		"cache:deps": "deno cache --reload mod.ts && deno cache --lock=deno.lock mod.ts",
-		"lock:check": "deno cache --lock=deno.lock --check mod.ts",
 		"lint": "deno lint",
 		"lint:fix": "deno lint --quiet"
 	},
