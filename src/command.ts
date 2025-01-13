@@ -34,7 +34,26 @@ export class CommandRegistry {
 	 * @param command The command to register.
 	 */
 	register(command: Command) {
+		// Check for existing command
+		const existing = this.findCommand(command.name);
+		if (existing) {
+			throw new Error(`Command "${command.name}" is already registered`);
+		}
 		this.commands.push(command);
+	}
+
+	/**
+	 * Removes a command by name.
+	 * @param name The name of the command to remove.
+	 * @returns true if command was removed, false if not found
+	 */
+	remove(name: string): boolean {
+		const index = this.commands.findIndex(cmd => cmd.name === name);
+		if (index !== -1) {
+			this.commands.splice(index, 1);
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -81,6 +100,3 @@ export class CommandRegistry {
 		return currentCommand;
 	}
 }
-
-// Removed the following line to prevent duplicate exports
-// export { Command };

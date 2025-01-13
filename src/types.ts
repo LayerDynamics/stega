@@ -110,3 +110,122 @@ export interface BuildOptions {
 	allowPermissions: string[];
 	entry: string;
 }
+
+export type ValidatorFn = (value: unknown) => boolean | Promise<boolean>;
+export type CustomValidator = (args: Args) => boolean | Promise<boolean>;
+
+export interface CommandLifecycle {
+    beforeExecute?: () => Promise<void>;
+    afterExecute?: () => Promise<void>;
+    onError?: (error: Error) => Promise<void>;
+    cleanup?: () => Promise<void>;
+}
+
+export interface ValidationRules {
+    flags?: Record<string, ValidatorFn>;
+    args?: Record<string, ValidatorFn>;
+    custom?: CustomValidator[];
+}
+
+export interface Command {
+    name: string;
+    description?: string;
+    options?: Option[];
+    subcommands?: Command[];
+    action: (args: Args) => void | Promise<void>;
+    aliases?: string[];
+    category?: string;
+    permissions?: string[];
+    lifecycle?: CommandLifecycle;
+    validation?: ValidationRules;
+}
+
+// Add Option interface
+export interface Option {
+    name: string;
+    type: "string" | "number" | "boolean" | "array";  // Make type more specific
+    description?: string;
+    required?: boolean;
+    default?: FlagValue;  // Change from unknown to FlagValue
+}
+
+export abstract class BaseCommand implements Command {
+    name: string = ''; // Initialize with empty string
+    description?: string;
+    options?: Option[];
+    subcommands?: Command[];
+    aliases?: string[];
+    category?: string;
+    permissions?: string[];
+    lifecycle?: CommandLifecycle;
+    validation?: ValidationRules;
+
+    constructor(config: Partial<Command>) {
+        Object.assign(this, config);
+    }
+
+    abstract action(args: Args): void | Promise<void>;
+
+    protected async validateArgs(args: Args): Promise<boolean> {
+        if (!this.validation) return true;
+
+        // Validate flags
+        if (this.validation.flags) {
+            for (const [flag, validator] of Object.entries(this.validation.flags)) {
+                if (args.flags[flag] !== undefined) {
+                    const isValid = await validator(args.flags[flag]);
+                    if (!isValid) return false;
+                }
+            }
+        }
+
+        // Validate args
+        if (this.validation.args) {
+            for (const [index, validator] of Object.entries(this.validation.args)) {
+                const idx = parseInt(index);
+                if (!isNaN(idx) && args.command[idx] !== undefined) {
+                    const isValid = await validator(args.command[idx]);
+                    if (!isValid) return false;
+                }
+            }
+        }
+
+        // Run custom validators
+        if (this.validation.custom) {
+            for (const validator of this.validation.custom) {
+                const isValid = await validator(args);
+                if (!isValid) return false;
+            }
+        }
+
+        return true;
+    }
+
+    protected async executeWithLifecycle(args: Args): Promise<void> {
+        try {
+            if (this.lifecycle?.beforeExecute) {
+                await this.lifecycle.beforeExecute();
+            }
+
+            const isValid = await this.validateArgs(args);
+            if (!isValid) {
+                throw new Error("Validation failed");
+            }
+
+            await this.action(args);
+
+            if (this.lifecycle?.afterExecute) {
+                await this.lifecycle.afterExecute();
+            }
+        } catch (error) {
+            if (this.lifecycle?.onError) {
+                await this.lifecycle.onError(error instanceof Error ? error : new Error(String(error)));
+            }
+            throw error;
+        } finally {
+            if (this.lifecycle?.cleanup) {
+                await this.lifecycle.cleanup();
+            }
+        }
+    }
+}

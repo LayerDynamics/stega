@@ -1,391 +1,242 @@
 // tests/build_command.test.ts
+import {assertEquals,assertRejects} from "https://deno.land/std@0.224.0/testing/asserts.ts";
+import {createBuildCommand}from "../src/commands/build.ts";
+import {createTestCLI}from "./test_utils.ts";
+import type {Plugin,BuildOptions}from "../src/plugin.ts";
 
-import {
-	assertEquals,
-	assertExists,
-	assertRejects,
-} from "https://deno.land/std@0.203.0/testing/asserts.ts";
-import {CLI} from "../src/core.ts";
-import {createBuildCommand} from "../src/commands/build.ts";
-import type {Plugin,BuildOptions} from "../src/plugin.ts";
+// Mock Process class for testing
+class MockProcess implements Deno.ChildProcess {
+	pid=1234;
+	stdin=new WritableStream();
+	stdout=new ReadableStream();
+	stderr=new ReadableStream();
+	status=Promise.resolve({success: true,code: 0,signal: null});
 
-/**
- * Mock Logger to intercept log messages during tests.
- */
-class MockLogger {
-	logs: string[]=[];
-	errors: string[]=[];
-	debugs: string[]=[];
-	warns: string[]=[];
-
-	info(message: string) {
-		this.logs.push(message);
+	output() {
+		return Promise.resolve({
+			code: 0,
+			success: true,
+			stdout: new Uint8Array(),
+			stderr: new Uint8Array(),
+			signal: null,
+		});
 	}
 
-	error(message: string) {
-		this.errors.push(message);
-	}
+	ref() {}
+	unref() {}
+	kill() {}
 
-	debug(message: string) {
-		this.debugs.push(message);
-	}
-
-	warn(message: string) {
-		this.warns.push(message);
+	async [Symbol.asyncDispose](): Promise<void> {
+		// Cleanup implementation
+		this.kill();
+		return Promise.resolve();
 	}
 }
 
-/**
- * Helper function to create a fresh test CLI instance with a mock logger.
- */
-const createTestCLI=(): CLI => {
-	const mockLogger=new MockLogger();
-	const cli=new CLI(undefined,true,true,mockLogger);
-	return cli;
-};
+// Mock Command class for testing
+class MockCommand {
+	constructor(cmd: string|URL,options?: Deno.CommandOptions) {
+		// Store command arguments for testing
+		MockCommand.lastArgs=[cmd.toString(),...(options?.args??[])];
+	}
 
-/**
- * Deno.test for Build command - constructs correct compile command
- */
-Deno.test({
-	name: "Build command constructs correct compile command",
-	permissions: {
-		run: true,
-		env: true,
-		read: true,
-		write: true,
-	},
-	async fn() {
-		const cli=new CLI();
-		let capturedArgs: string[]|null=null;
+	static lastArgs: string[]=[];
 
-		const originalCommand=Deno.Command;
-		const originalExit=Deno.exit;
+	spawn(): Deno.ChildProcess {
+		return new MockProcess();
+	}
+}
 
-		try {
-			class MockCommand implements Deno.Command {
-				#cmd: string;
-				#options: Deno.CommandOptions;
+Deno.test("Build Command", async (t) => {
+    await t.step("basic build", async () => {
+        const { cli } = await createTestCLI();
+        const buildCommand = createBuildCommand(cli);
 
-				constructor(cmd: string|URL,options?: Deno.CommandOptions) {
-					this.#cmd=cmd.toString();
-					this.#options=options??{args: []};
-					capturedArgs=[this.#cmd,...(this.#options.args??[])];
-				}
+        const originalCommand=Deno.Command;
+        try {
+            // @ts-ignore: Mock implementation
+            Deno.Command=MockCommand;
 
-				output(): Promise<Deno.CommandOutput> {
-					return Promise.resolve({
-						code: 0,
-						success: true,
-						stdout: new Uint8Array(),
-						stderr: new Uint8Array(),
-						signal: null,
-					});
-				}
+            // Create temporary test environment
+            const tempDir=await Deno.makeTempDir({prefix: "build_test_"});
+            const testFilePath=`${tempDir}/test.ts`;
+            await Deno.writeTextFile(testFilePath,"console.log('test');");
 
-				outputSync(): Deno.CommandOutput {
-					return {
-						code: 0,
-						success: true,
-						stdout: new Uint8Array(),
-						stderr: new Uint8Array(),
-						signal: null,
-					};
-				}
+            // Register and run build command
+            cli.register(buildCommand);
+            await cli.runCommand([
+                "build",
+                "--output","test-bin",
+                "--target","linux",
+                "--entry",testFilePath,
+            ]);
 
-				spawn(): Deno.ChildProcess {
-					return {
-						pid: 1234,
-						stdin: new WritableStream<Uint8Array>(),
-						stdout: new ReadableStream<Uint8Array>(),
-						stderr: new ReadableStream<Uint8Array>(),
-						status: Promise.resolve({success: true,code: 0,signal: null}),
-						output: () => this.output(),
-						ref() {},
-						unref() {},
-						kill(_signal?: Deno.Signal) {},
-						async [Symbol.asyncDispose]() {},
-					};
-				}
-			}
+            // Verify command construction
+            assertEquals(MockCommand.lastArgs[0],"deno","First argument should be deno");
+            assertEquals(MockCommand.lastArgs[1],"compile","Second argument should be compile");
+            assertEquals(
+                MockCommand.lastArgs.includes("--output=test-bin"),
+                true,
+                "Should include output path"
+            );
+            assertEquals(
+                MockCommand.lastArgs.includes(testFilePath),
+                true,
+                "Should include entry file"
+            );
 
-			(Deno as unknown as {Command: typeof Deno.Command}).Command=MockCommand;
+            // Cleanup
+            await Deno.remove(tempDir,{recursive: true});
+        } finally {
+            // Restore original Deno.Command
+            // @ts-ignore: Restoration
+            Deno.Command=originalCommand;
+        }
+    });
 
-			Deno.exit=() => {
-				throw new Error("Build failed");
-			};
-
-			// Use a temporary directory instead of 'src'
-			const tempDir=await Deno.makeTempDir({prefix: "build_test_"});
-			const testFilePath=`${tempDir}/test.ts`;
-
-			// Ensure the temporary directory exists before writing the file
-			await Deno.mkdir(tempDir,{recursive: true});
-			await Deno.writeTextFile(testFilePath,"console.log('test');");
-
-			const buildCommand=createBuildCommand(cli);
-			cli.register(buildCommand);
-			await cli.runCommand([
-				"build",
-				"--output",
-				"test-bin",
-				"--target",
-				"linux",
-				"--entry",
-				testFilePath,
-			]);
-
-			assertExists(capturedArgs);
-			assertEquals(capturedArgs![0],"deno");
-			assertEquals(capturedArgs![1],"compile");
-			// Additional assertions can be added here to check the rest of the command args
-
-			// Clean up the temporary directory
-			await Deno.remove(tempDir,{recursive: true});
-		} finally {
-			(Deno as unknown as {Command: typeof Deno.Command}).Command=originalCommand;
-			Deno.exit=originalExit;
-			// No need to remove 'src' as we used a temporary directory
-		}
-	},
+    await t.step("advanced build", async () => {
+        const { cli } = await createTestCLI();
+        // ...existing code...
+    });
 });
 
-/**
- * Deno.test for Build command - handles plugin hooks correctly
- */
 Deno.test({
 	name: "Build command handles plugin hooks correctly",
 	permissions: {
 		run: true,
-		env: true,
 		read: true,
 		write: true,
+		env: true,
 	},
 	async fn() {
-		const cli=createTestCLI();
+		const { cli } = await createTestCLI();
 		const hooksCalled={
 			before: false,
 			after: false,
 			afterWithSuccess: false,
 		};
 
+		// Create mock plugin
 		const mockPlugin: Plugin={
 			metadata: {
 				name: "test",
 				version: "1.0.0",
 			},
 			init: () => {},
-			beforeBuild: async (_options: BuildOptions): Promise<void> => {
+			beforeBuild: async (_options: BuildOptions) => {
 				hooksCalled.before=true;
-				return;
+				return Promise.resolve();
 			},
-			afterBuild: async (_options: BuildOptions,success: boolean): Promise<void> => {
+			afterBuild: async (_options: BuildOptions,success: boolean) => {
 				hooksCalled.after=true;
 				hooksCalled.afterWithSuccess=success;
+				return Promise.resolve();
 			},
 		};
 
-		// Mock Command implementation
 		const originalCommand=Deno.Command;
-		const originalGetPlugins=cli.getLoadedPlugins.bind(cli) as typeof cli.getLoadedPlugins;
-		class MockCommand implements Deno.Command {
-			constructor(_cmd: string|URL,_options?: Deno.CommandOptions) {}
-
-			output(): Promise<Deno.CommandOutput> {
-				return Promise.resolve({
-					code: 0,
-					success: true,
-					stdout: new Uint8Array(),
-					stderr: new Uint8Array(),
-					signal: null,
-				});
-			}
-
-			outputSync(): Deno.CommandOutput {
-				return {
-					code: 0,
-					success: true,
-					stdout: new Uint8Array(),
-					stderr: new Uint8Array(),
-					signal: null,
-				};
-			}
-
-			spawn(): Deno.ChildProcess {
-				return {
-					pid: 1234,
-					stdin: new WritableStream<Uint8Array>(),
-					stdout: new ReadableStream<Uint8Array>(),
-					stderr: new ReadableStream<Uint8Array>(),
-					status: Promise.resolve({success: true,code: 0,signal: null}),
-					output: () => this.output(),
-					ref() {},
-					unref() {},
-					kill(_signal?: Deno.Signal) {},
-					async [Symbol.asyncDispose]() {},
-				};
-			}
-		}
-
-		(Deno as unknown as {Command: typeof Deno.Command}).Command=MockCommand;
-
+		const originalGetPlugins=cli.getLoadedPlugins;
 		try {
-			// Mock plugin loader using the public method with proper typing
+			// @ts-ignore: Mock implementation
+			Deno.Command=MockCommand;
 			cli.getLoadedPlugins=() => [mockPlugin];
 
-			const buildCommand=createBuildCommand(cli);
-			cli.register(buildCommand);
-
-			// Use a temporary directory instead of 'src'
-			const tempDir=await Deno.makeTempDir({prefix: "build_test_plugin_"});
+			// Create temporary test environment
+			const tempDir=await Deno.makeTempDir({prefix: "build_test_"});
 			const testFilePath=`${tempDir}/test.ts`;
-
-			// Ensure the temporary directory exists before writing the file
-			await Deno.mkdir(tempDir,{recursive: true});
 			await Deno.writeTextFile(testFilePath,"console.log('test');");
 
+			// Register and run build command
+			const buildCommand=createBuildCommand(cli);
+			cli.register(buildCommand);
 			await cli.runCommand([
 				"build",
-				"--output",
-				"test-bin",
-				"--target",
-				"linux",
-				"--entry",
-				testFilePath,
+				"--output","test-bin",
+				"--target","linux",
+				"--entry",testFilePath,
 			]);
 
+			// Verify plugin hooks were called
 			assertEquals(hooksCalled.before,true,"beforeBuild hook should be called");
 			assertEquals(hooksCalled.after,true,"afterBuild hook should be called");
-			assertEquals(hooksCalled.afterWithSuccess,true,"afterBuild should be called with success=true");
+			assertEquals(hooksCalled.afterWithSuccess,true,"afterBuild should indicate success");
 
-			// Clean up the temporary directory
+			// Cleanup
 			await Deno.remove(tempDir,{recursive: true});
 		} finally {
-			// Restore original methods
+			// Restore original implementations
+			// @ts-ignore: Restoration
+			Deno.Command=originalCommand;
 			cli.getLoadedPlugins=originalGetPlugins;
-			(Deno as unknown as {Command: typeof Deno.Command}).Command=originalCommand;
-			// No need to remove 'src' as we used a temporary directory
 		}
-	},
+	}
 });
 
-/**
- * Deno.test for Build command - handles plugin cancellation
- */
 Deno.test({
 	name: "Build command handles plugin cancellation",
 	permissions: {
 		run: true,
-		env: true,
 		read: true,
 		write: true,
+		env: true,
 	},
 	async fn() {
-		const cli=createTestCLI();
+		const { cli } = await createTestCLI();
 		let buildAttempted=false;
 
+		// Create mock plugin that cancels the build
 		const mockPlugin: Plugin={
 			metadata: {
 				name: "test",
 				version: "1.0.0",
 			},
 			init: () => {},
-			beforeBuild: async (_options: BuildOptions): Promise<void> => {
+			beforeBuild: async (_options: BuildOptions) => {
 				buildAttempted=true;
 				throw new Error("Build cancelled by plugin");
 			},
-			afterBuild: async () => {
+			afterBuild: () => {
 				throw new Error("afterBuild should not be called when build is cancelled");
 			},
 		};
 
-		// Mock Command implementation
 		const originalCommand=Deno.Command;
-		const originalGetPlugins=cli.getLoadedPlugins.bind(cli) as typeof cli.getLoadedPlugins;
-		class MockCommand implements Deno.Command {
-			constructor(_cmd: string|URL,_options?: Deno.CommandOptions) {
-				buildAttempted=true;
-			}
-
-			output(): Promise<Deno.CommandOutput> {
-				return Promise.resolve({
-					code: 0,
-					success: true,
-					stdout: new Uint8Array(),
-					stderr: new Uint8Array(),
-					signal: null,
-				});
-			}
-
-			outputSync(): Deno.CommandOutput {
-				return {
-					code: 0,
-					success: true,
-					stdout: new Uint8Array(),
-					stderr: new Uint8Array(),
-					signal: null,
-				};
-			}
-
-			spawn(): Deno.ChildProcess {
-				return {
-					pid: 1234,
-					stdin: new WritableStream<Uint8Array>(),
-					stdout: new ReadableStream<Uint8Array>(),
-					stderr: new ReadableStream<Uint8Array>(),
-					status: Promise.resolve({success: true,code: 0,signal: null}),
-					output: () => this.output(),
-					ref() {},
-					unref() {},
-					kill(_signal?: Deno.Signal) {},
-					async [Symbol.asyncDispose]() {},
-				};
-			}
-		}
-
-		(Deno as unknown as {Command: typeof Deno.Command}).Command=MockCommand;
-
+		const originalGetPlugins=cli.getLoadedPlugins;
 		try {
-			// Mock plugin loader using the public method with proper typing
+			// @ts-ignore: Mock implementation
+			Deno.Command=MockCommand;
 			cli.getLoadedPlugins=() => [mockPlugin];
 
+			// Create temporary test environment
+			const tempDir=await Deno.makeTempDir({prefix: "build_test_"});
+			const testFilePath=`${tempDir}/test.ts`;
+			await Deno.writeTextFile(testFilePath,"console.log('test');");
+
+			// Register build command
 			const buildCommand=createBuildCommand(cli);
 			cli.register(buildCommand);
 
-			// Use a temporary directory instead of 'src'
-			const tempDir=await Deno.makeTempDir({prefix: "build_test_cancel_"});
-			const testFilePath=`${tempDir}/test.ts`;
-
-			// Ensure the temporary directory exists before writing the file
-			await Deno.mkdir(tempDir,{recursive: true});
-			await Deno.writeTextFile(testFilePath,"console.log('test');");
-
+			// Attempt to run build command - should be cancelled by plugin
 			await assertRejects(
-				async () => {
-					await cli.runCommand([
-						"build",
-						"--output",
-						"test-bin",
-						"--target",
-						"linux",
-						"--entry",
-						testFilePath,
-					]);
-				},
+				() => cli.runCommand([
+					"build",
+					"--output","test-bin",
+					"--target","linux",
+					"--entry",testFilePath,
+				]),
 				Error,
-				"Build cancelled by plugin",
-				"Build should be cancelled by plugin"
+				"Build cancelled by plugin"
 			);
 
-			assertEquals(buildAttempted,true,"Build should have been attempted and then cancelled by plugin");
+			assertEquals(buildAttempted,true,"Plugin should attempt to cancel build");
 
-			// Clean up the temporary directory
+			// Cleanup
 			await Deno.remove(tempDir,{recursive: true});
 		} finally {
-			// Restore original methods
+			// Restore original implementations
+			// @ts-ignore: Restoration
+			Deno.Command=originalCommand;
 			cli.getLoadedPlugins=originalGetPlugins;
-			(Deno as unknown as {Command: typeof Deno.Command}).Command=originalCommand;
-			// No need to remove 'src' as we used a temporary directory
 		}
-	},
+	}
 });

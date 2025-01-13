@@ -15,48 +15,48 @@ export interface TestLogger extends ILogger {
     getMessages(): string[];
 }
 
-export class MockLogger implements TestLogger {
-	public logs: string[]=[];
-	public errors: string[]=[];
-	public debugs: string[]=[];
-	public warns: string[]=[];
-	protected logLevel: LevelName;
+export class MockLogger implements ILogger {
+    private logEntries: Array<{level: string; message: string}> = [];
+    private errorMessages: string[] = [];
 
-	constructor(options: LoggerOptions={}) {
-		this.logLevel=options.logLevel||"INFO";
-	}
+    debug(message: string): void {
+        this.logEntries.push({level: "debug", message});
+    }
 
-	info(message: string): void {
-		this.logs.push(message);
-	}
+    info(message: string): void {
+        this.logEntries.push({level: "info", message});
+    }
 
-	error(message: string): void {
-		this.errors.push(message);
-	}
+    warn(message: string): void {
+        this.logEntries.push({level: "warn", message});
+    }
 
-	debug(message: string): void {
-		this.debugs.push(message);
-	}
+    warning(message: string): void {
+        this.warn(message); // Alias for warn
+    }
 
-	warn(message: string): void {
-		this.warns.push(message);
-	}
+    error(message: string): void {
+        this.logEntries.push({level: "error", message});
+        this.errorMessages.push(message);
+    }
 
-	reset(): void {
-		this.logs=[];
-		this.errors=[];
-		this.debugs=[];
-		this.warns=[];
-	}
+    critical(message: string): void {
+        this.logEntries.push({level: "critical", message});
+        this.errorMessages.push(message);
+    }
 
-	getMessages(): string[] {
-		return [
-			...this.logs,
-			...this.errors,
-			...this.debugs,
-			...this.warns
-		];
-	}
+    getLogs(): Array<{level: string; message: string}> {
+        return this.logEntries;
+    }
+
+    get errors(): string[] {
+        return this.errorMessages;
+    }
+
+    clear(): void {
+        this.logEntries = [];
+        this.errorMessages = [];
+    }
 }
 
-export const createMockLogger=(options?: LoggerOptions): MockLogger => new MockLogger(options);
+export const createMockLogger = (): MockLogger => new MockLogger();

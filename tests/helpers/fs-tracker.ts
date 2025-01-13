@@ -2,6 +2,7 @@
 
 import {logger} from "../../src/logger.ts";
 import * as path from "https://deno.land/std@0.224.0/path/mod.ts";
+import {SEPARATOR} from "https://deno.land/std@0.224.0/path/separator.ts";
 
 export class FileSystemTracker {
 	private static operations: Map<string,string[]>=new Map();
@@ -30,16 +31,16 @@ export class FileSystemTracker {
 		};
 
 		// Track asynchronous removals
-		Deno.remove=async function(pathToRemove: string|URL,options?: Deno.RemoveOptions) {
-			const resolvedPath=path.resolve(pathToRemove.toString());
-			FileSystemTracker.logOperation('remove',resolvedPath);
+		Deno.remove = function(pathToRemove: string|URL, options?: Deno.RemoveOptions): Promise<void> {
+			const resolvedPath = path.resolve(pathToRemove.toString());
+			FileSystemTracker.logOperation('remove', resolvedPath);
 
 			if(FileSystemTracker.isProtectedPath(resolvedPath)) {
 				logger.warn(`Attempted to remove protected directory or file: ${resolvedPath}`);
 				return Promise.reject(new Error(`Protected directory removal attempted: ${resolvedPath}`));
 			}
 
-			return FileSystemTracker.originalRm.call(Deno,pathToRemove,options);
+			return FileSystemTracker.originalRm.call(Deno, pathToRemove, options);
 		};
 	}
 
@@ -70,7 +71,7 @@ export class FileSystemTracker {
 
 	private static isProtectedPath(resolvedPath: string): boolean {
 		return FileSystemTracker.protectedDirs.some(protectedPath => {
-			return resolvedPath===protectedPath||resolvedPath.startsWith(protectedPath+path.sep);
+			return resolvedPath === protectedPath || resolvedPath.startsWith(protectedPath + SEPARATOR);
 		});
 	}
 }

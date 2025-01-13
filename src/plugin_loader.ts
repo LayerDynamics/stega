@@ -5,6 +5,7 @@ import { Plugin, PluginMetadata } from "./plugin.ts"; // Import Plugin interface
 
 export class PluginLoader {
     private loadedPlugins: Map<string, Plugin> = new Map();
+    private loadingPromises: Map<string, Promise<void>> = new Map();
 
     // ...existing code...
 
@@ -20,35 +21,47 @@ export class PluginLoader {
 
     async loadPlugin(path: string, cli: CLI): Promise<void> {
         try {
+            cli.logger.debug(`Loading plugin from path: ${path}`);
+            
             const module = await import(path);
             const plugin: Plugin = module.default;
+            
+            cli.logger.debug(`Loaded plugin module: ${JSON.stringify(plugin.metadata || {})}`);
 
-            if (!plugin || !plugin.init || !plugin.metadata) {
-                logger.warn(`Invalid plugin structure at ${path}`);
-                return;
+            if (!plugin.metadata?.name) {
+                throw new Error(`Invalid plugin: missing metadata.name in ${path}`);
             }
 
             if (this.loadedPlugins.has(plugin.metadata.name)) {
-                logger.warn(`Plugin '${plugin.metadata.name}' is already loaded`);
+                cli.logger.warn(`Plugin '${plugin.metadata.name}' is already loaded`);
                 return;
             }
 
-            // Check dependencies
-            if (plugin.metadata.dependencies?.length) {
-                for (const dep of plugin.metadata.dependencies) {
-                    if (!this.loadedPlugins.has(dep)) {
-                        logger.warn(`Missing dependency: ${dep}`);
-                        return;
-                    }
+            // Create initialization promise
+            const initPromise = (async () => {
+                try {
+                    cli.logger.debug(`Initializing plugin: ${plugin.metadata.name}`);
+                    await plugin.init?.(cli);
+                    cli.logger.info(`Loaded plugin: ${plugin.metadata.name} v${plugin.metadata.version}`);
+                    // Mark CLI as ready after plugin initialization
+                    cli.markAsReady();
+                    return;
+                } catch (error) {
+                    cli.logger.error(`Plugin initialization failed: ${error}`);
+                    throw error;
                 }
-            }
+            })();
 
-            await plugin.init(cli);
+            this.loadingPromises.set(plugin.metadata.name, initPromise);
             this.loadedPlugins.set(plugin.metadata.name, plugin);
-            logger.info(`Loaded plugin: ${plugin.metadata.name} v${plugin.metadata.version}`);
-        } catch (error: unknown) {
-            const errorMessage = error instanceof Error ? error.message : String(error);
-            logger.error(`Failed to load plugin: ${errorMessage}`);
+
+            // Wait for initialization to complete
+            await initPromise;
+            cli.logger.debug(`Plugin ${plugin.metadata.name} fully loaded`);
+
+        } catch (error) {
+            cli.logger.error(`Failed to load plugin from ${path}: ${error}`);
+            throw error;
         }
     }
 
