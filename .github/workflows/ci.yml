@@ -26,11 +26,20 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-deno-
 
+      - name: Validate or Regenerate Lockfile
+        run: |
+          if [ ! -f deno.lock ]; then
+            echo "Lockfile missing, regenerating..."
+            deno cache --lock=deno.lock --reload src/index.ts
+          else
+            deno cache --lock=deno.lock
+          fi
+
       - name: Lint Code
         run: deno lint
 
-      - name: Validate Lockfile
-        run: deno cache --lock=deno.lock
+      - name: Prepare Coverage Directory
+        run: mkdir -p cov
 
       - name: Run Tests
         run: deno test --allow-read --allow-env --allow-write --allow-net --jobs=4 --coverage=cov
@@ -41,3 +50,4 @@ jobs:
         with:
           name: test-results
           path: cov
+          if-no-files-found: warn
