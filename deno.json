@@ -1,6 +1,5 @@
 {
 	"compilerOptions": {
-		"allowJs": true,
 		"lib": ["deno.window", "deno.ns"],
 		"strict": true,
 		"allowUnusedLabels": false,
@@ -38,8 +37,16 @@
 		"build:windows": "deno task build --output=./dist/stega-windows.exe --target=windows --allow-read --allow-env",
 		"build:macos": "deno task build --output=./dist/stega-macos --target=darwin --allow-read --allow-env",
 		"build:all": "deno task build:linux && deno task build:windows && deno task build:macos",
+		"cache:deps": "deno cache --reload mod.ts && deno cache --lock=deno.lock mod.ts",
+		"lock:check": "deno cache --lock=deno.lock --check mod.ts",
 		"lint": "deno lint",
 		"lint:fix": "deno lint --quiet"
 	},
-	"importMap": "./import_map.json"
+	"imports": {
+		"@std/assert": "https://deno.land/std@0.224.0/assert/mod.ts",
+		"@std/": "https://deno.land/std@0.224.0/",
+		"@src/": "./src/",
+		"@test/": "./tests/",
+		"@std/path/": "https://deno.land/std@0.224.0/path/"
+	}
 }
