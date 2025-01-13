@@ -30,10 +30,14 @@ jobs:
         run: |
           rm -f deno.lock
           deno cache --reload mod.ts
+
+      - name: Generate Lockfile
+        run: |
           deno cache --lock=deno.lock --lock-write mod.ts
 
       - name: Verify Dependencies
-        run: deno cache --lock=deno.lock --reload=none mod.ts
+        run: |
+          deno cache mod.ts
 
       - name: Lint Code
         run: deno lint
