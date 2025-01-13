@@ -30,9 +30,9 @@ jobs:
         run: |
           if [ ! -f deno.lock ]; then
             echo "Lockfile missing, regenerating..."
-            deno cache --lock=deno.lock --reload src/index.ts
+            deno cache --lock=deno.lock --reload mod.ts
           else
-            deno cache --lock=deno.lock
+            deno cache --lock=deno.lock mod.ts
           fi
 
       - name: Lint Code
@@ -42,12 +42,15 @@ jobs:
         run: mkdir -p cov
 
       - name: Run Tests
-        run: deno test --allow-read --allow-env --allow-write --allow-net --jobs=4 --coverage=cov
+        run: deno test --allow-read --allow-env --allow-write --coverage=cov
+
+      - name: Generate Coverage Report
+        run: deno coverage cov --lcov > cov.lcov
 
       - name: Save Test Results
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: test-results
-          path: cov
+          path: cov.lcov
           if-no-files-found: warn
