@@ -30,7 +30,7 @@ jobs:
         run: deno cache --lock=deno.lock mod.ts
 
       - name: Lint Code
-        run: deno lint
+        run: deno lint --quiet
 
       - name: Prepare Coverage Directory
         run: mkdir -p cov
