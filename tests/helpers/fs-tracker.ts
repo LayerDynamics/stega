@@ -2,7 +2,6 @@
 
 import { logger } from "../../src/logger.ts";
 import * as path from "https://deno.land/std@0.224.0/path/mod.ts";
-import { SEPARATOR } from "https://deno.land/std@0.224.0/path/separator.ts";
 
 export class FileSystemTracker {
 	private static operations: Map<string, string[]> = new Map();
@@ -86,7 +85,7 @@ export class FileSystemTracker {
 	private static isProtectedPath(resolvedPath: string): boolean {
 		return FileSystemTracker.protectedDirs.some((protectedPath) => {
 			return resolvedPath === protectedPath ||
-				resolvedPath.startsWith(protectedPath + SEPARATOR);
+				resolvedPath.startsWith(protectedPath + path.SEPARATOR);
 		});
 	}
 }
