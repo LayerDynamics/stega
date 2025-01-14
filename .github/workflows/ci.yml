@@ -37,39 +37,19 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-deno-
 
-      - name: Clean Temporary Directories
-        run: rm -rf /tmp/1491d1ce2c88246d || true
-
-      - name: Ensure Temporary Directory
-        run: mkdir -p /tmp/1491d1ce2c88246d || true
-
-      - name: Deno Version
-        run: deno --version
-
-      - name: Verify Formatting
-        run: deno fmt --check
-
-      - name: Run Linter
-        run: deno lint
-
-      - name: Clean Coverage Data
+      - name: Clean Test Environment
         run: |
-          rm -rf coverage coverage.lcov cov cov.lcov ./tmp || true
-          mkdir -p coverage
-          mkdir -p cov
+          # Clean temp and coverage directories
+          rm -rf /tmp/test_tmp /tmp/deno_dir coverage cov tests/fixtures/dynamic locales
+          deno task test:clean
+          
+          # Create necessary directories
+          mkdir -p /tmp/test_tmp /tmp/deno_dir coverage cov tests/fixtures/{dynamic,generated} locales
+          chmod -R 777 /tmp/test_tmp /tmp/deno_dir coverage cov tests/fixtures locales
 
-      - name: Clear Deno Cache
-        run: deno cache --reload mod.ts
-
-      - name: Setup Test Environment
+      - name: Setup Test Data
         run: |
-          # Ensure clean state
-          rm -rf /tmp/test_tmp /tmp/deno_dir ./tmp tests/fixtures/dynamic locales
-          
-          # Create all required directories
-          mkdir -p /tmp/test_tmp /tmp/deno_dir ./tmp tests/fixtures/{dynamic,generated} locales
-          
-          # Initialize locale file before tests
+          # Initialize locale file
           cat > locales/en.json << 'EOF'
           {
             "available_commands": "Available Commands:",
@@ -90,14 +70,14 @@ jobs:
           }
           EOF
           
-          # Set permissions recursively
-          chmod -R 777 /tmp/test_tmp /tmp/deno_dir ./tmp tests/fixtures locales coverage cov
-          
-          # Verify locale file
-          cat locales/en.json
-          
           # Cache test files
-          deno cache --reload tests/**/*.ts src/**/*.ts
+          deno task test:cache
+
+      - name: Verify Formatting
+        run: deno task fmt:check
+
+      - name: Run Linter
+        run: deno task lint
 
       - name: Run Tests with Coverage
         timeout-minutes: 15
@@ -110,59 +90,36 @@ jobs:
           LOCALE: en
           DENO_PERMISSIONS: allow-all
         run: |
-          # Run tests with coverage
-          deno test \
-            --allow-all \
-            --coverage=coverage \
-            --parallel \
-            --no-check \
-            --trace-ops || exit 1
+          deno task test
           
-          # Copy coverage files to cov directory for artifact upload
+          # Copy coverage files
           cp -R coverage/* cov/ || true
-
-      - name: Generate Coverage Report
-        if: success()
-        run: |
-          # List coverage files
-          echo "Coverage files in coverage/:"
-          ls -la coverage/
-          echo "Coverage files in cov/:"
-          ls -la cov/
-
-          # Generate coverage reports in both locations to ensure we have one that works
+          
+          # Generate coverage reports
           deno coverage coverage --lcov > coverage.lcov || true
           deno coverage cov --lcov > cov.lcov || true
           
-          # Verify at least one coverage file exists
+          # Verify coverage files
           if [ ! -f coverage.lcov ] && [ ! -f cov.lcov ]; then
-            echo "Error: Failed to generate coverage report in either location"
+            echo "Error: Failed to generate coverage report"
             exit 1
           fi
 
-      - name: Debug Test Environment
-        if: always()
+      - name: Build Binaries
         run: |
-          echo "=== Test Environment ==="
-          printenv | sort
-          echo "=== Directory Structure ==="
-          tree -a -L 3 || find . -type d -maxdepth 3
-          echo "=== Test Files ==="
-          find tests -type f -name "*.ts"
-          echo "=== Coverage Files ==="
-          echo "coverage/:"
-          ls -la coverage/ || true
-          echo "cov/:"
-          ls -la cov/ || true
-
-      # ... [rest of the workflow remains unchanged]
-      
-      - name: Build Verification
-        run: |
-          deno task build:linux
-          deno task build:windows
-          deno task build:macos
+          # Ensure dist directory exists
+          mkdir -p dist
           
+          # Build all targets
+          deno task build:all
+          
+          # Verify build outputs
+          if [ ! -f dist/stega-linux ] || [ ! -f dist/stega-windows.exe ] || [ ! -f dist/stega-macos ]; then
+            echo "Error: Missing build artifacts"
+            ls -la dist/
+            exit 1
+          fi
+
       - name: Upload Coverage Results
         if: success()
         uses: actions/upload-artifact@v4
@@ -183,7 +140,9 @@ jobs:
         with:
           name: build-artifacts
           path: |
-            dist/
+            dist/stega-linux
+            dist/stega-windows.exe
+            dist/stega-macos
           retention-days: 14
           compression-level: 6
           if-no-files-found: error
@@ -200,4 +159,4 @@ jobs:
 
       - name: Cache Cleanup
         if: always()
-        run: deno cache --reload mod.ts
+        run: deno task cache:clean
