@@ -1,0 +1,42 @@
+{
+  "scriptId": "357",
+  "url": "file:///Users/ryanoboyle/stega/src/parser.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 5904, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "parse",
+      "ranges": [
+        { "startOffset": 466, "endOffset": 2966, "count": 2 },
+        { "startOffset": 603, "endOffset": 2945, "count": 1 },
+        { "startOffset": 664, "endOffset": 1853, "count": 0 },
+        { "startOffset": 1883, "endOffset": 1897, "count": 0 },
+        { "startOffset": 1899, "endOffset": 2826, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "getFlagType",
+      "ranges": [{ "startOffset": 3253, "endOffset": 3409, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "parseValue",
+      "ranges": [{ "startOffset": 3674, "endOffset": 4583, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "parseBoolean",
+      "ranges": [{ "startOffset": 4710, "endOffset": 4868, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "findFlagDefinition",
+      "ranges": [{ "startOffset": 5148, "endOffset": 5901, "count": 0 }],
+      "isBlockCoverage": false
+    }
+  ]
+}

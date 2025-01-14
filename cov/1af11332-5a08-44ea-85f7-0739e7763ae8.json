@@ -1,0 +1,36 @@
+{
+  "scriptId": "322",
+  "url": "file:///Users/ryanoboyle/stega/src/types.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 2074, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "isModule",
+      "ranges": [{ "startOffset": 48, "endOffset": 213, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "<instance_members_initializer>",
+      "ranges": [{ "startOffset": 243, "endOffset": 358, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "BaseCommand",
+      "ranges": [{ "startOffset": 362, "endOffset": 419, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "validateArgs",
+      "ranges": [{ "startOffset": 422, "endOffset": 1379, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "executeWithLifecycle",
+      "ranges": [{ "startOffset": 1382, "endOffset": 2071, "count": 0 }],
+      "isBlockCoverage": false
+    }
+  ]
+}

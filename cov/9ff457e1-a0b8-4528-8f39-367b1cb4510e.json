@@ -1,0 +1,171 @@
+{
+  "scriptId": "320",
+  "url": "file:///Users/ryanoboyle/stega/tests/utils/test_framework.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 7153, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "<instance_members_initializer>",
+      "ranges": [{ "startOffset": 167, "endOffset": 236, "count": 0 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "TestFramework",
+      "ranges": [{ "startOffset": 240, "endOffset": 354, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "createTestEnvironment",
+      "ranges": [{ "startOffset": 407, "endOffset": 568, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "createTempFile",
+      "ranges": [{ "startOffset": 630, "endOffset": 869, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "registerMock",
+      "ranges": [{ "startOffset": 928, "endOffset": 1002, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "getMock",
+      "ranges": [{ "startOffset": 1046, "endOffset": 1212, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "hasCommand",
+      "ranges": [{ "startOffset": 1257, "endOffset": 1742, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "getRegisteredCommands",
+      "ranges": [{ "startOffset": 1788, "endOffset": 2102, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "waitForCLIReady",
+      "ranges": [{ "startOffset": 2161, "endOffset": 2225, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "executeCommand",
+      "ranges": [{ "startOffset": 2284, "endOffset": 3319, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "measurePerformance",
+      "ranges": [{ "startOffset": 3380, "endOffset": 4150, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "cleanup",
+      "ranges": [{ "startOffset": 4195, "endOffset": 4711, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "getCLI",
+      "ranges": [{ "startOffset": 4749, "endOffset": 4784, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "getLogger",
+      "ranges": [{ "startOffset": 4825, "endOffset": 4866, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "<instance_members_initializer>",
+      "ranges": [{ "startOffset": 4953, "endOffset": 4973, "count": 0 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "TestEnvironment",
+      "ranges": [{ "startOffset": 4977, "endOffset": 5073, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "createFile",
+      "ranges": [{ "startOffset": 5132, "endOffset": 5401, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "readFile",
+      "ranges": [{ "startOffset": 5456, "endOffset": 5561, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "getBaseDir",
+      "ranges": [{ "startOffset": 5625, "endOffset": 5668, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "resolveSrcPath",
+      "ranges": [{ "startOffset": 5733, "endOffset": 5826, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "createPluginFile",
+      "ranges": [{ "startOffset": 5890, "endOffset": 6215, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "cleanup",
+      "ranges": [{ "startOffset": 6262, "endOffset": 6480, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "<instance_members_initializer>",
+      "ranges": [{ "startOffset": 6546, "endOffset": 6599, "count": 0 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "info",
+      "ranges": [{ "startOffset": 6603, "endOffset": 6651, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "error",
+      "ranges": [{ "startOffset": 6654, "endOffset": 6705, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "debug",
+      "ranges": [{ "startOffset": 6708, "endOffset": 6759, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "warn",
+      "ranges": [{ "startOffset": 6762, "endOffset": 6811, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "getLogs",
+      "ranges": [{ "startOffset": 6814, "endOffset": 6868, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "getErrors",
+      "ranges": [{ "startOffset": 6871, "endOffset": 6929, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "getDebugs",
+      "ranges": [{ "startOffset": 6932, "endOffset": 6990, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "getWarns",
+      "ranges": [{ "startOffset": 6993, "endOffset": 7049, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "clear",
+      "ranges": [{ "startOffset": 7052, "endOffset": 7150, "count": 0 }],
+      "isBlockCoverage": false
+    }
+  ]
+}
