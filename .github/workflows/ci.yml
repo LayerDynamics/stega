@@ -33,9 +33,19 @@ jobs:
           path: |
             ~/.cache/deno
             ~/.deno
+            /tmp/1491d1ce2c88246d
           key: ${{ runner.os }}-deno-${{ hashFiles('**/deno.json', '**/deno.lock') }}
           restore-keys: |
             ${{ runner.os }}-deno-
+
+      - name: Clean Temporary Directories
+        run: rm -rf /tmp/1491d1ce2c88246d || true
+
+      - name: Ensure Temporary Directory
+        run: mkdir -p /tmp/1491d1ce2c88246d || true
+
+      - name: Deno Version
+        run: deno --version
 
       - name: Verify Formatting
         run: deno fmt --check
@@ -50,9 +60,14 @@ jobs:
         run: deno cache --reload mod.ts
 
       - name: Run Tests with Coverage
+        timeout-minutes: 10
         run: |
           deno test --allow-read --allow-env --allow-write --coverage=cov --parallel --no-check
+          deno test --coverage=cov --parallel --no-check
           deno coverage cov --lcov --output=cov.lcov
+
+      - name: List Temporary Directory Contents
+        run: ls -R /tmp/1491d1ce2c88246d
 
       - name: Build Verification
         run: |
