@@ -31,8 +31,7 @@
 	},
 	"test": {
 		"include": ["tests/"],
-		"exclude": ["tests/fixtures"],
-		"parallel": true
+		"exclude": ["tests/fixtures"]
 	},
 	"tasks": {
 		"dev": "deno run --watch mod.ts",
