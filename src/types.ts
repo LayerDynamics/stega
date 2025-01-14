@@ -7,8 +7,8 @@ import type { CLI } from "./core.ts"; // Add import for CLI type
  */
 export interface Args {
 	command: string[];
-	flags: Record<string, FlagValue>;
-	cli: CLI; // Add required CLI property
+	flags: Record<string,FlagValue>;
+	cli: CLI;
 }
 
 export type JsTarget = "es5" | "es6" | "es2017" | "es2020";

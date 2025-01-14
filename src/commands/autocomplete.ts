@@ -1,5 +1,6 @@
-import { Command } from "../core.ts";
+import { Command } from "../command.ts";
 import { CLI } from "../core.ts";
+import { Args } from "../types.ts";
 
 export const autocompleteCommand: Command = {
 	name: "autocomplete",
@@ -13,10 +14,10 @@ export const autocompleteCommand: Command = {
 			required: true,
 		},
 	],
-	action: async (args) => {
+	action: async (args: Args) => {
 		const cli = args.cli as CLI;
 		const shell = args.flags.shell as string;
-		const commands = cli.getCommands().map((cmd) => cmd.name).join(" ");
+		const commands = cli.getCommandRegistry().getCommands().map((cmd: Command) => cmd.name).join(" ");
 
 		switch (shell) {
 			case "bash":
@@ -27,10 +28,9 @@ export const autocompleteCommand: Command = {
 				break;
 			case "fish":
 				console.log(generateFishCompletion(commands));
-
 				break;
 			default:
-				console.error(cli.i18n.t("unsupported_shell", { shell }));
+				console.error(cli.getI18n("unsupported_shell", { shell }));
 				Deno.exit(1);
 		}
 	},
