@@ -61,9 +61,11 @@ Deno.test('DependencyGraph - builds graph correctly', async () => {
 	const entryPath = pathModule.resolve('entry.ts');
 	const fooPath = pathModule.resolve('./foo.ts');
 
-	const entryModule = mockModule(entryPath, "import { foo } from './foo.ts';", [
-		fooPath,
-	]);
+	const entryModule = mockModule(
+		entryPath,
+		"import { foo } from './foo.ts';",
+		[fooPath],
+	);
 	const fooModule = mockModule(fooPath, "export const foo = 'foo';", []);
 
 	moduleMap.set(entryPath, entryModule);
