@@ -50,15 +50,23 @@ export class PluginLoader {
 
 	private async loadPluginFromPath(path: string): Promise<Plugin> {
 		try {
-			// For tests, handle data URLs
-			if (path.startsWith("data:")) {
-				const module = await import(path);
-				return module.default;
+			// For tests, use relative imports
+			if (path.startsWith("tests/") || path.startsWith("./tests/")) {
+				return (await import(`../${path}`)).default;
+			}
+			
+			// For src plugins, use direct imports
+			if (path.startsWith("src/") || path.startsWith("./src/")) {
+				return (await import(`./${path}`)).default;
 			}
 
-			// For actual file paths
-			const module = await import(new URL(path, import.meta.url).href);
-			return module.default;
+			// For absolute paths, convert to relative path first
+			const relativePath = path.replace(/^.*?src\//, "./src/");
+			if (relativePath.startsWith("./src/")) {
+				return (await import(relativePath)).default;
+			}
+
+			throw new Error(`Invalid plugin path: ${path}. Plugins must be in src/ or tests/ directory`);
 		} catch (error: unknown) {
 			const e = error as Error;
 			throw new Error(`Failed to import plugin: ${e.message}`);

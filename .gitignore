@@ -3,6 +3,7 @@ node_modules
 .deno/
 .deno_dir/
 deno.lock
+.cache/
 
 # Build and test artifacts
 coverage/
@@ -11,6 +12,10 @@ coverage.lcov
 cov.lcov
 cov/
 dist/
+*.tsbuildinfo
+.docusaurus/
+build/
+_site/
 
 # Development files
 .vscode/
