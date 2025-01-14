@@ -282,26 +282,24 @@ export class TemplateCommand extends BaseCommand {
 	protected async generateFromTemplate(args: Args): Promise<void> {
 		const templateName = args.flags.template as string;
 		const outputPath = args.flags.output as string;
-		const force = Boolean(args.flags.force); // Ensure boolean type
+		const force = Boolean(args.flags.force);
 
 		const template = this.loadTemplate(templateName);
 		if (!template) {
 			throw new Error(`Template '${templateName}' not found`);
 		}
 
-		// Check file existence first
-		let fileExists = false;
+		// Check file existence first using synchronous file check
 		try {
-			await Deno.stat(outputPath);
-			fileExists = true;
+			const stat = await Deno.stat(outputPath);
+			if (stat.isFile && !force) {
+				throw new Error(`Output file ${outputPath} already exists`);
+			}
 		} catch (error) {
+			// Only handle NotFound error, rethrow others
 			if (!(error instanceof Deno.errors.NotFound)) {
 				throw error;
 			}
-		}
-
-		if (fileExists && !force) {
-			throw new Error(`Output file ${outputPath} already exists`);
 		}
 
 		let variables: Record<string, unknown> = {};
@@ -333,28 +331,27 @@ export class TemplateCommand extends BaseCommand {
 			}
 		}
 
-		// Render template
+		let content: string;
 		try {
-			const content = await this.renderTemplate(
+			content = await this.renderTemplate(
 				template,
 				variables as Record<string, string>,
 			);
-
-			// Write file
-			try {
-				await Deno.writeTextFile(outputPath, content);
-				args.cli.logger.info(`Generated content written to ${outputPath}`);
-			} catch (error: unknown) {
-				const errorMessage = error instanceof Error
-					? error.message
-					: String(error);
-				throw new Error(`Failed to write output file: ${errorMessage}`);
-			}
 		} catch (error: unknown) {
 			const errorMessage = error instanceof Error
 				? error.message
 				: String(error);
-			throw new Error(`Failed to generate template: ${errorMessage}`);
+			throw new Error(`Failed to render template: ${errorMessage}`);
+		}
+
+		try {
+			await Deno.writeTextFile(outputPath, content);
+			args.cli.logger.info(`Generated content written to ${outputPath}`);
+		} catch (error: unknown) {
+			const errorMessage = error instanceof Error
+				? error.message
+				: String(error);
+			throw new Error(`Failed to write output file: ${errorMessage}`);
 		}
 	}
 
