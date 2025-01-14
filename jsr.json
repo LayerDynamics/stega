@@ -8,9 +8,14 @@
       "README.md",
       "src/mod.ts",
       "src/core/**/*.ts",
+      "src/compiler/**/*.ts",
+      "src/commands/**/*.ts",
       "src/types/**/*.ts",
       "src/utils/**/*.ts",
-      "src/cli/**/*.ts"
+      "src/cli/**/*.ts",
+      "src/middleware/**/*.ts",
+      "src/*.ts",
+      "locales/*.json"
     ],
     "exclude": [
       "**/*.test.ts",
@@ -21,7 +26,15 @@
       "tests/**/*",
       ".deno/**/*",
       "coverage/**/*",
-      "dist/**/*"
+      "dist/**/*",
+      "docs/**/*",
+      "examples/**/*",
+      "scripts/**/*",
+      "cov.lcov",
+      "coverage.json"
     ]
+  },
+  "devDependencies": {
+    "@std/testing": "^0.224.0"
   }
 }

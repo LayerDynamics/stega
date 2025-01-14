@@ -84,9 +84,13 @@ export function resolveProjectPath(relativePath: string): string {
  * @param relativePath The relative path to the source file
  * @returns The imported module
  */
-export function importSourceFile(relativePath: string): Promise<unknown> {
-	const fullPath = resolveProjectPath(relativePath);
-	return import(path.toFileUrl(fullPath).href);
+export async function importSourceFile(relativePath: string): Promise<unknown> {
+  const fullPath = resolveProjectPath(relativePath);
+  // Use a more direct import approach
+  if (relativePath.startsWith("src/")) {
+    return import(`../src/${relativePath.slice(4)}`);
+  }
+  throw new Error(`Invalid import path: ${relativePath}`);
 }
 
 /**
