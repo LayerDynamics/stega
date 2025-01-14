@@ -20,6 +20,17 @@ jobs:
         with:
           deno-version: v1.34.0
 
+      - name: Initialize Dependencies
+        run: |
+          # Remove any existing lockfile
+          rm -f deno.lock
+          # Cache all dependencies and generate lockfile
+          deno cache --reload mod.ts
+          # Generate lockfile
+          deno cache --lock=deno.lock --lock-write mod.ts
+          # Verify dependencies
+          deno cache --lock=deno.lock --reload=none mod.ts
+
       - name: Cache Deno Dependencies
         uses: actions/cache@v3
         with:
@@ -34,7 +45,7 @@ jobs:
         run: deno fmt --check
 
       - name: Run Linter
-        run: deno task lint
+        run: deno lint
 
       - name: Clean Coverage Data
         run: deno task test:clean
@@ -52,6 +63,7 @@ jobs:
           deno task build:macos
           
       - name: Upload Coverage Results
+        if: success()
         uses: actions/upload-artifact@v3
         with:
           name: code-coverage-report
@@ -61,6 +73,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload Build Artifacts
+        if: success()
         uses: actions/upload-artifact@v3
         with:
           name: build-artifacts
@@ -68,6 +81,14 @@ jobs:
             dist/
           if-no-files-found: error
 
+      - name: Upload Lockfile
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: deno-lockfile
+          path: deno.lock
+          if-no-files-found: warn
+
       - name: Cache Cleanup
         if: always()
-        run: deno task cache:clean
+        run: deno cache --reload mod.ts
