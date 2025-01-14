@@ -22,12 +22,10 @@
 	"fmt": {
 		"include": ["src/", "tests/"],
 		"exclude": ["cov/", "dist/"],
-		"options": {
-			"useTabs": true,
-			"lineWidth": 80,
-			"indentWidth": 2,
-			"singleQuote": true
-		}
+		"useTabs": true,
+		"lineWidth": 80,
+		"indentWidth": 2,
+		"singleQuote": true
 	},
 	"test": {
 		"include": ["tests/"],
