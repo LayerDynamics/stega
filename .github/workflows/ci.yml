@@ -111,7 +111,6 @@ jobs:
           deno test \
             --allow-all \
             --coverage=cov \
-            --fail-fast=false \
             --parallel \
             --no-check \
             --trace-ops || true
