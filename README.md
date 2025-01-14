@@ -1,36 +1,49 @@
-# Stega - A Comprehensive Deno CLI Framework
+# Stega: Advanced CLI Framework for Deno
 
-Stega is a lightweight and modular CLI framework built with Deno, featuring argument parsing, flags, and subcommands.
+> A powerful, type-safe CLI framework for Deno featuring comprehensive command management, workflow automation, and plugin architecture.
 
-## Features
+[![CI Status](https://github.com/layerdynamics/stega/workflows/CI/badge.svg)](https://github.com/layerdynamics/stega/actions)
+[![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://github.com/layerdynamics/stega/wiki)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-- **Middleware Support**
-- **Logging Integration**
-- **Autocompletion Support**
-- **Interactive Prompts**
-- **Plugin System**
-- **Output Formatting**
-- **Enhanced Configuration**
-- **Internationalization (i18n)**
-- **Binary Executable Generation**
+## Overview
+
+Stega is a modern CLI framework built for Deno that enables developers to create sophisticated command-line applications with features like workflow automation, template generation, and service management. It combines type safety with powerful abstractions to streamline CLI development.
+
+### Key Features
+
+- **Type-Safe Command System**: Declarative command definitions with TypeScript support
+- **Advanced Workflow Automation**: Define and execute complex task sequences
+- **Template Engine**: Generate code and content using customizable templates
+- **Service Management**: Control and monitor long-running services
+- **HTTP Client**: Make HTTP requests directly from the command line
+- **Plugin Architecture**: Extend functionality through a modular plugin system
+- **Internationalization**: Built-in i18n support for multiple languages
+- **Configuration Management**: Flexible configuration through files and environment variables
 
 ## Installation
 
 ```bash
+# Install from deno.land/x
+deno install --allow-all -n stega https://deno.land/x/stega/mod.ts
+
+# Or clone and install locally
+git clone https://github.com/layerdynamics/stega.git
+cd stega
 deno install --allow-all -n stega mod.ts
 ```
 
-## Core Features
+## Quick Start
 
-### Command Management
-
-Stega makes it easy to create and manage CLI commands:
+1. Create a new CLI application:
 
 ```typescript
-import { CLI, Command } from "./mod.ts";
+// main.ts
+import { CLI, Command } from "https://deno.land/x/stega/mod.ts";
 
 const cli = new CLI();
 
+// Define a command
 const greetCommand: Command = {
     name: "greet",
     description: "Greet a user",
@@ -57,33 +70,69 @@ const greetCommand: Command = {
     }
 };
 
+// Register and run
 cli.register(greetCommand);
+await cli.run();
 ```
 
-### Plugin System
+2. Run your CLI:
 
-Extend functionality through plugins:
+```bash
+deno run --allow-all main.ts greet --name="World" --excited
+```
+
+## Core Features
+
+### Command Management
+
+Define commands with rich metadata and validation:
 
 ```typescript
-const plugin = {
-    metadata: {
-        name: "my-plugin",
-        version: "1.0.0"
-    },
-    init: (cli) => {
-        cli.register({
-            name: "custom-command",
-            action: () => {
-                console.log("Custom command executed");
-            }
-        });
+const command: Command = {
+    name: "deploy",
+    description: "Deploy the application",
+    category: "operations",
+    options: [
+        {
+            name: "environment",
+            type: "string",
+            required: true,
+            description: "Target environment"
+        }
+    ],
+    action: async (args) => {
+        // Command implementation
     }
 };
-
-export default plugin;
 ```
 
-### Template Engine
+### Workflow Automation
+
+Create complex automation workflows:
+
+```json
+{
+    "name": "deploy-pipeline",
+    "steps": [
+        {
+            "name": "build",
+            "command": "build --target=production"
+        },
+        {
+            "name": "test",
+            "command": "test --coverage",
+            "parallel": true
+        },
+        {
+            "name": "deploy",
+            "command": "deploy --env=prod",
+            "condition": "process.env.BRANCH === 'main'"
+        }
+    ]
+}
+```
+
+### Template Generation
 
 Generate code and content using templates:
 
@@ -101,70 +150,58 @@ await cli.runCommand([
 ]);
 ```
 
-### Workflow Automation
-
-Automate sequences of commands:
-
-```json
-{
-    "name": "build-and-deploy",
-    "steps": [
-        {
-            "name": "build",
-            "command": "build --target=production"
-        },
-        {
-            "name": "test",
-            "command": "test --coverage"
-        },
-        {
-            "name": "deploy",
-            "command": "deploy --env=prod",
-            "condition": "process.env.BRANCH === 'main'"
-        }
-    ]
-}
-```
-
 ### Service Management
 
-Manage long-running services:
+Control and monitor services:
 
-```typescript
-await cli.runCommand([
-    "service",
-    "start",
-    "--name=api",
-    "--config=services/api.json"
-]);
+```bash
+# Start a service
+stega service start --name=api --config=services/api.json
+
+# Monitor service status
+stega service status --name=api --format=json
+
+# View service logs
+stega service logs --name=api --follow
 ```
 
-### HTTP Commands
+### HTTP Client
 
-Make HTTP requests directly from the CLI:
+Make HTTP requests:
 
 ```bash
 stega http --method=POST \
            --url=https://api.example.com/data \
            --data='{"key": "value"}' \
-           --headers="Content-Type:application/json,Authorization:Bearer token"
+           --headers="Content-Type:application/json"
 ```
 
-## Building Executables
+## Plugin System
 
-Generate standalone executables for different platforms:
+Extend functionality through plugins:
 
-```bash
-# Build for specific platform
-stega build --target=linux --output=dist/stega
+```typescript
+const plugin: Plugin = {
+    metadata: {
+        name: "custom-plugin",
+        version: "1.0.0"
+    },
+    init: (cli) => {
+        cli.register({
+            name: "custom-command",
+            action: () => {
+                console.log("Custom command executed");
+            }
+        });
+    }
+};
 
-# Build for all platforms
-stega build:all
+export default plugin;
 ```
 
 ## Configuration
 
-Create a `stega.config.json` in your project root:
+Create a `stega.config.json` for project-wide settings:
 
 ```json
 {
@@ -185,47 +222,54 @@ Create a `stega.config.json` in your project root:
 }
 ```
 
-## Middleware
-
-Add custom middleware for cross-cutting concerns:
-
-```typescript
-cli.use(async (args, command) => {
-    console.log(`Executing command: ${command.name}`);
-    const start = Date.now();
-    await next();
-    console.log(`Execution time: ${Date.now() - start}ms`);
-});
-```
-
-## Shell Completion
-
-Generate shell completion scripts:
+## Development
 
 ```bash
-# Generate completion script for bash
-stega autocomplete --shell=bash > ~/.bashrc.d/stega-completion.bash
+# Clone repository
+git clone https://github.com/layerdynamics/stega.git
+cd stega
 
-# Generate completion script for zsh
-stega autocomplete --shell=zsh > ~/.zshrc.d/stega-completion.zsh
+# Install dependencies
+deno cache mod.ts
+
+# Run tests
+deno task test
+
+# Build
+deno task build
+
+# Format code
+deno task fmt
 ```
 
 ## Documentation
 
-For detailed documentation on specific features:
-
-- [Command System](docs/commands.md)
+- [User Guide](docs/user-guide.md)
+- [API Reference](docs/api.md)
 - [Plugin Development](docs/plugins.md)
-- [Template Engine](docs/templates.md)
-- [Workflow System](docs/workflows.md)
-- [Service Management](docs/services.md)
-- [Build System](docs/build.md)
-- [i18n Support](docs/i18n.md)
-
-## License
-
-MIT License
+- [Command Reference](docs/commands.md)
+- [Advanced Features](docs/advanced.md)
 
 ## Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support
+
+- [GitHub Issues](https://github.com/layerdynamics/stega/issues)
+- [Documentation](https://github.com/layerdynamics/stega/wiki)
+- [Discord Community](https://discord.gg/stega)
+
+## Acknowledgments
+
+Special thanks to all our contributors and the Deno community.
