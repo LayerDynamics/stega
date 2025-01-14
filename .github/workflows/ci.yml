@@ -70,30 +70,52 @@ jobs:
           echo '{}' > locales/en.json
           chmod -R 755 locales tests/fixtures tmp
 
+      - name: Setup Test Environment
+        run: |
+          mkdir -p /tmp/test_tmp /tmp/deno_dir locales tests/fixtures/dynamic
+          chmod -R 755 /tmp/test_tmp /tmp/deno_dir locales tests/fixtures
+          echo '{}' > locales/en.json
+          echo '{}' > tests/fixtures/default.json
+
       - name: Run Tests with Coverage
-        timeout-minutes: 10
+        timeout-minutes: 15
         env:
           DENO_DIR: /tmp/deno_dir
           TMPDIR: /tmp/test_tmp
+          TEST_MODE: ci
         run: |
           deno test \
-            --allow-read="/tmp,./locales,./src,./tests,./mod.ts" \
+            --allow-read="/tmp/test_tmp,/tmp/deno_dir,./locales,./src,./tests,./mod.ts,./" \
             --allow-env \
-            --allow-write="/tmp,./cov,./tests/fixtures" \
+            --allow-write="/tmp/test_tmp,/tmp/deno_dir,./cov,./tests/fixtures,." \
             --allow-run \
             --allow-net \
             --coverage=cov \
             --parallel \
-            --no-check || deno test \
-            --allow-read="/tmp,./locales,./src,./tests,./mod.ts" \
+            --no-check \
+            --fail-fast || \
+          deno test \
+            --allow-read="/tmp/test_tmp,/tmp/deno_dir,./locales,./src,./tests,./mod.ts,./" \
             --allow-env \
-            --allow-write="/tmp,./cov,./tests/fixtures" \
+            --allow-write="/tmp/test_tmp,/tmp/deno_dir,./cov,./tests/fixtures,." \
             --allow-run \
             --allow-net \
             --coverage=cov \
             --parallel \
-            --no-check
-          deno coverage cov --lcov --output=cov.lcov
+            --no-check \
+            --fail-fast
+
+      - name: List Directory State
+        if: always()
+        run: |
+          echo "=== Test Temp Directory ==="
+          ls -la /tmp/test_tmp || true
+          echo "=== Deno Directory ==="
+          ls -la /tmp/deno_dir || true
+          echo "=== Current Directory ==="
+          ls -la .
+          echo "=== Fixtures Directory ==="
+          ls -la tests/fixtures || true
 
       - name: List Test Directories
         if: always()
