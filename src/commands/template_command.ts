@@ -292,7 +292,7 @@ export class TemplateCommand extends BaseCommand {
 		// Check file existence before any processing
 		const fileExists = await Deno.stat(outputPath).then(
 			() => true,
-			() => false
+			() => false,
 		);
 
 		if (fileExists && !force) {
@@ -304,7 +304,9 @@ export class TemplateCommand extends BaseCommand {
 			try {
 				variables = JSON.parse(args.flags.variables as string);
 			} catch (error: unknown) {
-				const errorMessage = error instanceof Error ? error.message : String(error);
+				const errorMessage = error instanceof Error
+					? error.message
+					: String(error);
 				throw new Error(`Invalid variables JSON: ${errorMessage}`);
 			}
 		}
@@ -321,7 +323,7 @@ export class TemplateCommand extends BaseCommand {
 				await this.validateVariable(
 					templateVar.validation,
 					String(value),
-					templateVar.name
+					templateVar.name,
 				);
 			}
 		}
@@ -330,12 +332,14 @@ export class TemplateCommand extends BaseCommand {
 		try {
 			const content = await this.renderTemplate(
 				template,
-				variables as Record<string, string>
+				variables as Record<string, string>,
 			);
 			await Deno.writeTextFile(outputPath, content);
 			args.cli.logger.info(`Generated content written to ${outputPath}`);
 		} catch (error: unknown) {
-			const errorMessage = error instanceof Error ? error.message : String(error);
+			const errorMessage = error instanceof Error
+				? error.message
+				: String(error);
 			throw new Error(`Failed to generate template: ${errorMessage}`);
 		}
 	}
