@@ -29,7 +29,7 @@ jobs:
           # Generate lockfile
           deno cache --lock=deno.lock --lock-write mod.ts
           # Verify dependencies
-          deno cache --lock=deno.lock --reload=none mod.ts
+          deno cache --lock=deno.lock mod.ts
 
       - name: Cache Deno Dependencies
         uses: actions/cache@v3
