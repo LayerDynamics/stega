@@ -1,6 +1,6 @@
 import { assertEquals, assertRejects } from "@std/assert";
 import { TemplateCommand } from "../../src/commands/template_command.ts";
-import { ensureDir } from "https://deno.land/std/fs/mod.ts";
+import { ensureDir } from "https://deno.land/std@0.224.0/fs/mod.ts";
 import { CLI } from "../../src/core.ts";
 import type { Args, Command } from "../../src/types.ts";
 import { ConsoleLogger } from "../../src/logger.ts";

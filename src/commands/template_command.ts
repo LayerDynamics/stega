@@ -289,30 +289,23 @@ export class TemplateCommand extends BaseCommand {
 			throw new Error(`Template '${templateName}' not found`);
 		}
 
+		// Check file existence before any processing
+		const fileExists = await Deno.stat(outputPath).then(
+			() => true,
+			() => false
+		);
+
+		if (fileExists && !force) {
+			throw new Error(`Output file ${outputPath} already exists`);
+		}
+
 		let variables: Record<string, unknown> = {};
 		if (args.flags.variables) {
 			try {
 				variables = JSON.parse(args.flags.variables as string);
 			} catch (error: unknown) {
-				const errorMessage = error instanceof Error
-					? error.message
-					: String(error);
+				const errorMessage = error instanceof Error ? error.message : String(error);
 				throw new Error(`Invalid variables JSON: ${errorMessage}`);
-			}
-		}
-
-		// Check if file exists before proceeding
-		try {
-			const fileExists = await Deno.stat(outputPath)
-				.then(() => true)
-				.catch(() => false);
-
-			if (fileExists && !force) {
-				throw new Error(`Output file ${outputPath} already exists`);
-			}
-		} catch (error) {
-			if (!(error instanceof Deno.errors.NotFound)) {
-				throw error;
 			}
 		}
 
@@ -328,18 +321,23 @@ export class TemplateCommand extends BaseCommand {
 				await this.validateVariable(
 					templateVar.validation,
 					String(value),
-					templateVar.name,
+					templateVar.name
 				);
 			}
 		}
 
-		// Render and write template
-		const content = await this.renderTemplate(
-			template,
-			variables as Record<string, string>,
-		);
-		await Deno.writeTextFile(outputPath, content);
-		args.cli.logger.info(`Generated content written to ${outputPath}`);
+		// Render template and write file
+		try {
+			const content = await this.renderTemplate(
+				template,
+				variables as Record<string, string>
+			);
+			await Deno.writeTextFile(outputPath, content);
+			args.cli.logger.info(`Generated content written to ${outputPath}`);
+		} catch (error: unknown) {
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			throw new Error(`Failed to generate template: ${errorMessage}`);
+		}
 	}
 
 	private listTemplates(): void {

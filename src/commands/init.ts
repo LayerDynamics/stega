@@ -1,10 +1,9 @@
 // src/commands/init.ts
 import { Command } from "../command.ts";
 import { Args } from "../types.ts";
-import { logger, setup } from "../logger.ts";
+import { logger, setup, type LevelName } from "../logger.ts";
 import { ConfigLoader } from "../config.ts";
 import { I18n } from "../i18n.ts";
-import type { LevelName } from "../types.ts";
 
 interface InitConfig {
 	logLevel: string;
