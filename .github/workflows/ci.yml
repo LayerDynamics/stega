@@ -59,11 +59,20 @@ jobs:
       - name: Clear Deno Cache
         run: deno cache --reload mod.ts
 
+      - name: Create Locales Directory
+        run: |
+          mkdir -p locales
+          echo '{}' > locales/en.json
+
       - name: Run Tests with Coverage
         timeout-minutes: 10
         run: |
-          deno test --allow-read --allow-env --allow-write --coverage=cov --parallel --no-check
-          deno test --coverage=cov --parallel --no-check
+          deno test --allow-read --allow-env --allow-write --allow-run --allow-net \
+            --coverage=cov --parallel --no-check \
+            --allow-read=./locales
+          deno test --coverage=cov --parallel --no-check \
+            --allow-read --allow-env --allow-write --allow-run --allow-net \
+            --allow-read=./locales
           deno coverage cov --lcov --output=cov.lcov
 
       - name: List Temporary Directory Contents
