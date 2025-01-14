@@ -9,3 +9,9 @@ coverage/
 .coverage/
 coverage.lcov
 cov
+.deno/
+.deno_dir/
+deno.lock
+.DS_Store
+*.log
+dist/
