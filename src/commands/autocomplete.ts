@@ -17,7 +17,9 @@ export const autocompleteCommand: Command = {
 	action: async (args: Args) => {
 		const cli = args.cli as CLI;
 		const shell = args.flags.shell as string;
-		const commands = cli.getCommandRegistry().getCommands().map((cmd: Command) => cmd.name).join(" ");
+		const commands = cli.getCommandRegistry().getCommands().map((
+			cmd: Command,
+		) => cmd.name).join(" ");
 
 		switch (shell) {
 			case "bash":

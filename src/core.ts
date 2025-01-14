@@ -487,7 +487,10 @@ export class CLI {
 		}
 	}
 
-	public getI18n(key: string, placeholders?: Record<string, string | number>): string {
+	public getI18n(
+		key: string,
+		placeholders?: Record<string, string | number>,
+	): string {
 		return this.i18n.t(key, placeholders);
 	}
 }

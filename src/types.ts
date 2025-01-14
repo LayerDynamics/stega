@@ -7,7 +7,7 @@ import type { CLI } from "./core.ts"; // Add import for CLI type
  */
 export interface Args {
 	command: string[];
-	flags: Record<string,FlagValue>;
+	flags: Record<string, FlagValue>;
 	cli: CLI;
 }
 
