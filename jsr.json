@@ -12,7 +12,7 @@
     "@std/path": "^0.224.0",
     "@std/crypto": "^0.224.0",
     "@std/log": "^0.224.0",
-    "@cliffy/prompt": "^1.0.0-rc.3",
+    "cliffy": "1.0.0-rc.3",
     "source-map": "0.7.4",
     "terser": "5.14.2",
     "ts-morph": "17.0.1",
