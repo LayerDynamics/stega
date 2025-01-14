@@ -282,18 +282,23 @@ export class TemplateCommand extends BaseCommand {
 	protected async generateFromTemplate(args: Args): Promise<void> {
 		const templateName = args.flags.template as string;
 		const outputPath = args.flags.output as string;
-		const force = args.flags.force === true;
+		const force = Boolean(args.flags.force); // Ensure boolean type
 
 		const template = this.loadTemplate(templateName);
 		if (!template) {
 			throw new Error(`Template '${templateName}' not found`);
 		}
 
-		// Check file existence before any processing
-		const fileExists = await Deno.stat(outputPath).then(
-			() => true,
-			() => false,
-		);
+		// Check file existence first
+		let fileExists = false;
+		try {
+			await Deno.stat(outputPath);
+			fileExists = true;
+		} catch (error) {
+			if (!(error instanceof Deno.errors.NotFound)) {
+				throw error;
+			}
+		}
 
 		if (fileExists && !force) {
 			throw new Error(`Output file ${outputPath} already exists`);
@@ -328,14 +333,23 @@ export class TemplateCommand extends BaseCommand {
 			}
 		}
 
-		// Render template and write file
+		// Render template
 		try {
 			const content = await this.renderTemplate(
 				template,
 				variables as Record<string, string>,
 			);
-			await Deno.writeTextFile(outputPath, content);
-			args.cli.logger.info(`Generated content written to ${outputPath}`);
+
+			// Write file
+			try {
+				await Deno.writeTextFile(outputPath, content);
+				args.cli.logger.info(`Generated content written to ${outputPath}`);
+			} catch (error: unknown) {
+				const errorMessage = error instanceof Error
+					? error.message
+					: String(error);
+				throw new Error(`Failed to write output file: ${errorMessage}`);
+			}
 		} catch (error: unknown) {
 			const errorMessage = error instanceof Error
 				? error.message
