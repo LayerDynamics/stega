@@ -1,7 +1,0 @@
-// Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
-// This module is browser compatible.
-/**
- * @deprecated (will be removed after 0.209.0) Import from `std/crypto/unstable/keystack.ts` instead.
- */ export * from "./unstable/keystack.ts";
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImh0dHBzOi8vZGVuby5sYW5kL3N0ZEAwLjIwMy4wL2NyeXB0by9rZXlzdGFjay50cyJdLCJzb3VyY2VzQ29udGVudCI6WyIvLyBDb3B5cmlnaHQgMjAxOC0yMDIzIHRoZSBEZW5vIGF1dGhvcnMuIEFsbCByaWdodHMgcmVzZXJ2ZWQuIE1JVCBsaWNlbnNlLlxuLy8gVGhpcyBtb2R1bGUgaXMgYnJvd3NlciBjb21wYXRpYmxlLlxuXG4vKipcbiAqIEBkZXByZWNhdGVkICh3aWxsIGJlIHJlbW92ZWQgYWZ0ZXIgMC4yMDkuMCkgSW1wb3J0IGZyb20gYHN0ZC9jcnlwdG8vdW5zdGFibGUva2V5c3RhY2sudHNgIGluc3RlYWQuXG4gKi9cbmV4cG9ydCAqIGZyb20gXCIuL3Vuc3RhYmxlL2tleXN0YWNrLnRzXCI7XG4iXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUEsMEVBQTBFO0FBQzFFLHFDQUFxQztBQUVyQzs7Q0FFQyxHQUNELGNBQWMseUJBQXlCIn0=
-// denoCacheMetadata=9336064466542068779,683373788700492893
