@@ -1,0 +1,17 @@
+{
+  "name": "@ryanoboyle/stega",
+  "version": "1.0.0",
+  "exports": "./src/mod.ts",
+  "publish": {
+    "include": [
+      "LICENSE",
+      "README.md",
+      "src/**/*.ts"
+    ],
+    "exclude": [
+      "src/**/*.test.ts",
+      "src/**/*.spec.ts",
+      "tests/**/*"
+    ]
+  }
+}
