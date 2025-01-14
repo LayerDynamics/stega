@@ -59,23 +59,20 @@ jobs:
       - name: Clear Deno Cache
         run: deno cache --reload mod.ts
 
-      - name: Create Locales Directory
-        run: |
-          mkdir -p locales
-          echo '{}' > locales/en.json
-
-      - name: Create Test Directories
-        run: |
-          mkdir -p locales tests/fixtures/dynamic tmp
-          echo '{}' > locales/en.json
-          chmod -R 755 locales tests/fixtures tmp
-
       - name: Setup Test Environment
         run: |
-          mkdir -p /tmp/test_tmp /tmp/deno_dir locales tests/fixtures/dynamic
-          chmod -R 755 /tmp/test_tmp /tmp/deno_dir locales tests/fixtures
+          # Clean existing directories
+          rm -rf /tmp/test_tmp /tmp/deno_dir ./cov ./tmp tests/fixtures/dynamic locales
+          
+          # Create fresh directories
+          mkdir -p /tmp/test_tmp /tmp/deno_dir ./cov ./tmp tests/fixtures/dynamic locales
+          
+          # Set up test files
           echo '{}' > locales/en.json
           echo '{}' > tests/fixtures/default.json
+          
+          # Set permissions
+          chmod -R 755 /tmp/test_tmp /tmp/deno_dir ./cov ./tmp tests/fixtures locales
 
       - name: Run Tests with Coverage
         timeout-minutes: 15
@@ -83,11 +80,12 @@ jobs:
           DENO_DIR: /tmp/deno_dir
           TMPDIR: /tmp/test_tmp
           TEST_MODE: ci
+          NO_COLOR: true
         run: |
           deno test \
-            --allow-read="/tmp/test_tmp,/tmp/deno_dir,./locales,./src,./tests,./mod.ts,./" \
+            --allow-read \
             --allow-env \
-            --allow-write="/tmp/test_tmp,/tmp/deno_dir,./cov,./tests/fixtures,." \
+            --allow-write \
             --allow-run \
             --allow-net \
             --coverage=cov \
@@ -95,9 +93,9 @@ jobs:
             --no-check \
             --fail-fast || \
           deno test \
-            --allow-read="/tmp/test_tmp,/tmp/deno_dir,./locales,./src,./tests,./mod.ts,./" \
+            --allow-read \
             --allow-env \
-            --allow-write="/tmp/test_tmp,/tmp/deno_dir,./cov,./tests/fixtures,." \
+            --allow-write \
             --allow-run \
             --allow-net \
             --coverage=cov \
@@ -108,14 +106,12 @@ jobs:
       - name: List Directory State
         if: always()
         run: |
-          echo "=== Test Temp Directory ==="
-          ls -la /tmp/test_tmp || true
-          echo "=== Deno Directory ==="
-          ls -la /tmp/deno_dir || true
-          echo "=== Current Directory ==="
-          ls -la .
-          echo "=== Fixtures Directory ==="
-          ls -la tests/fixtures || true
+          echo "=== Environment ==="
+          env | sort
+          echo "=== Directory Structure ==="
+          find . -type d
+          echo "=== Test Files ==="
+          find tests -type f
 
       - name: List Test Directories
         if: always()
