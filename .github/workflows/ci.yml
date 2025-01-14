@@ -61,20 +61,27 @@ jobs:
 
       - name: Setup Test Environment
         run: |
-          # Remove any existing test files
+          # Remove existing test files
           rm -rf /tmp/test_tmp /tmp/deno_dir ./cov ./tmp tests/fixtures/dynamic locales
 
           # Create directories with proper permissions
           mkdir -p /tmp/test_tmp /tmp/deno_dir ./cov ./tmp tests/fixtures/{dynamic,generated} locales
           chmod -R 777 /tmp/test_tmp /tmp/deno_dir ./cov ./tmp tests/fixtures locales
 
-          # Initialize test files
-          echo '{"test": "value"}' > locales/en.json
-          echo '{"template": "test"}' > tests/fixtures/default.json
-
-          # Set environment
-          echo "DENO_DIR=/tmp/deno_dir" >> $GITHUB_ENV
-          echo "TMPDIR=/tmp/test_tmp" >> $GITHUB_ENV
+          # Create locale file with proper content
+          cat > locales/en.json << 'EOF'
+          {
+            "available_commands": "Available Commands:",
+            "use_help": "Use '{command} --help' for more information",
+            "error": "Error: {message}",
+            "debug": "Debug: {message}",
+            "info": "Info: {message}",
+            "warning": "Warning: {message}",
+            "command_not_found": "Command not found: {command}",
+            "missing_required_flag": "Missing required flag: {flag}",
+            "invalid_flag_value": "Invalid value for flag '{flag}': {value}"
+          }
+          EOF
 
       - name: Run Tests with Coverage
         timeout-minutes: 15
@@ -84,11 +91,13 @@ jobs:
           TEST_MODE: ci
           NO_COLOR: true
           DEBUG: true
+          LOCALE: en
         run: |
-          # First pass - run tests
+          # Run tests with proper environment
           deno test \
             --allow-all \
             --coverage=cov \
+            --fail-fast=false \
             --parallel \
             --no-check \
             || true
