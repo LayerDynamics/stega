@@ -53,7 +53,10 @@ jobs:
         run: deno lint
 
       - name: Clean Coverage Data
-        run: deno task test:clean
+        run: |
+          rm -rf coverage coverage.lcov cov cov.lcov ./tmp || true
+          mkdir -p coverage
+          mkdir -p cov
 
       - name: Clear Deno Cache
         run: deno cache --reload mod.ts
@@ -61,10 +64,10 @@ jobs:
       - name: Setup Test Environment
         run: |
           # Ensure clean state
-          rm -rf /tmp/test_tmp /tmp/deno_dir ./cov ./tmp tests/fixtures/dynamic locales
+          rm -rf /tmp/test_tmp /tmp/deno_dir ./tmp tests/fixtures/dynamic locales
           
           # Create all required directories
-          mkdir -p /tmp/test_tmp /tmp/deno_dir ./cov ./tmp tests/fixtures/{dynamic,generated} locales
+          mkdir -p /tmp/test_tmp /tmp/deno_dir ./tmp tests/fixtures/{dynamic,generated} locales
           
           # Initialize locale file before tests
           cat > locales/en.json << 'EOF'
@@ -88,7 +91,7 @@ jobs:
           EOF
           
           # Set permissions recursively
-          chmod -R 777 /tmp/test_tmp /tmp/deno_dir ./cov ./tmp tests/fixtures locales
+          chmod -R 777 /tmp/test_tmp /tmp/deno_dir ./tmp tests/fixtures locales coverage cov
           
           # Verify locale file
           cat locales/en.json
@@ -107,16 +110,35 @@ jobs:
           LOCALE: en
           DENO_PERMISSIONS: allow-all
         run: |
-          # Run tests in a single pass
+          # Run tests with coverage
           deno test \
             --allow-all \
-            --coverage=cov \
+            --coverage=coverage \
             --parallel \
             --no-check \
-            --trace-ops || true
+            --trace-ops || exit 1
+          
+          # Copy coverage files to cov directory for artifact upload
+          cp -R coverage/* cov/ || true
 
-          # Generate coverage report
-          deno coverage cov --lcov --output=cov.lcov
+      - name: Generate Coverage Report
+        if: success()
+        run: |
+          # List coverage files
+          echo "Coverage files in coverage/:"
+          ls -la coverage/
+          echo "Coverage files in cov/:"
+          ls -la cov/
+
+          # Generate coverage reports in both locations to ensure we have one that works
+          deno coverage coverage --lcov > coverage.lcov || true
+          deno coverage cov --lcov > cov.lcov || true
+          
+          # Verify at least one coverage file exists
+          if [ ! -f coverage.lcov ] && [ ! -f cov.lcov ]; then
+            echo "Error: Failed to generate coverage report in either location"
+            exit 1
+          fi
 
       - name: Debug Test Environment
         if: always()
@@ -127,32 +149,14 @@ jobs:
           tree -a -L 3 || find . -type d -maxdepth 3
           echo "=== Test Files ==="
           find tests -type f -name "*.ts"
-          echo "=== Permissions ==="
-          ls -la /tmp/test_tmp /tmp/deno_dir ./cov ./tmp tests/fixtures locales
+          echo "=== Coverage Files ==="
+          echo "coverage/:"
+          ls -la coverage/ || true
+          echo "cov/:"
+          ls -la cov/ || true
 
-      - name: List Directory State
-        if: always()
-        run: |
-          echo "=== Environment ==="
-          env | sort
-          echo "=== Directory Structure ==="
-          find . -type d
-          echo "=== Test Files ==="
-          find tests -type f
-
-      - name: List Test Directories
-        if: always()
-        run: |
-          echo "=== Temporary Directory ==="
-          ls -la /tmp/test_tmp || true
-          echo "=== Deno Directory ==="
-          ls -la /tmp/deno_dir || true
-          echo "=== Coverage Directory ==="
-          ls -la cov || true
-
-      - name: List Temporary Directory Contents
-        run: ls -R /tmp/1491d1ce2c88246d
-
+      # ... [rest of the workflow remains unchanged]
+      
       - name: Build Verification
         run: |
           deno task build:linux
@@ -166,7 +170,9 @@ jobs:
           name: code-coverage-report
           path: |
             cov.lcov
+            coverage.lcov
             cov/
+            coverage/
           retention-days: 14
           compression-level: 9
           if-no-files-found: error

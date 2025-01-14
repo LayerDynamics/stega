@@ -4,3 +4,7 @@ coverage
 
 test-bin
 gh-check.sh
+/tmp
+coverage/
+.coverage/
+coverage.lcov
