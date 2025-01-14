@@ -29,9 +29,17 @@
 			"singleQuote": true
 		}
 	},
+	"test": {
+		"include": ["tests/"],
+		"exclude": ["tests/fixtures"],
+		"parallel": true
+	},
 	"tasks": {
 		"dev": "deno run --watch mod.ts",
-		"test": "deno test --allow-read --allow-env --allow-write --coverage",
+		"test": "deno test --allow-read --allow-env --allow-write --coverage=cov --parallel",
+		"test:coverage": "deno coverage cov --lcov --output=cov.lcov",
+		"test:clean": "rm -rf cov && mkdir -p cov",
+		"test:full": "deno task test:clean && deno task test && deno task test:coverage",
 		"start": "deno run --allow-all mod.ts",
 		"build": "deno run --allow-run --allow-read --allow-write --allow-env src/commands/build.ts",
 		"build:linux": "deno task build --output=./dist/stega-linux --target=linux --allow-read --allow-env",
@@ -39,7 +47,9 @@
 		"build:macos": "deno task build --output=./dist/stega-macos --target=darwin --allow-read --allow-env",
 		"build:all": "deno task build:linux && deno task build:windows && deno task build:macos",
 		"lint": "deno lint",
-		"lint:fix": "deno lint --quiet"
+		"lint:fix": "deno lint --quiet",
+		"cache:clean": "deno cache --reload mod.ts",
+		"cache:update": "deno cache mod.ts"
 	},
 	"imports": {
 		"@std/assert": "https://deno.land/std@0.224.0/assert/mod.ts",
