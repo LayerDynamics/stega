@@ -1,59 +1,59 @@
 // tests/unit/core/command.test.ts
-import {assertEquals,assertRejects} from "@std/assert";
-import {CommandRegistry,Command} from "../../../src/command.ts";
-import {TestHarness} from "../../utils/test_harness.ts";
+import { assertEquals, assertRejects } from '@std/assert';
+import { Command, CommandRegistry } from '../../../src/command.ts';
+import { TestHarness } from '../../utils/test_harness.ts';
 
-Deno.test("CommandRegistry - comprehensive command management",async (t) => {
-	const harness=new TestHarness();
+Deno.test('CommandRegistry - comprehensive command management', async (t) => {
+	const harness = new TestHarness();
 
-	await t.step("registration and retrieval",async () => {
-		const registry=new CommandRegistry();
-		const command: Command={
-			name: "test",
-			description: "Test command",
+	await t.step('registration and retrieval', async () => {
+		const registry = new CommandRegistry();
+		const command: Command = {
+			name: 'test',
+			description: 'Test command',
 			options: [{
-				name: "flag",
-				type: "string",
-				required: true
+				name: 'flag',
+				type: 'string',
+				required: true,
 			}],
-			action: () => {}
+			action: () => {},
 		};
 
 		registry.register(command);
-		const retrieved=registry.findCommand("test");
-		assertEquals(retrieved?.name,command.name);
-		assertEquals(retrieved?.description,command.description);
+		const retrieved = registry.findCommand('test');
+		assertEquals(retrieved?.name, command.name);
+		assertEquals(retrieved?.description, command.description);
 	});
 
-	await t.step("subcommand handling",async () => {
-		const registry=new CommandRegistry();
-		const command: Command={
-			name: "parent",
+	await t.step('subcommand handling', async () => {
+		const registry = new CommandRegistry();
+		const command: Command = {
+			name: 'parent',
 			subcommands: [{
-				name: "child",
-				action: () => {}
+				name: 'child',
+				action: () => {},
 			}],
-			action: () => {}
+			action: () => {},
 		};
 
 		registry.register(command);
-		const subcommand=registry.findSubcommand(command,["child"]);
-		assertEquals(subcommand?.name,"child");
+		const subcommand = registry.findSubcommand(command, ['child']);
+		assertEquals(subcommand?.name, 'child');
 	});
 
-	await t.step("alias resolution",async () => {
-		const registry=new CommandRegistry();
-		const command: Command={
-			name: "test",
-			aliases: ["t","tst"],
-			action: () => {}
+	await t.step('alias resolution', async () => {
+		const registry = new CommandRegistry();
+		const command: Command = {
+			name: 'test',
+			aliases: ['t', 'tst'],
+			action: () => {},
 		};
 
 		registry.register(command);
-		const byAlias1=registry.findCommand("t");
-		const byAlias2=registry.findCommand("tst");
-		assertEquals(byAlias1?.name,command.name);
-		assertEquals(byAlias2?.name,command.name);
+		const byAlias1 = registry.findCommand('t');
+		const byAlias2 = registry.findCommand('tst');
+		assertEquals(byAlias1?.name, command.name);
+		assertEquals(byAlias2?.name, command.name);
 	});
 
 	await harness.cleanup();

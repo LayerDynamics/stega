@@ -1,12 +1,12 @@
 // tests/test_utils.ts
-import { CLI } from "../src/core.ts";
-import { ILogger } from "../src/logger_interface.ts";
-import * as path from "https://deno.land/std@0.203.0/path/mod.ts";
-import { MockLogger } from "./utils/mock_logger.ts";
+import { CLI } from '../src/core.ts';
+import { ILogger } from '../src/logger_interface.ts';
+import * as path from 'https://deno.land/std@0.203.0/path/mod.ts';
+import { MockLogger } from './utils/mock_logger.ts';
 
 export interface TestCLI {
-    cli: CLI;
-    logger: MockLogger;
+	cli: CLI;
+	logger: MockLogger;
 }
 
 /**
@@ -14,11 +14,11 @@ export interface TestCLI {
  * @returns The CLI instance and its associated logger
  */
 export async function createTestCLI(): Promise<TestCLI> {
-    const logger = new MockLogger();
-    const cli = new CLI(undefined, true, true, logger);
-    // Initialize CLI without arguments
-    await cli.run();
-    return { cli, logger };
+	const logger = new MockLogger();
+	const cli = new CLI(undefined, true, true, logger);
+	// Initialize CLI without arguments
+	await cli.run();
+	return { cli, logger };
 }
 
 /**
@@ -27,11 +27,11 @@ export async function createTestCLI(): Promise<TestCLI> {
  * @returns The path to the created temporary file
  */
 export async function createTempFile(content: string): Promise<string> {
-	const tmpFile=await Deno.makeTempFile({
-		prefix: "stega_test_",
-		suffix: ".tmp",
+	const tmpFile = await Deno.makeTempFile({
+		prefix: 'stega_test_',
+		suffix: '.tmp',
 	});
-	await Deno.writeTextFile(tmpFile,content);
+	await Deno.writeTextFile(tmpFile, content);
 	return tmpFile;
 }
 
@@ -40,13 +40,13 @@ export async function createTempFile(content: string): Promise<string> {
  * @param paths Array of file paths to remove
  */
 export async function cleanupTempFiles(...paths: string[]): Promise<void> {
-	for(const filePath of paths) {
+	for (const filePath of paths) {
 		try {
 			await Deno.remove(filePath);
-		} catch(error) {
+		} catch (error) {
 			// Ignore errors if file doesn't exist or cannot be removed
-			if(
-				!(error instanceof Deno.errors.NotFound)&&
+			if (
+				!(error instanceof Deno.errors.NotFound) &&
 				!(error instanceof Deno.errors.PermissionDenied)
 			) {
 				throw error;
@@ -61,7 +61,7 @@ export async function cleanupTempFiles(...paths: string[]): Promise<void> {
  */
 export function getProjectRoot(): string {
 	// Assumes test_utils.ts is in the tests directory at project root
-	return path.resolve(path.dirname(path.fromFileUrl(import.meta.url)),"..");
+	return path.resolve(path.dirname(path.fromFileUrl(import.meta.url)), '..');
 }
 
 /**
@@ -70,7 +70,7 @@ export function getProjectRoot(): string {
  * @returns The absolute path resolved from the project root
  */
 export function resolveProjectPath(relativePath: string): string {
-	return path.resolve(getProjectRoot(),relativePath);
+	return path.resolve(getProjectRoot(), relativePath);
 }
 
 /**
@@ -79,7 +79,7 @@ export function resolveProjectPath(relativePath: string): string {
  * @returns The imported module
  */
 export function importSourceFile(relativePath: string): Promise<unknown> {
-	const fullPath=resolveProjectPath(relativePath);
+	const fullPath = resolveProjectPath(relativePath);
 	return import(path.toFileUrl(fullPath).href);
 }
 
@@ -91,20 +91,20 @@ export function importSourceFile(relativePath: string): Promise<unknown> {
  * @returns A mock fetch function
  */
 export function mockFetchWithAbort(
-	status=200,
-	data: Record<string,unknown>={success: true},
-	delay=200 // default delay in ms
-): (input: string|URL|Request,init?: RequestInit) => Promise<Response> {
-	return (input: string|URL|Request,init?: RequestInit) => {
-		return new Promise<Response>((resolve,reject) => {
-			const timer=setTimeout(() => {
-				resolve(new Response(JSON.stringify(data),{status}));
-			},delay);
+	status = 200,
+	data: Record<string, unknown> = { success: true },
+	delay = 200, // default delay in ms
+): (input: string | URL | Request, init?: RequestInit) => Promise<Response> {
+	return (input: string | URL | Request, init?: RequestInit) => {
+		return new Promise<Response>((resolve, reject) => {
+			const timer = setTimeout(() => {
+				resolve(new Response(JSON.stringify(data), { status }));
+			}, delay);
 
-			if(init?.signal) {
-				init.signal.addEventListener("abort",() => {
+			if (init?.signal) {
+				init.signal.addEventListener('abort', () => {
 					clearTimeout(timer);
-					reject(new DOMException("Aborted","AbortError"));
+					reject(new DOMException('Aborted', 'AbortError'));
 				});
 			}
 		});

@@ -1,32 +1,31 @@
-
 // src/autocomplete.ts
-import {Command} from "./core.ts";
+import { Command } from './core.ts';
 
-export const autocompleteCommand: Command={
-	name: "autocomplete",
-	description: "Generate shell autocomplete scripts",
+export const autocompleteCommand: Command = {
+	name: 'autocomplete',
+	description: 'Generate shell autocomplete scripts',
 	options: [
 		{
-			name: "shell",
-			alias: "s",
-			type: "string",
-			description: "Shell type (bash, zsh, fish)",
+			name: 'shell',
+			alias: 's',
+			type: 'string',
+			description: 'Shell type (bash, zsh, fish)',
 			required: true,
 		},
 	],
 	action: (args) => {
-		const shell=args.flags.shell as string;
-		let script="";
+		const shell = args.flags.shell as string;
+		let script = '';
 
-		switch(shell) {
-			case "bash":
-				script=generateBashCompletion();
+		switch (shell) {
+			case 'bash':
+				script = generateBashCompletion();
 				break;
-			case "zsh":
-				script=generateZshCompletion();
+			case 'zsh':
+				script = generateZshCompletion();
 				break;
-			case "fish":
-				script=generateFishCompletion();
+			case 'fish':
+				script = generateFishCompletion();
 				break;
 			default:
 				console.error(`Unsupported shell: ${shell}`);

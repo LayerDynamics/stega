@@ -1,7 +1,12 @@
-	// /src/compiler/parser.ts
-import {Project,SourceFile,ts, Diagnostic} from "https://deno.land/x/ts_morph@17.0.1/mod.ts";
-import type {CompilerOptions} from "./types.ts";
-import {logger} from "./logger.ts";
+// /src/compiler/parser.ts
+import {
+	Diagnostic,
+	Project,
+	SourceFile,
+	ts,
+} from 'https://deno.land/x/ts_morph@17.0.1/mod.ts';
+import type { CompilerOptions } from './types.ts';
+import { logger } from './logger.ts';
 
 /**
  * Represents the result of parsing a module, including its AST, dependencies, and any errors.
@@ -22,13 +27,13 @@ export class Parser {
 	 * Initializes the Parser with compiler options.
 	 * @param options - Partial CompilerOptions to customize the parsing behavior.
 	 */
-	constructor(options: Partial<CompilerOptions>={}) {
-		this.project=new Project({
+	constructor(options: Partial<CompilerOptions> = {}) {
+		this.project = new Project({
 			compilerOptions: {
-				target: options.target??ts.ScriptTarget.ESNext,
-				module: options.module??ts.ModuleKind.ESNext,
-				experimentalDecorators: options.experimentalDecorators??true,
-				sourceMap: options.sourceMaps??true,
+				target: options.target ?? ts.ScriptTarget.ESNext,
+				module: options.module ?? ts.ModuleKind.ESNext,
+				experimentalDecorators: options.experimentalDecorators ?? true,
+				sourceMap: options.sourceMaps ?? true,
 				declaration: false,
 				strict: true,
 				esModuleInterop: true,
@@ -45,16 +50,20 @@ export class Parser {
 	 * @param path - The file path.
 	 * @returns The ParseResult containing the AST, dependencies, and errors.
 	 */
-	public parse(contents: string,path: string): ParseResult {
-		const sourceFile=this.project.createSourceFile(path,contents,{overwrite: true});
-		const dependencies=this.collectDependencies(sourceFile);
-		const diagnostics=sourceFile.getPreEmitDiagnostics();
+	public parse(contents: string, path: string): ParseResult {
+		const sourceFile = this.project.createSourceFile(path, contents, {
+			overwrite: true,
+		});
+		const dependencies = this.collectDependencies(sourceFile);
+		const diagnostics = sourceFile.getPreEmitDiagnostics();
 
-		const errors = diagnostics.map(diag => diag.getMessageText().toString());
+		const errors = diagnostics.map((diag) => diag.getMessageText().toString());
 
-		if(diagnostics.length>0) {
+		if (diagnostics.length > 0) {
 			// Use ts.Diagnostic instead of TsMorph diagnostic
-			diagnostics.forEach(diag => this.logDiagnostic(diag as unknown as ts.Diagnostic));
+			diagnostics.forEach((diag) =>
+				this.logDiagnostic(diag as unknown as ts.Diagnostic)
+			);
 		}
 
 		return {
@@ -70,16 +79,16 @@ export class Parser {
 	 * @returns An array of dependency module specifiers.
 	 */
 	private collectDependencies(sourceFile: SourceFile): string[] {
-		const deps: Set<string>=new Set();
+		const deps: Set<string> = new Set();
 
 		sourceFile.getImportDeclarations().forEach((importDecl) => {
-			const moduleSpecifier=importDecl.getModuleSpecifierValue();
+			const moduleSpecifier = importDecl.getModuleSpecifierValue();
 			deps.add(moduleSpecifier);
 		});
 
 		sourceFile.getExportDeclarations().forEach((exportDecl) => {
-			const moduleSpecifier=exportDecl.getModuleSpecifierValue();
-			if(moduleSpecifier) {
+			const moduleSpecifier = exportDecl.getModuleSpecifierValue();
+			if (moduleSpecifier) {
 				deps.add(moduleSpecifier);
 			}
 		});
@@ -92,13 +101,18 @@ export class Parser {
 	 * @param diagnostic - The TypeScript diagnostic to log.
 	 */
 	private logDiagnostic(diagnostic: ts.Diagnostic): void {
-		const message=ts.flattenDiagnosticMessageText(diagnostic.messageText,"\n");
-		const sourceFile=diagnostic.file;
-		const pos=diagnostic.start;
+		const message = ts.flattenDiagnosticMessageText(
+			diagnostic.messageText,
+			'\n',
+		);
+		const sourceFile = diagnostic.file;
+		const pos = diagnostic.start;
 
-		if(sourceFile&&pos!==undefined) {
-			const {line,character}=sourceFile.getLineAndCharacterOfPosition(pos);
-			logger.error(`${sourceFile.fileName} (${line+1},${character+1}): ${message}`);
+		if (sourceFile && pos !== undefined) {
+			const { line, character } = sourceFile.getLineAndCharacterOfPosition(pos);
+			logger.error(
+				`${sourceFile.fileName} (${line + 1},${character + 1}): ${message}`,
+			);
 		} else {
 			logger.error(message);
 		}

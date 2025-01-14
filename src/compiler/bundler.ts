@@ -4,11 +4,11 @@
  * Bundles all modules into a single output file, handling module wrapping based on the target module format.
  */
 
-import {DependencyGraph} from "./dependency-graph.ts";
-import type {CompilerOptions,ModuleFormat} from "./types.ts";
-import {SourceMapGenerator} from "https://esm.sh/source-map@0.7.4";
-import {logger} from "./logger.ts";
-import {ts} from "https://deno.land/x/ts_morph@17.0.1/mod.ts";
+import { DependencyGraph } from './dependency-graph.ts';
+import type { CompilerOptions, ModuleFormat } from './types.ts';
+import { SourceMapGenerator } from 'https://esm.sh/source-map@0.7.4';
+import { logger } from './logger.ts';
+import { ts } from 'https://deno.land/x/ts_morph@17.0.1/mod.ts';
 
 /**
  * Interface representing the result of the bundling process.
@@ -16,7 +16,7 @@ import {ts} from "https://deno.land/x/ts_morph@17.0.1/mod.ts";
 export interface BundleResult {
 	code: string;
 	map?: string;
-	modules: Map<string,string>;
+	modules: Map<string, string>;
 }
 
 /**
@@ -32,51 +32,51 @@ export class Bundler {
 	 */
 	public bundle(depGraph: DependencyGraph): BundleResult {
 		logger.info(`Starting bundle process with ${depGraph.size} modules`);
-		const modules=new Map<string,string>();
-		const moduleOrder=depGraph.getTopologicalOrder();
+		const modules = new Map<string, string>();
+		const moduleOrder = depGraph.getTopologicalOrder();
 
 		// Add format-specific preamble based on module format
 		const moduleFormat: ModuleFormat = this.getModuleFormat();
 		logger.info(`Using module format: ${moduleFormat}`);
-		let code=this.generatePreamble();
+		let code = this.generatePreamble();
 
 		// Log external modules being skipped
-		this.options.externals.forEach(ext => {
+		this.options.externals.forEach((ext) => {
 			logger.info(`Skipping external module: ${ext}`);
 		});
 
 		// Initialize source map generator
-		const sourceMap=new SourceMapGenerator({file: "bundle.js"});
+		const sourceMap = new SourceMapGenerator({ file: 'bundle.js' });
 
 		// Bundle modules in dependency order
-		for(const modulePath of moduleOrder) {
-			if(this.options.externals.includes(modulePath)) {
+		for (const modulePath of moduleOrder) {
+			if (this.options.externals.includes(modulePath)) {
 				// Skip bundling external modules
 				continue;
 			}
 			logger.info(`Bundling module: ${modulePath}`);
-			const moduleCode=this.bundleModule(depGraph,modulePath);
-			modules.set(modulePath,moduleCode);
-			code+=moduleCode;
+			const moduleCode = this.bundleModule(depGraph, modulePath);
+			modules.set(modulePath, moduleCode);
+			code += moduleCode;
 
 			// Example source map mapping (to be enhanced based on actual code generation)
 			// This simplistic mapping assumes one line per module
-			const line=code.split("\n").length;
+			const line = code.split('\n').length;
 			sourceMap.addMapping({
-				generated: {line: line,column: 0},
-				original: {line: 1,column: 0},
+				generated: { line: line, column: 0 },
+				original: { line: 1, column: 0 },
 				source: modulePath,
 			});
-			sourceMap.setSourceContent(modulePath,modules.get(modulePath)||"");
+			sourceMap.setSourceContent(modulePath, modules.get(modulePath) || '');
 		}
 
-		code+=this.generatePostamble();
+		code += this.generatePostamble();
 		logger.info('Bundle process completed successfully');
 
 		return {
 			code,
 			modules,
-			map: this.options.sourceMaps? sourceMap.toString():undefined,
+			map: this.options.sourceMaps ? sourceMap.toString() : undefined,
 		};
 	}
 
@@ -85,11 +85,11 @@ export class Bundler {
 	 */
 	private getModuleFormat(): ModuleFormat {
 		if (this.options.module === ts.ModuleKind.CommonJS) {
-			return "commonjs";
+			return 'commonjs';
 		} else if (this.options.module === ts.ModuleKind.UMD) {
-			return "umd";
+			return 'umd';
 		}
-		return "es6";
+		return 'es6';
 	}
 
 	/**
@@ -98,9 +98,9 @@ export class Bundler {
 	 * @param modulePath - The path of the module to bundle.
 	 * @returns The wrapped module code as a string.
 	 */
-	private bundleModule(depGraph: DependencyGraph,modulePath: string): string {
-		const module=depGraph.getModule(modulePath);
-		if(!module) {
+	private bundleModule(depGraph: DependencyGraph, modulePath: string): string {
+		const module = depGraph.getModule(modulePath);
+		if (!module) {
 			logger.error(`Failed to bundle module: ${modulePath} - Module not found`);
 			throw new Error(`Module not found: ${modulePath}`);
 		}
@@ -109,9 +109,9 @@ export class Bundler {
 		const format = this.getModuleFormat();
 		logger.info(`Wrapping module ${modulePath} using ${format} format`);
 
-		return format === "commonjs"
-			? this.wrapCommonJS(modulePath,module.code)
-			:this.wrapESModule(modulePath,module.code);
+		return format === 'commonjs'
+			? this.wrapCommonJS(modulePath, module.code)
+			: this.wrapESModule(modulePath, module.code);
 	}
 
 	/**
@@ -120,7 +120,7 @@ export class Bundler {
 	 * @param code - The module's code.
 	 * @returns The CommonJS-wrapped module code.
 	 */
-	private wrapCommonJS(path: string,code: string): string {
+	private wrapCommonJS(path: string, code: string): string {
 		return `
 __register("${path}", function(module, exports, require) {
 ${code}
@@ -134,7 +134,7 @@ ${code}
 	 * @param code - The module's code.
 	 * @returns The ES Module-wrapped module code.
 	 */
-	private wrapESModule(path: string,code: string): string {
+	private wrapESModule(path: string, code: string): string {
 		return `
 __register("${path}", function(module, exports) {
 ${code}

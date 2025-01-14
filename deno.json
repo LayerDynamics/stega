@@ -25,6 +25,9 @@
 		"useTabs": true,
 		"lineWidth": 80,
 		"indentWidth": 2,
+		"singleQuote": true,
+		"proseWrap": "preserve",
+		"semiColons": true,
 		"singleQuote": true
 	},
 	"test": {
@@ -47,7 +50,10 @@
 		"lint": "deno lint",
 		"lint:fix": "deno lint --quiet",
 		"cache:clean": "deno cache --reload mod.ts",
-		"cache:update": "deno cache mod.ts"
+		"cache:update": "deno cache mod.ts",
+		"fmt": "deno fmt",
+		"fmt:check": "deno fmt --check",
+		"fmt:all": "deno task fmt && deno lint --fix"
 	},
 	"imports": {
 		"@std/assert": "https://deno.land/std@0.224.0/assert/mod.ts",

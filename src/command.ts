@@ -1,6 +1,6 @@
 // src/command.ts
-import {FlagValue} from "./flag.ts"; // Import FlagValue
-import type {Args} from "./types.ts"; // Import Args from types.ts
+import { FlagValue } from './flag.ts'; // Import FlagValue
+import type { Args } from './types.ts'; // Import Args from types.ts
 
 /**
  * Represents an option for a command.
@@ -9,7 +9,7 @@ export interface Option {
 	name: string;
 	alias?: string;
 	description?: string;
-	type: 'boolean'|'string'|'number'|'array';
+	type: 'boolean' | 'string' | 'number' | 'array';
 	default?: FlagValue;
 	required?: boolean;
 }
@@ -22,12 +22,12 @@ export interface Command {
 	description?: string;
 	options?: Option[];
 	subcommands?: Command[];
-	action: (args: Args) => void|Promise<void>;
+	action: (args: Args) => void | Promise<void>;
 	aliases?: string[];
 }
 
 export class CommandRegistry {
-	private commands: Command[]=[];
+	private commands: Command[] = [];
 
 	/**
 	 * Registers a new command.
@@ -48,7 +48,7 @@ export class CommandRegistry {
 	 * @returns true if command was removed, false if not found
 	 */
 	remove(name: string): boolean {
-		const index = this.commands.findIndex(cmd => cmd.name === name);
+		const index = this.commands.findIndex((cmd) => cmd.name === name);
 		if (index !== -1) {
 			this.commands.splice(index, 1);
 			return true;
@@ -69,9 +69,9 @@ export class CommandRegistry {
 	 * @param name The name or alias of the command.
 	 * @returns The found command or undefined.
 	 */
-	findCommand(name: string): Command|undefined {
+	findCommand(name: string): Command | undefined {
 		return this.commands.find(
-			(cmd) => cmd.name===name||(cmd.aliases&&cmd.aliases.includes(name))
+			(cmd) => cmd.name === name || (cmd.aliases && cmd.aliases.includes(name)),
 		);
 	}
 
@@ -81,20 +81,25 @@ export class CommandRegistry {
 	 * @param subcommandPath An array representing the path of subcommands.
 	 * @returns The found subcommand or undefined.
 	 */
-	findSubcommand(command: Command,subcommandPath: string[]): Command|undefined {
-		let currentCommand=command;
+	findSubcommand(
+		command: Command,
+		subcommandPath: string[],
+	): Command | undefined {
+		let currentCommand = command;
 
-		for(const subName of subcommandPath) {
-			if(!currentCommand.subcommands) {
+		for (const subName of subcommandPath) {
+			if (!currentCommand.subcommands) {
 				return undefined;
 			}
-			const subcommand=currentCommand.subcommands.find(
-				(cmd) => cmd.name===subName||(cmd.aliases&&cmd.aliases.includes(subName))
+			const subcommand = currentCommand.subcommands.find(
+				(cmd) =>
+					cmd.name === subName ||
+					(cmd.aliases && cmd.aliases.includes(subName)),
 			);
-			if(!subcommand) {
+			if (!subcommand) {
 				return undefined;
 			}
-			currentCommand=subcommand;
+			currentCommand = subcommand;
 		}
 
 		return currentCommand;

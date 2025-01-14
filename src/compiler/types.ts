@@ -1,11 +1,10 @@
-
 // /src/compiler/types.ts
-import {ts,SourceFile} from "https://deno.land/x/ts_morph@17.0.1/mod.ts";
+import { SourceFile, ts } from 'https://deno.land/x/ts_morph@17.0.1/mod.ts';
 
 /**
  * Supported module formats for the bundler.
  */
-export type ModuleFormat="es6"|"commonjs"|"umd";
+export type ModuleFormat = 'es6' | 'commonjs' | 'umd';
 
 /**
  * Generated output interface for compilation results.
@@ -14,7 +13,7 @@ export interface GeneratedOutput {
 	code: string;
 	map?: string;
 	warnings?: string[];
-	assets?: Map<string,unknown>;
+	assets?: Map<string, unknown>;
 }
 
 /**
@@ -23,7 +22,7 @@ export interface GeneratedOutput {
 export interface BundleResult {
 	code: string;
 	map?: string;
-	modules: Map<string,string>;
+	modules: Map<string, string>;
 }
 
 /**
@@ -38,9 +37,9 @@ export interface CompilerOptions {
 	sourceMaps: boolean;
 	minify: boolean;
 	plugins: Array<CompilerPlugin>;
-	platform: "browser"|"node"|"deno";
+	platform: 'browser' | 'node' | 'deno';
 	externals: string[];
-	define: {[key: string]: string};
+	define: { [key: string]: string };
 	treeshake: boolean;
 	format: ModuleFormat;
 	umdName?: string;
@@ -53,26 +52,26 @@ export interface CompilerOptions {
 export interface CodeGenOptions {
 	sourceMaps: boolean;
 	minify: boolean;
-	target: ts.ScriptTarget|string;
+	target: ts.ScriptTarget | string;
 	format?: ModuleFormat;
-	platform?: "browser"|"node"|"deno";
+	platform?: 'browser' | 'node' | 'deno';
 	externals?: string[];
 }
 
 // Re-export needed types
-export {type SourceFile};
+export { type SourceFile };
 
 /**
  * Generic value type for compiler options.
  */
-export type CompilerOptionsValue=string|number|boolean|undefined;
+export type CompilerOptionsValue = string | number | boolean | undefined;
 
 /**
  * Interface representing a compiler plugin.
  */
 export interface CompilerPlugin {
 	name: string;
-	setup(build: BuildContext): void|Promise<void>;
+	setup(build: BuildContext): void | Promise<void>;
 }
 
 /**
@@ -81,7 +80,9 @@ export interface CompilerPlugin {
 export interface BuildContext {
 	onLoad(callback: (args: OnLoadArgs) => Promise<OnLoadResult>): void;
 	onResolve(callback: (args: OnResolveArgs) => Promise<OnResolveResult>): void;
-	onTransform(callback: (args: OnTransformArgs) => Promise<OnTransformResult>): void;
+	onTransform(
+		callback: (args: OnTransformArgs) => Promise<OnTransformResult>,
+	): void;
 }
 
 /**
@@ -97,7 +98,7 @@ export interface OnLoadArgs {
  */
 export interface OnLoadResult {
 	contents: string;
-	loader: "ts"|"js"|"json";
+	loader: 'ts' | 'js' | 'json';
 	resolveDir?: string;
 }
 

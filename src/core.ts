@@ -1,28 +1,28 @@
 // src/core.ts
-import {CommandRegistry,Command} from "./command.ts";
-import {Parser,FlagValue} from "./parser.ts"; // Imported FlagValue
-import {Help} from "./help.ts";
-import {ConfigLoader} from "./config.ts";
+import { Command, CommandRegistry } from './command.ts';
+import { FlagValue, Parser } from './parser.ts'; // Imported FlagValue
+import { Help } from './help.ts';
+import { ConfigLoader } from './config.ts';
 import {
-	StegaError,
 	CommandNotFoundError,
-	SubcommandNotFoundError,
 	MissingFlagError,
-} from "./error.ts"; // Removed InvalidFlagValueError as it's unused
-import {MiddlewareRegistry,MiddlewareFunction} from "./middleware.ts";
-import {logger,setup} from "./logger.ts";
-import {I18n} from "./i18n.ts";
-import {PluginLoader} from "./plugin_loader.ts";
-import {Plugin} from "./plugin.ts";
-import type {LevelName} from "https://deno.land/std@0.224.0/log/levels.ts";
-import type {ILogger} from "./logger_interface.ts";
-import type {Args} from "./types.ts";
+	StegaError,
+	SubcommandNotFoundError,
+} from './error.ts'; // Removed InvalidFlagValueError as it's unused
+import { MiddlewareFunction, MiddlewareRegistry } from './middleware.ts';
+import { logger, setup } from './logger.ts';
+import { I18n } from './i18n.ts';
+import { PluginLoader } from './plugin_loader.ts';
+import { Plugin } from './plugin.ts';
+import type { LevelName } from 'https://deno.land/std@0.224.0/log/levels.ts';
+import type { ILogger } from './logger_interface.ts';
+import type { Args } from './types.ts';
 
 export interface Option {
 	name: string;
 	alias?: string;
 	description?: string;
-	type: "boolean"|"string"|"number"|"array";
+	type: 'boolean' | 'string' | 'number' | 'array';
 	default?: unknown;
 	required?: boolean;
 }
@@ -38,8 +38,8 @@ export class CLI {
 	private registry: CommandRegistry;
 	private parser: Parser;
 	private help: Help;
-	private configLoader: ConfigLoader|undefined;
-	private config: Partial<Record<string,FlagValue>>={}; // Updated type
+	private configLoader: ConfigLoader | undefined;
+	private config: Partial<Record<string, FlagValue>> = {}; // Updated type
 	private testMode: boolean;
 	private middlewareRegistry: MiddlewareRegistry;
 	private i18n: I18n;
@@ -52,21 +52,21 @@ export class CLI {
 
 	constructor(
 		configPath?: string,
-		skipConfig=false,
-		testMode=false,
-		injectedLogger?: ILogger
+		skipConfig = false,
+		testMode = false,
+		injectedLogger?: ILogger,
 	) {
-		this.registry=new CommandRegistry();
-		this.parser=new Parser();
-		this.configLoader=skipConfig? undefined:new ConfigLoader(configPath);
-		this.testMode=testMode;
-		this.middlewareRegistry=new MiddlewareRegistry();
-		this.i18n=new I18n(this.config);
-		this.help=new Help(this.registry,this.i18n);
-		this.pluginLoader=new PluginLoader();
+		this.registry = new CommandRegistry();
+		this.parser = new Parser();
+		this.configLoader = skipConfig ? undefined : new ConfigLoader(configPath);
+		this.testMode = testMode;
+		this.middlewareRegistry = new MiddlewareRegistry();
+		this.i18n = new I18n(this.config);
+		this.help = new Help(this.registry, this.i18n);
+		this.pluginLoader = new PluginLoader();
 
 		// Assign the injected logger or default to the global logger
-		this.logger=injectedLogger||logger;
+		this.logger = injectedLogger || logger;
 
 		// Register core commands
 		this.registerCoreCommands();
@@ -81,13 +81,13 @@ export class CLI {
 	 */
 	private registerCoreCommands(): void {
 		this.register({
-			name: "help",
-			description: "Display help information",
+			name: 'help',
+			description: 'Display help information',
 			options: [{
-				name: "command",
-				type: "string",
-				description: "Command to get help for",
-				required: false
+				name: 'command',
+				type: 'string',
+				description: 'Command to get help for',
+				required: false,
 			}],
 			action: async (args: Args) => {
 				const cmdName = args.flags.command as string | undefined;
@@ -101,7 +101,7 @@ export class CLI {
 				} else {
 					console.log(this.help.generateHelp());
 				}
-			}
+			},
 		});
 	}
 
@@ -128,15 +128,15 @@ export class CLI {
 	 * @returns The formatted string.
 	 */
 	formatOutput(data: unknown): string {
-		const format=(this.config["output"] as string)||"text";
+		const format = (this.config['output'] as string) || 'text';
 
-		switch(format) {
-			case "json":
-				return JSON.stringify(data,null,2);
-			case "yaml":
+		switch (format) {
+			case 'json':
+				return JSON.stringify(data, null, 2);
+			case 'yaml':
 				// Placeholder for YAML support
 				return String(data);
-			case "text":
+			case 'text':
 			default:
 				return String(data);
 		}
@@ -147,8 +147,8 @@ export class CLI {
 	 * @param pluginPaths Array of plugin module URLs or local paths.
 	 */
 	async loadPlugins(pluginPaths: string[]) {
-		for(const path of pluginPaths) {
-			await this.pluginLoader.loadPlugin(path,this);
+		for (const path of pluginPaths) {
+			await this.pluginLoader.loadPlugin(path, this);
 		}
 	}
 
@@ -166,11 +166,11 @@ export class CLI {
 	async run() {
 		try {
 			// Load configuration first if configLoader exists
-			if(this.configLoader) {
+			if (this.configLoader) {
 				try {
-					this.config=await this.configLoader.load();
-				} catch(_error) { // Renamed to _error to indicate intentional non-use
-					if(!(_error instanceof Deno.errors.NotFound)) {
+					this.config = await this.configLoader.load();
+				} catch (_error) { // Renamed to _error to indicate intentional non-use
+					if (!(_error instanceof Deno.errors.NotFound)) {
 						throw _error;
 					}
 				}
@@ -179,22 +179,22 @@ export class CLI {
 			// Load i18n
 			await this.i18n.load();
 
-			const args=this.parser.parse(Deno.args,this);
-			args.cli=this;
+			const args = this.parser.parse(Deno.args, this);
+			args.cli = this;
 
 			// Load plugins if specified
-			if(args.flags.plugins) {
-				const plugins=args.flags.plugins as string[];
+			if (args.flags.plugins) {
+				const plugins = args.flags.plugins as string[];
 				await this.loadPlugins(plugins);
 			}
 
 			// Handle help command or flags
-			if(args.command.includes("help")) {
-				const helpIndex=args.command.indexOf("help");
-				const helpTarget=args.command[helpIndex+1];
-				if(helpTarget) {
-					const command=this.registry.findCommand(helpTarget);
-					if(command) {
+			if (args.command.includes('help')) {
+				const helpIndex = args.command.indexOf('help');
+				const helpTarget = args.command[helpIndex + 1];
+				if (helpTarget) {
+					const command = this.registry.findCommand(helpTarget);
+					if (command) {
 						console.log(this.help.generateHelp(command));
 					} else {
 						console.error(`Command "${helpTarget}" not found.`);
@@ -205,11 +205,11 @@ export class CLI {
 				return;
 			}
 
-			if(args.flags.help||args.flags.h) {
-				const cmdName=args.command[0];
-				if(cmdName) {
-					const command=this.registry.findCommand(cmdName);
-					if(command) {
+			if (args.flags.help || args.flags.h) {
+				const cmdName = args.command[0];
+				if (cmdName) {
+					const command = this.registry.findCommand(cmdName);
+					if (command) {
 						console.log(this.help.generateHelp(command));
 						return;
 					}
@@ -218,44 +218,44 @@ export class CLI {
 				return;
 			}
 
-			if(args.command.length===0) {
+			if (args.command.length === 0) {
 				this.showHelp();
 				return;
 			}
 
-			const [cmdName,...subCmds]=args.command;
-			const command=this.registry.findCommand(cmdName);
+			const [cmdName, ...subCmds] = args.command;
+			const command = this.registry.findCommand(cmdName);
 
-			if(!command) {
+			if (!command) {
 				throw new CommandNotFoundError(cmdName);
 			}
 
 			// Execute middleware before processing options
-			await this.middlewareRegistry.execute(args,command);
+			await this.middlewareRegistry.execute(args, command);
 
 			// Handle subcommands if any
-			if(subCmds.length>0&&command.subcommands) {
-				const subcommand=this.registry.findSubcommand(command,subCmds);
-				if(!subcommand) {
-					throw new SubcommandNotFoundError(subCmds.join(" "));
+			if (subCmds.length > 0 && command.subcommands) {
+				const subcommand = this.registry.findSubcommand(command, subCmds);
+				if (!subcommand) {
+					throw new SubcommandNotFoundError(subCmds.join(' '));
 				}
-				await this.processOptions(subcommand,args.flags);
+				await this.processOptions(subcommand, args.flags);
 				await subcommand.action(args);
 			} else {
-				await this.processOptions(command,args.flags);
+				await this.processOptions(command, args.flags);
 				await command.action(args);
 			}
-		} catch(err) {
-			const error=err as Error;
-			if(error instanceof StegaError) {
-				console.error(this.i18n.t("error",{message: error.message}));
+		} catch (err) {
+			const error = err as Error;
+			if (error instanceof StegaError) {
+				console.error(this.i18n.t('error', { message: error.message }));
 			} else {
 				console.error(
-					this.i18n.t("unexpected_error",{message: error.message})
+					this.i18n.t('unexpected_error', { message: error.message }),
 				);
 			}
 			this.showHelp();
-			if(!this.testMode) {
+			if (!this.testMode) {
 				Deno.exit(1);
 			}
 			throw error; // Re-throw in test mode
@@ -268,36 +268,37 @@ export class CLI {
 	 */
 	async runCommand(args: string[]): Promise<void> {
 		try {
-			const parsedArgs=this.parser.parse(args,this);
+			const parsedArgs = this.parser.parse(args, this);
 
 			// Skip help handling in batch mode
-			if(parsedArgs.command.length===0) {
+			if (parsedArgs.command.length === 0) {
 				return;
 			}
 
-			const [cmdName,...subCmds]=parsedArgs.command;
-			const command=this.registry.findCommand(cmdName);
+			const [cmdName, ...subCmds] = parsedArgs.command;
+			const command = this.registry.findCommand(cmdName);
 
-			if(!command) {
+			if (!command) {
 				throw new CommandNotFoundError(cmdName);
 			}
 
-			await this.middlewareRegistry.execute(parsedArgs,command);
+			await this.middlewareRegistry.execute(parsedArgs, command);
 
-			if(subCmds.length>0&&command.subcommands) {
-				const subcommand=this.registry.findSubcommand(command,subCmds);
-				if(!subcommand) {
-					throw new SubcommandNotFoundError(subCmds.join(" "));
+			if (subCmds.length > 0 && command.subcommands) {
+				const subcommand = this.registry.findSubcommand(command, subCmds);
+				if (!subcommand) {
+					throw new SubcommandNotFoundError(subCmds.join(' '));
 				}
-				await this.processOptions(subcommand,parsedArgs.flags);
+				await this.processOptions(subcommand, parsedArgs.flags);
 				await subcommand.action(parsedArgs);
 			} else {
-				await this.processOptions(command,parsedArgs.flags);
+				await this.processOptions(command, parsedArgs.flags);
 				await command.action(parsedArgs);
 			}
-		} catch(error: unknown) {
-			const errorMessage=
-				error instanceof Error? error.message:String(error);
+		} catch (error: unknown) {
+			const errorMessage = error instanceof Error
+				? error.message
+				: String(error);
 			this.logger.error(`Command execution failed: ${errorMessage}`);
 			throw error;
 		}
@@ -310,44 +311,45 @@ export class CLI {
 	 */
 	async processOptions(
 		command: Command,
-		flags: Record<string,FlagValue>
+		flags: Record<string, FlagValue>,
 	) {
-		if(!command.options||command.options.length===0) return;
+		if (!command.options || command.options.length === 0) return;
 
-		const processedFlags: Record<string,FlagValue>={};
+		const processedFlags: Record<string, FlagValue> = {};
 
-		for(const option of command.options) {
-			const {name,alias,type: _type,default: defaultValue,required}=option; // Renamed 'type' to '_type'
-			let value: FlagValue|undefined;
+		for (const option of command.options) {
+			const { name, alias, type: _type, default: defaultValue, required } =
+				option; // Renamed 'type' to '_type'
+			let value: FlagValue | undefined;
 
-			if(flags[name]!==undefined) {
-				value=flags[name];
-			} else if(alias&&flags[alias]!==undefined) {
-				value=flags[alias];
-			} else if(this.config[name]!==undefined) {
-				value=this.config[name] as FlagValue;
+			if (flags[name] !== undefined) {
+				value = flags[name];
+			} else if (alias && flags[alias] !== undefined) {
+				value = flags[alias];
+			} else if (this.config[name] !== undefined) {
+				value = this.config[name] as FlagValue;
 			} else {
-				value=defaultValue as FlagValue;
+				value = defaultValue as FlagValue;
 			}
 
-			if(value!==undefined) {
+			if (value !== undefined) {
 				// No need to convert here as Parser already handles type conversion
-				processedFlags[name]=value;
-			} else if(required) {
-				throw new MissingFlagError(name,_type); // Passed both 'name' and 'expectedType'
+				processedFlags[name] = value;
+			} else if (required) {
+				throw new MissingFlagError(name, _type); // Passed both 'name' and 'expectedType'
 			}
 		}
 
 		// Fix logger setup configuration
-		const logLevel=processedFlags["log-level"];
-		if(logLevel&&typeof logLevel==="string") {
-			const level=logLevel.toUpperCase() as LevelName;
-			await setup({loggers: {default: {level,handlers: ["console"]}}});
+		const logLevel = processedFlags['log-level'];
+		if (logLevel && typeof logLevel === 'string') {
+			const level = logLevel.toUpperCase() as LevelName;
+			await setup({ loggers: { default: { level, handlers: ['console'] } } });
 		}
 
 		// Attach processed flags to args.flags
-		for(const [key,value] of Object.entries(processedFlags)) {
-			flags[key]=value;
+		for (const [key, value] of Object.entries(processedFlags)) {
+			flags[key] = value;
 		}
 	}
 
@@ -366,9 +368,9 @@ export class CLI {
 	 */
 	public t(
 		key: string,
-		placeholders?: Record<string,string|number>
+		placeholders?: Record<string, string | number>,
 	): string {
-		return this.i18n.t(key,placeholders);
+		return this.i18n.t(key, placeholders);
 	}
 
 	/**
@@ -392,7 +394,7 @@ export class CLI {
 	 * @param name The name of the command to find.
 	 * @returns The found command or undefined.
 	 */
-	public findCommand(name: string): Command|undefined {
+	public findCommand(name: string): Command | undefined {
 		return this.registry.findCommand(name);
 	}
 
@@ -401,66 +403,70 @@ export class CLI {
 	 */
 	private registerPluginCommands() {
 		this.register({
-			name: "plugin",
-			description: "Plugin management commands",
+			name: 'plugin',
+			description: 'Plugin management commands',
 			options: [
 				// Define any options for the 'plugin' command if necessary
 			],
 			subcommands: [
 				{
-					name: "load",
-					description: "Load a plugin",
+					name: 'load',
+					description: 'Load a plugin',
 					options: [
 						{
-							name: "path",
-							alias: "p",
-							type: "string",
-							description: "Path to plugin",
+							name: 'path',
+							alias: 'p',
+							type: 'string',
+							description: 'Path to plugin',
 							required: true,
 						},
 					],
 					action: async (args: Args) => {
-						const path=args.flags.path as string;
-						await this.pluginLoader.loadPlugin(path,this);
+						const path = args.flags.path as string;
+						await this.pluginLoader.loadPlugin(path, this);
 					},
 				},
 				{
-					name: "unload",
-					description: "Unload a plugin",
+					name: 'unload',
+					description: 'Unload a plugin',
 					options: [
 						{
-							name: "name",
-							alias: "n",
-							type: "string",
-							description: "Plugin name",
+							name: 'name',
+							alias: 'n',
+							type: 'string',
+							description: 'Plugin name',
 							required: true,
 						},
 					],
 					action: async (args: Args) => {
-						const name=args.flags.name as string;
-						await this.pluginLoader.unloadPlugin(name,this);
+						const name = args.flags.name as string;
+						await this.pluginLoader.unloadPlugin(name, this);
 					},
 				},
 				{
-					name: "list",
-					description: "List loaded plugins",
+					name: 'list',
+					description: 'List loaded plugins',
 					action: () => {
-						const plugins=this.pluginLoader.listPlugins();
-						if(plugins.length===0) {
-							console.log("No plugins loaded");
+						const plugins = this.pluginLoader.listPlugins();
+						if (plugins.length === 0) {
+							console.log('No plugins loaded');
 							return;
 						}
-						console.log("Loaded plugins:");
-						for(const plugin of plugins) {
+						console.log('Loaded plugins:');
+						for (const plugin of plugins) {
 							console.log(
-								`- ${plugin.name} v${plugin.version}: ${plugin.description||""}`
+								`- ${plugin.name} v${plugin.version}: ${
+									plugin.description || ''
+								}`,
 							);
 						}
 					},
 				},
 			],
 			action: (_args: Args) => { // Removed 'async' and renamed 'args' to '_args'
-				console.log("Plugin management commands. Use 'plugin [command]' to manage plugins.");
+				console.log(
+					"Plugin management commands. Use 'plugin [command]' to manage plugins.",
+				);
 			},
 		});
 	}
@@ -471,7 +477,7 @@ export class CLI {
 	public markAsReady(): void {
 		this.ready = true;
 		this.loadingPromise = Promise.resolve();
-		this.logger.debug("CLI is ready");
+		this.logger.debug('CLI is ready');
 	}
 
 	public async waitForReady(): Promise<void> {

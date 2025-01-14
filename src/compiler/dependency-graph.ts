@@ -1,16 +1,16 @@
 // /src/compiler/dependency-graph.ts
-import type {ModuleInfo} from "./types.ts";
-import * as path from "https://deno.land/std@0.203.0/path/mod.ts";
-import {ts} from "https://deno.land/x/ts_morph@17.0.1/mod.ts";
+import type { ModuleInfo } from './types.ts';
+import * as path from 'https://deno.land/std@0.203.0/path/mod.ts';
+import { ts } from 'https://deno.land/x/ts_morph@17.0.1/mod.ts';
 
 /**
  * Manages the dependency graph of modules, tracking their dependencies and dependents.
  */
 export class DependencyGraph {
-	private modules=new Map<string,ModuleInfo>();
-	private dependencies=new Map<string,Set<string>>();
-	private reverseDependencies=new Map<string,Set<string>>();
-	public moduleOrder: string[]=[];
+	private modules = new Map<string, ModuleInfo>();
+	private dependencies = new Map<string, Set<string>>();
+	private reverseDependencies = new Map<string, Set<string>>();
+	public moduleOrder: string[] = [];
 
 	/**
 	 * Gets the total number of modules in the graph
@@ -26,9 +26,9 @@ export class DependencyGraph {
 	 */
 	public async build(
 		entryModule: ModuleInfo,
-		options: {parseModule: (path: string) => Promise<ModuleInfo>}
+		options: { parseModule: (path: string) => Promise<ModuleInfo> },
 	): Promise<void> {
-		await this.addModule(entryModule,options);
+		await this.addModule(entryModule, options);
 	}
 
 	/**
@@ -36,7 +36,7 @@ export class DependencyGraph {
 	 * @param path - The module's file path.
 	 * @returns The Module object or undefined if not found.
 	 */
-	public getModule(path: string): ModuleInfo|undefined {
+	public getModule(path: string): ModuleInfo | undefined {
 		return this.modules.get(path);
 	}
 
@@ -53,9 +53,9 @@ export class DependencyGraph {
 	 * @param path - The module's file path.
 	 * @param module - The updated Module object.
 	 */
-	public updateModule(path: string,module: ModuleInfo): void {
-		this.modules.set(path,module);
-		this.setDependencies(path,module.dependencies);
+	public updateModule(path: string, module: ModuleInfo): void {
+		this.modules.set(path, module);
+		this.setDependencies(path, module.dependencies);
 	}
 
 	/**
@@ -63,18 +63,18 @@ export class DependencyGraph {
 	 * @param path - The module's file path.
 	 * @param dependencies - An array of dependency module specifiers.
 	 */
-	private setDependencies(path: string,dependencies: string[]): void {
-		if(!this.dependencies.has(path)) {
-			this.dependencies.set(path,new Set());
+	private setDependencies(path: string, dependencies: string[]): void {
+		if (!this.dependencies.has(path)) {
+			this.dependencies.set(path, new Set());
 		}
-		const deps=this.dependencies.get(path)!;
+		const deps = this.dependencies.get(path)!;
 		deps.clear();
-		for(const dep of dependencies) {
-			const resolvedDep=this.resolveModulePath(dep,path);
+		for (const dep of dependencies) {
+			const resolvedDep = this.resolveModulePath(dep, path);
 			deps.add(resolvedDep);
 			// Update reverse dependencies
-			if(!this.reverseDependencies.has(resolvedDep)) {
-				this.reverseDependencies.set(resolvedDep,new Set());
+			if (!this.reverseDependencies.has(resolvedDep)) {
+				this.reverseDependencies.set(resolvedDep, new Set());
 			}
 			this.reverseDependencies.get(resolvedDep)!.add(path);
 		}
@@ -86,45 +86,49 @@ export class DependencyGraph {
 	 * @param importerPath - The path of the importing module.
 	 * @returns The resolved absolute file path.
 	 */
-	private resolveModulePath(specifier: string,importerPath: string): string {
-		if(specifier.startsWith(".")||specifier.startsWith("/")) {
+	private resolveModulePath(specifier: string, importerPath: string): string {
+		if (specifier.startsWith('.') || specifier.startsWith('/')) {
 			// Relative or absolute path
-			const importerDir=path.dirname(importerPath);
-			let resolvedPath=path.resolve(importerDir,specifier);
-			if(!resolvedPath.endsWith(".ts")&&!resolvedPath.endsWith(".js")) {
+			const importerDir = path.dirname(importerPath);
+			let resolvedPath = path.resolve(importerDir, specifier);
+			if (!resolvedPath.endsWith('.ts') && !resolvedPath.endsWith('.js')) {
 				// Attempt to resolve with .ts extension
-				if(Deno.env.get("DENO_BUILD_EXTENSIONS")) {
-					resolvedPath+=".ts";
+				if (Deno.env.get('DENO_BUILD_EXTENSIONS')) {
+					resolvedPath += '.ts';
 				} else {
-					resolvedPath+=".js";
+					resolvedPath += '.js';
 				}
 			}
 			return resolvedPath;
 		} else {
 			// Node modules or aliases
 			// Simplistic node_modules resolution
-			const nodeModulesPath=path.resolve("./node_modules",specifier);
+			const nodeModulesPath = path.resolve('./node_modules', specifier);
 			// Attempt to find index.ts or index.js
 			try {
-				if(Deno.statSync(nodeModulesPath+".ts").isFile) {
-					return nodeModulesPath+".ts";
-				} else if(Deno.statSync(nodeModulesPath+".js").isFile) {
-					return nodeModulesPath+".js";
+				if (Deno.statSync(nodeModulesPath + '.ts').isFile) {
+					return nodeModulesPath + '.ts';
+				} else if (Deno.statSync(nodeModulesPath + '.js').isFile) {
+					return nodeModulesPath + '.js';
 				}
 			} catch {
 				// File does not exist, proceed to check for index files
 			}
 			try {
 				// Attempt to find index files
-				if(Deno.statSync(path.join(nodeModulesPath,"index.ts")).isFile) {
-					return path.join(nodeModulesPath,"index.ts");
-				} else if(Deno.statSync(path.join(nodeModulesPath,"index.js")).isFile) {
-					return path.join(nodeModulesPath,"index.js");
+				if (Deno.statSync(path.join(nodeModulesPath, 'index.ts')).isFile) {
+					return path.join(nodeModulesPath, 'index.ts');
+				} else if (
+					Deno.statSync(path.join(nodeModulesPath, 'index.js')).isFile
+				) {
+					return path.join(nodeModulesPath, 'index.js');
 				}
 			} catch {
 				// Index files do not exist
 			}
-			throw new Error(`Cannot resolve module '${specifier}' imported from '${importerPath}'`);
+			throw new Error(
+				`Cannot resolve module '${specifier}' imported from '${importerPath}'`,
+			);
 		}
 	}
 
@@ -133,21 +137,21 @@ export class DependencyGraph {
 	 * @returns An array of module paths in topological order.
 	 */
 	public getTopologicalOrder(): string[] {
-		const visited=new Set<string>();
-		const order: string[]=[];
+		const visited = new Set<string>();
+		const order: string[] = [];
 
-		const visit=(p: string) => {
-			if(visited.has(p)) return;
+		const visit = (p: string) => {
+			if (visited.has(p)) return;
 			visited.add(p);
 
-			const deps=this.dependencies.get(p)||new Set();
-			for(const dep of deps) {
+			const deps = this.dependencies.get(p) || new Set();
+			for (const dep of deps) {
 				visit(dep);
 			}
 			order.push(p);
 		};
 
-		for(const p of this.modules.keys()) {
+		for (const p of this.modules.keys()) {
 			visit(p);
 		}
 
@@ -161,16 +165,16 @@ export class DependencyGraph {
 	 */
 	private async addModule(
 		module: ModuleInfo,
-		options: {parseModule: (path: string) => Promise<ModuleInfo>}
+		options: { parseModule: (path: string) => Promise<ModuleInfo> },
 	): Promise<void> {
-		this.updateModule(module.path,module);
+		this.updateModule(module.path, module);
 
 		// Process dependencies
-		for(const dep of module.dependencies) {
-			const resolvedDep=this.resolveModulePath(dep,module.path);
-			if(!this.modules.has(resolvedDep)) {
-				const depModule=await options.parseModule(resolvedDep);
-				await this.addModule(depModule,options);
+		for (const dep of module.dependencies) {
+			const resolvedDep = this.resolveModulePath(dep, module.path);
+			if (!this.modules.has(resolvedDep)) {
+				const depModule = await options.parseModule(resolvedDep);
+				await this.addModule(depModule, options);
 			}
 		}
 	}
@@ -181,7 +185,7 @@ export class DependencyGraph {
 	 * @returns A Set of dependency module paths.
 	 */
 	public getDependencies(path: string): Set<string> {
-		return this.dependencies.get(path)??new Set();
+		return this.dependencies.get(path) ?? new Set();
 	}
 
 	/**
@@ -190,7 +194,7 @@ export class DependencyGraph {
 	 * @returns A Set of dependent module paths.
 	 */
 	public getDependents(path: string): Set<string> {
-		return this.reverseDependencies.get(path)??new Set();
+		return this.reverseDependencies.get(path) ?? new Set();
 	}
 
 	/**
@@ -198,21 +202,21 @@ export class DependencyGraph {
 	 * @returns True if a cycle is detected, otherwise false.
 	 */
 	public hasCycle(): boolean {
-		const visited=new Set<string>();
-		const recursionStack=new Set<string>();
+		const visited = new Set<string>();
+		const recursionStack = new Set<string>();
 
-		const hasCycleUtil=(p: string): boolean => {
-			if(!visited.has(p)) {
+		const hasCycleUtil = (p: string): boolean => {
+			if (!visited.has(p)) {
 				visited.add(p);
 				recursionStack.add(p);
 
-				const deps=this.dependencies.get(p)||new Set();
-				for(const dep of deps) {
-					if(!visited.has(dep)) {
-						if(hasCycleUtil(dep)) {
+				const deps = this.dependencies.get(p) || new Set();
+				for (const dep of deps) {
+					if (!visited.has(dep)) {
+						if (hasCycleUtil(dep)) {
 							return true;
 						}
-					} else if(recursionStack.has(dep)) {
+					} else if (recursionStack.has(dep)) {
 						return true;
 					}
 				}
@@ -221,8 +225,8 @@ export class DependencyGraph {
 			return false;
 		};
 
-		for(const p of this.modules.keys()) {
-			if(hasCycleUtil(p)) {
+		for (const p of this.modules.keys()) {
+			if (hasCycleUtil(p)) {
 				return true;
 			}
 		}
@@ -234,31 +238,31 @@ export class DependencyGraph {
 	 * @returns An array of Sets, each representing a connected component.
 	 */
 	public getConnectedComponents(): Set<string>[] {
-		const visited=new Set<string>();
-		const components: Set<string>[]=[];
+		const visited = new Set<string>();
+		const components: Set<string>[] = [];
 
-		const dfs=(p: string,component: Set<string>) => {
-			if(visited.has(p)) return;
+		const dfs = (p: string, component: Set<string>) => {
+			if (visited.has(p)) return;
 			visited.add(p);
 			component.add(p);
 
 			// Visit dependencies
-			const deps=this.getDependencies(p);
-			for(const dep of deps) {
-				dfs(dep,component);
+			const deps = this.getDependencies(p);
+			for (const dep of deps) {
+				dfs(dep, component);
 			}
 
 			// Visit dependents
-			const depents=this.getDependents(p);
-			for(const dependent of depents) {
-				dfs(dependent,component);
+			const depents = this.getDependents(p);
+			for (const dependent of depents) {
+				dfs(dependent, component);
 			}
 		};
 
-		for(const p of this.modules.keys()) {
-			if(!visited.has(p)) {
-				const component=new Set<string>();
-				dfs(p,component);
+		for (const p of this.modules.keys()) {
+			if (!visited.has(p)) {
+				const component = new Set<string>();
+				dfs(p, component);
 				components.push(component);
 			}
 		}
@@ -284,30 +288,30 @@ export class DependencyGraph {
 	 * Removes modules that are not reachable from any entry points.
 	 */
 	private removeUnusedModules(): void {
-		const reachable=new Set<string>();
+		const reachable = new Set<string>();
 
-		const visit=(p: string) => {
-			if(reachable.has(p)) return;
+		const visit = (p: string) => {
+			if (reachable.has(p)) return;
 			reachable.add(p);
 
-			const deps=this.getDependencies(p);
-			for(const d of deps) {
+			const deps = this.getDependencies(p);
+			for (const d of deps) {
 				visit(d);
 			}
 		};
 
 		// Start from entry points (modules with no dependents)
-		const entryPoints=Array.from(this.modules.keys()).filter(
-			(x) => !this.getDependents(x).size
+		const entryPoints = Array.from(this.modules.keys()).filter(
+			(x) => !this.getDependents(x).size,
 		);
 
-		for(const entry of entryPoints) {
+		for (const entry of entryPoints) {
 			visit(entry);
 		}
 
 		// Remove unreachable modules
-		for(const p of Array.from(this.modules.keys())) {
-			if(!reachable.has(p)) {
+		for (const p of Array.from(this.modules.keys())) {
+			if (!reachable.has(p)) {
 				this.removeModule(p);
 			}
 		}
@@ -317,15 +321,15 @@ export class DependencyGraph {
 	 * Identifies and merges modules that are suitable candidates for merging.
 	 * @returns An array of tuples where each tuple contains the source and target module paths.
 	 */
-	private findMergeCandidates(): [string,string][] {
-		const candidates: [string,string][]=[];
-		for(const [path] of this.modules.entries()) {
-			const deps=this.getDependencies(path);
-			if(deps.size===1) {
-				const [dep]=Array.from(deps);
-				const depents=this.getDependents(dep);
-				if(depents.size===1) {
-					candidates.push([path,dep]);
+	private findMergeCandidates(): [string, string][] {
+		const candidates: [string, string][] = [];
+		for (const [path] of this.modules.entries()) {
+			const deps = this.getDependencies(path);
+			if (deps.size === 1) {
+				const [dep] = Array.from(deps);
+				const depents = this.getDependents(dep);
+				if (depents.size === 1) {
+					candidates.push([path, dep]);
 				}
 			}
 		}
@@ -347,34 +351,38 @@ export class DependencyGraph {
 			source,
 			sourceModule.code,
 			ts.ScriptTarget.Latest,
-			true
+			true,
 		);
 
 		const targetFile = ts.createSourceFile(
 			target,
 			targetModule.code,
 			ts.ScriptTarget.Latest,
-			true
+			true,
 		);
 
 		// Merge the ASTs by combining their statements
 		const mergedStatements = [
 			...this.getModuleStatements(targetFile),
-			...this.getModuleStatements(sourceFile)
+			...this.getModuleStatements(sourceFile),
 		];
 
-			// Generate merged code from statements
+		// Generate merged code from statements
 		const printer = ts.createPrinter();
 		const mergedCode = mergedStatements
-			.map(stmt => printer.printNode(ts.EmitHint.Unspecified, stmt, targetFile))
+			.map((stmt) =>
+				printer.printNode(ts.EmitHint.Unspecified, stmt, targetFile)
+			)
 			.join('\n');
 
 		// Create merged module
 		const mergedModule: ModuleInfo = {
 			path: target,
 			code: mergedCode,
-			dependencies: Array.from(new Set([...targetModule.dependencies, ...sourceModule.dependencies])),
-			ast: targetFile
+			dependencies: Array.from(
+				new Set([...targetModule.dependencies, ...sourceModule.dependencies]),
+			),
+			ast: targetFile,
 		};
 
 		// Update graph
@@ -414,7 +422,9 @@ export class DependencyGraph {
 				const ast = module.ast as ts.SourceFile;
 				if (ts.isSourceFile(ast)) {
 					let nodeCount = 0;
-					const visitor: ts.Visitor = (node: ts.Node): ts.VisitResult<ts.Node> => {
+					const visitor: ts.Visitor = (
+						node: ts.Node,
+					): ts.VisitResult<ts.Node> => {
 						nodeCount++;
 						return node;
 					};
@@ -425,7 +435,7 @@ export class DependencyGraph {
 		}
 
 		// Sort by weights and create the optimized module map
-		const sortedPaths = order.sort((a, b) => 
+		const sortedPaths = order.sort((a, b) =>
 			(moduleWeights.get(b) || 0) - (moduleWeights.get(a) || 0)
 		);
 
@@ -445,15 +455,15 @@ export class DependencyGraph {
 	 * @returns The calculated weight as a number.
 	 */
 	private calculateModuleWeight(path: string): number {
-		const mod=this.getModule(path);
-		if(!mod) return 0;
+		const mod = this.getModule(path);
+		if (!mod) return 0;
 		// Example weight calculation
-		const sizeWeight=mod.code.length*0.5;
-		const depWeight=this.getDependencies(path).size*100;
-		const depEndWeight=this.getDependents(path).size*150;
-		const criticalPathWeight=this.calculateCriticalPathDepth(path)*200;
+		const sizeWeight = mod.code.length * 0.5;
+		const depWeight = this.getDependencies(path).size * 100;
+		const depEndWeight = this.getDependents(path).size * 150;
+		const criticalPathWeight = this.calculateCriticalPathDepth(path) * 200;
 
-		return sizeWeight+depWeight+depEndWeight+criticalPathWeight;
+		return sizeWeight + depWeight + depEndWeight + criticalPathWeight;
 	}
 
 	/**
@@ -464,22 +474,22 @@ export class DependencyGraph {
 	 */
 	private calculateCriticalPathDepth(
 		path: string,
-		visited: Set<string>=new Set()
+		visited: Set<string> = new Set(),
 	): number {
-		if(visited.has(path)) return 0;
+		if (visited.has(path)) return 0;
 		visited.add(path);
 
-		const deps=this.getDependencies(path);
-		if(deps.size===0) return 1;
+		const deps = this.getDependencies(path);
+		if (deps.size === 0) return 1;
 
-		let maxDepth=0;
-		for(const dep of deps) {
-			const depth=this.calculateCriticalPathDepth(dep,visited);
-			if(depth>maxDepth) {
-				maxDepth=depth;
+		let maxDepth = 0;
+		for (const dep of deps) {
+			const depth = this.calculateCriticalPathDepth(dep, visited);
+			if (depth > maxDepth) {
+				maxDepth = depth;
 			}
 		}
-		return maxDepth+1;
+		return maxDepth + 1;
 	}
 
 	/**
@@ -490,12 +500,12 @@ export class DependencyGraph {
 		this.modules.delete(path);
 		this.dependencies.delete(path);
 
-		for(const deps of this.dependencies.values()) {
+		for (const deps of this.dependencies.values()) {
 			deps.delete(path);
 		}
 
 		this.reverseDependencies.delete(path);
-		for(const depents of this.reverseDependencies.values()) {
+		for (const depents of this.reverseDependencies.values()) {
 			depents.delete(path);
 		}
 	}
@@ -508,17 +518,19 @@ export class DependencyGraph {
 		return JSON.stringify(
 			{
 				modules: Array.from(this.modules.entries()),
-				dependencies: Array.from(this.dependencies.entries()).map(([k,v]) => [
+				dependencies: Array.from(this.dependencies.entries()).map(([k, v]) => [
 					k,
 					Array.from(v),
 				]),
-				dependents: Array.from(this.reverseDependencies.entries()).map(([k,v]) => [
+				dependents: Array.from(this.reverseDependencies.entries()).map((
+					[k, v],
+				) => [
 					k,
 					Array.from(v),
 				]),
 			},
 			null,
-			2
+			2,
 		);
 	}
 
@@ -528,41 +540,45 @@ export class DependencyGraph {
 	 * @returns The reconstructed DependencyGraph instance.
 	 */
 	public static fromJSON(json: string): DependencyGraph {
-		const data=JSON.parse(json);
-		const graph=new DependencyGraph();
+		const data = JSON.parse(json);
+		const graph = new DependencyGraph();
 
 		// Restore modules
-		graph.modules=new Map<string,ModuleInfo>(data.modules);
+		graph.modules = new Map<string, ModuleInfo>(data.modules);
 
 		// Restore dependencies
-		graph.dependencies=new Map<string,Set<string>>(
-			data.dependencies.map(([key,values]: [string,string[]]) => [
+		graph.dependencies = new Map<string, Set<string>>(
+			data.dependencies.map(([key, values]: [string, string[]]) => [
 				key,
 				new Set(values),
-			])
+			]),
 		);
 
 		// Restore dependents
-		graph.reverseDependencies=new Map<string,Set<string>>(
-			data.dependents.map(([key,values]: [string,string[]]) => [
+		graph.reverseDependencies = new Map<string, Set<string>>(
+			data.dependents.map(([key, values]: [string, string[]]) => [
 				key,
 				new Set(values),
-			])
+			]),
 		);
 
 		// Validate
-		if(graph.hasCycle()) {
-			throw new Error("Restored dependency graph contains cycles");
+		if (graph.hasCycle()) {
+			throw new Error('Restored dependency graph contains cycles');
 		}
 
 		// Verify references
-		for(const [modulePath,deps] of graph.dependencies) {
-			if(!graph.modules.has(modulePath)) {
-				throw new Error(`Invalid module reference in dependencies: ${modulePath}`);
+		for (const [modulePath, deps] of graph.dependencies) {
+			if (!graph.modules.has(modulePath)) {
+				throw new Error(
+					`Invalid module reference in dependencies: ${modulePath}`,
+				);
 			}
-			for(const dep of deps) {
-				if(!graph.modules.has(dep)) {
-					throw new Error(`Invalid dependency reference: ${dep} in module ${modulePath}`);
+			for (const dep of deps) {
+				if (!graph.modules.has(dep)) {
+					throw new Error(
+						`Invalid dependency reference: ${dep} in module ${modulePath}`,
+					);
 				}
 			}
 		}

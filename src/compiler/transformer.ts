@@ -1,9 +1,14 @@
-
 // /src/compiler/transformer.ts
-import {SourceFile,ts,FunctionDeclaration,ClassDeclaration,SyntaxKind} from "https://deno.land/x/ts_morph@17.0.1/mod.ts";
-import type {CompilerOptions} from "./types.ts";
-import {SourceMapGenerator} from "https://esm.sh/source-map@0.7.4";
-import {logger} from "./logger.ts";
+import {
+	ClassDeclaration,
+	FunctionDeclaration,
+	SourceFile,
+	SyntaxKind,
+	ts,
+} from 'https://deno.land/x/ts_morph@17.0.1/mod.ts';
+import type { CompilerOptions } from './types.ts';
+import { SourceMapGenerator } from 'https://esm.sh/source-map@0.7.4';
+import { logger } from './logger.ts';
 
 /**
  * Represents the result of a transformation, including the transformed AST and an optional source map.
@@ -17,20 +22,20 @@ export interface TransformResult {
  * Type definition for a transformation function.
  * @param sourceFile - The SourceFile to transform.
  */
-type TransformFn=(sourceFile: SourceFile) => void;
+type TransformFn = (sourceFile: SourceFile) => void;
 
 /**
  * The Transformer class applies a series of transformations to TypeScript source files.
  */
 export class Transformer {
-	private transforms: Map<string,TransformFn>;
+	private transforms: Map<string, TransformFn>;
 
 	/**
 	 * Initializes the Transformer with compiler options and registers default transforms.
 	 * @param options - CompilerOptions to guide transformation behaviors.
 	 */
 	constructor(private options: CompilerOptions) {
-		this.transforms=new Map();
+		this.transforms = new Map();
 		this.registerDefaultTransforms();
 	}
 
@@ -39,8 +44,8 @@ export class Transformer {
 	 * @param name - The name of the transformation.
 	 * @param transform - The transformation function to apply.
 	 */
-	public registerTransform(name: string,transform: TransformFn): void {
-		this.transforms.set(name,transform);
+	public registerTransform(name: string, transform: TransformFn): void {
+		this.transforms.set(name, transform);
 	}
 
 	/**
@@ -48,18 +53,22 @@ export class Transformer {
 	 * @param moduleAst - The module's AST and path.
 	 * @returns The transformed AST and an optional source map.
 	 */
-	public transform(moduleAst: {ast: SourceFile; path: string}): TransformResult {
-		const {ast,path}=moduleAst;
+	public transform(
+		moduleAst: { ast: SourceFile; path: string },
+	): TransformResult {
+		const { ast, path } = moduleAst;
 
 		// Apply all registered transformations in sequence
-		for(const transform of this.transforms.values()) {
+		for (const transform of this.transforms.values()) {
 			transform(ast);
 		}
 
 		// Generate source map if needed
-		const map=this.options.sourceMaps? this.generateSourceMap(ast,path):undefined;
+		const map = this.options.sourceMaps
+			? this.generateSourceMap(ast, path)
+			: undefined;
 
-		return {ast,map};
+		return { ast, map };
 	}
 
 	/**
@@ -67,10 +76,13 @@ export class Transformer {
 	 */
 	private registerDefaultTransforms(): void {
 		// Register built-in transformations
-		this.registerTransform("decorators",this.transformDecorators.bind(this));
-		this.registerTransform("typescript",this.transformTypeScript.bind(this));
-		this.registerTransform("modules",this.transformModules.bind(this));
-		this.registerTransform("dynamic-imports",this.transformDynamicImports.bind(this));
+		this.registerTransform('decorators', this.transformDecorators.bind(this));
+		this.registerTransform('typescript', this.transformTypeScript.bind(this));
+		this.registerTransform('modules', this.transformModules.bind(this));
+		this.registerTransform(
+			'dynamic-imports',
+			this.transformDynamicImports.bind(this),
+		);
 	}
 
 	/**
@@ -78,7 +90,7 @@ export class Transformer {
 	 * @param sourceFile - The SourceFile to transform.
 	 */
 	private transformDecorators(sourceFile: SourceFile): void {
-		if(!this.options.experimentalDecorators) {
+		if (!this.options.experimentalDecorators) {
 			return;
 		}
 
@@ -86,29 +98,29 @@ export class Transformer {
 		sourceFile.getClasses().forEach((cls: ClassDeclaration) => {
 			// Find and remove class-level decorators
 			sourceFile.getDescendantsOfKind(SyntaxKind.Decorator)
-				.filter(dec => dec.getParent()===cls)
-				.forEach(dec => dec.remove());
+				.filter((dec) => dec.getParent() === cls)
+				.forEach((dec) => dec.remove());
 
 			// Remove method decorators
-			cls.getMethods().forEach(method => {
+			cls.getMethods().forEach((method) => {
 				sourceFile.getDescendantsOfKind(SyntaxKind.Decorator)
-					.filter(dec => dec.getParent()===method)
-					.forEach(dec => dec.remove());
+					.filter((dec) => dec.getParent() === method)
+					.forEach((dec) => dec.remove());
 			});
 
 			// Remove property decorators
-			cls.getProperties().forEach(prop => {
+			cls.getProperties().forEach((prop) => {
 				sourceFile.getDescendantsOfKind(SyntaxKind.Decorator)
-					.filter(dec => dec.getParent()===prop)
-					.forEach(dec => dec.remove());
+					.filter((dec) => dec.getParent() === prop)
+					.forEach((dec) => dec.remove());
 			});
 		});
 
 		// Handle function decorators
 		sourceFile.getFunctions().forEach((func: FunctionDeclaration) => {
 			sourceFile.getDescendantsOfKind(SyntaxKind.Decorator)
-				.filter(dec => dec.getParent()===func)
-				.forEach(dec => dec.remove());
+				.filter((dec) => dec.getParent() === func)
+				.forEach((dec) => dec.remove());
 		});
 	}
 
@@ -161,17 +173,19 @@ export class Transformer {
 	private transformModules(sourceFile: SourceFile): void {
 		// Transform Import Declarations
 		sourceFile.getImportDeclarations().forEach((importDecl) => {
-			const moduleSpecifier=importDecl.getModuleSpecifierValue();
+			const moduleSpecifier = importDecl.getModuleSpecifierValue();
 
 			// Ensure import paths are relative
-			let newModuleSpecifier=moduleSpecifier;
-			if(!moduleSpecifier.startsWith(".")&&!moduleSpecifier.startsWith("/")) {
-				newModuleSpecifier=`./${moduleSpecifier}`;
+			let newModuleSpecifier = moduleSpecifier;
+			if (
+				!moduleSpecifier.startsWith('.') && !moduleSpecifier.startsWith('/')
+			) {
+				newModuleSpecifier = `./${moduleSpecifier}`;
 			}
 
 			// Remove .ts extension from import paths
-			if(newModuleSpecifier.endsWith(".ts")) {
-				newModuleSpecifier=newModuleSpecifier.slice(0,-3);
+			if (newModuleSpecifier.endsWith('.ts')) {
+				newModuleSpecifier = newModuleSpecifier.slice(0, -3);
 			}
 
 			// Update the module specifier
@@ -180,20 +194,25 @@ export class Transformer {
 
 		// Transform Export Declarations
 		sourceFile.getExportDeclarations().forEach((exportDecl) => {
-			const namedExports=exportDecl.getNamedExports();
-			const namespaceExport=exportDecl.getNamespaceExport();
-			const moduleSpecifier=exportDecl.getModuleSpecifierValue();
+			const namedExports = exportDecl.getNamedExports();
+			const namespaceExport = exportDecl.getNamespaceExport();
+			const moduleSpecifier = exportDecl.getModuleSpecifierValue();
 
-			if(namedExports.length===1) {
-				const [singleExport]=namedExports;
-				const exportName=singleExport.getName();
-				if(exportName) {
+			if (namedExports.length === 1) {
+				const [singleExport] = namedExports;
+				const exportName = singleExport.getName();
+				if (exportName) {
 					exportDecl.replaceWithText(`export default ${exportName};`);
 				}
-			} else if(namedExports.length===0&&exportDecl.isNamespaceExport()&&namespaceExport) {
-				const namespaceName=namespaceExport.getName();
-				if(namespaceName&&moduleSpecifier) {
-					exportDecl.replaceWithText(`import * as ${namespaceName} from "${moduleSpecifier}";\nexport { ${namespaceName} };`);
+			} else if (
+				namedExports.length === 0 && exportDecl.isNamespaceExport() &&
+				namespaceExport
+			) {
+				const namespaceName = namespaceExport.getName();
+				if (namespaceName && moduleSpecifier) {
+					exportDecl.replaceWithText(
+						`import * as ${namespaceName} from "${moduleSpecifier}";\nexport { ${namespaceName} };`,
+					);
 				}
 			}
 		});
@@ -204,16 +223,18 @@ export class Transformer {
 	 * @param sourceFile - The SourceFile to transform.
 	 */
 	private transformDynamicImports(sourceFile: SourceFile): void {
-		sourceFile.getDescendantsOfKind(ts.SyntaxKind.CallExpression).forEach((callExpr) => {
-			const expr=callExpr.getExpression();
-			if(expr.getKind()===ts.SyntaxKind.ImportKeyword) {
-				const args=callExpr.getArguments();
-				if(args.length===1) {
-					const modulePath=args[0].getText().replace(/['"]/g,'');
-					callExpr.replaceWithText(`__require("${modulePath}")`);
+		sourceFile.getDescendantsOfKind(ts.SyntaxKind.CallExpression).forEach(
+			(callExpr) => {
+				const expr = callExpr.getExpression();
+				if (expr.getKind() === ts.SyntaxKind.ImportKeyword) {
+					const args = callExpr.getArguments();
+					if (args.length === 1) {
+						const modulePath = args[0].getText().replace(/['"]/g, '');
+						callExpr.replaceWithText(`__require("${modulePath}")`);
+					}
 				}
-			}
-		});
+			},
+		);
 	}
 
 	/**
@@ -222,21 +243,21 @@ export class Transformer {
 	 * @param path - The file path.
 	 * @returns The generated source map as a string.
 	 */
-	private generateSourceMap(sourceFile: SourceFile,path: string): string {
+	private generateSourceMap(sourceFile: SourceFile, path: string): string {
 		try {
-			const generator=new SourceMapGenerator({file: "bundle.js"});
+			const generator = new SourceMapGenerator({ file: 'bundle.js' });
 
 			// Map function declarations
 			sourceFile.getFunctions().forEach((func) => {
-				const nameNode=func.getNameNode();
-				if(nameNode) {
-					const name=func.getName();
-					const pos=nameNode.getStart();
-					const location=sourceFile.getLineAndColumnAtPos(pos);
-					if(name&&location) {
+				const nameNode = func.getNameNode();
+				if (nameNode) {
+					const name = func.getName();
+					const pos = nameNode.getStart();
+					const location = sourceFile.getLineAndColumnAtPos(pos);
+					if (name && location) {
 						generator.addMapping({
-							generated: {line: location.line+1,column: location.column},
-							original: {line: location.line+1,column: location.column},
+							generated: { line: location.line + 1, column: location.column },
+							original: { line: location.line + 1, column: location.column },
 							source: path,
 							name: name,
 						});
@@ -246,15 +267,15 @@ export class Transformer {
 
 			// Map class declarations
 			sourceFile.getClasses().forEach((cls) => {
-				const nameNode=cls.getNameNode();
-				if(nameNode) {
-					const name=cls.getName();
-					const pos=nameNode.getStart();
-					const location=sourceFile.getLineAndColumnAtPos(pos);
-					if(name&&location) {
+				const nameNode = cls.getNameNode();
+				if (nameNode) {
+					const name = cls.getName();
+					const pos = nameNode.getStart();
+					const location = sourceFile.getLineAndColumnAtPos(pos);
+					if (name && location) {
 						generator.addMapping({
-							generated: {line: location.line+1,column: location.column},
-							original: {line: location.line+1,column: location.column},
+							generated: { line: location.line + 1, column: location.column },
+							original: { line: location.line + 1, column: location.column },
 							source: path,
 							name: name,
 						});
@@ -262,11 +283,11 @@ export class Transformer {
 				}
 			});
 
-			generator.setSourceContent(path,sourceFile.getFullText());
+			generator.setSourceContent(path, sourceFile.getFullText());
 			return generator.toString();
-		} catch(error) {
-			logger.error(`Source map generation failed for ${path}:`,error);
-			return "";
+		} catch (error) {
+			logger.error(`Source map generation failed for ${path}:`, error);
+			return '';
 		}
 	}
 }

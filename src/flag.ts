@@ -10,23 +10,23 @@ export type FlagValue = string | number | boolean | string[];
  * @returns The converted value.
  */
 export function convertFlagValue(value: string, type: FlagType): FlagValue {
-    switch(type) {
-        case 'boolean': {
-            return value === 'true' || value === '1';
-        }
-        case 'number': {
-            const num = Number(value);
-            if(isNaN(num)) {
-                throw new Error(`Invalid number value: ${value}`);
-            }
-            return num;
-        }
-        case 'array': {
-            return value.split(',');
-        }
-        case 'string':
-        default: {
-            return value;
-        }
-    }
+	switch (type) {
+		case 'boolean': {
+			return value === 'true' || value === '1';
+		}
+		case 'number': {
+			const num = Number(value);
+			if (isNaN(num)) {
+				throw new Error(`Invalid number value: ${value}`);
+			}
+			return num;
+		}
+		case 'array': {
+			return value.split(',');
+		}
+		case 'string':
+		default: {
+			return value;
+		}
+	}
 }
