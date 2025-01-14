@@ -289,18 +289,20 @@ export class TemplateCommand extends BaseCommand {
 			throw new Error(`Template '${templateName}' not found`);
 		}
 
-		// Check file existence using async/await for proper error propagation
-		const fileExists = await Deno.stat(outputPath)
-			.then(() => true)
-			.catch((error) => {
-				if (error instanceof Deno.errors.NotFound) {
-					return false;
-				}
-				throw error; // Re-throw any other errors
-			});
-
-		if (fileExists && !force) {
-			throw new Error(`Output file ${outputPath} already exists`);
+		// Explicitly check file existence with proper error handling
+		try {
+			await Deno.lstat(outputPath);
+			// If we get here, the file exists
+			if (!force) {
+				throw new Error(`Output file ${outputPath} already exists`);
+			}
+		} catch (error) {
+			// Only proceed if the error is NotFound
+			if (!(error instanceof Deno.errors.NotFound)) {
+				// If it's any other error, rethrow it
+				throw error;
+			}
+			// NotFound error means the file doesn't exist, which is what we want
 		}
 
 		let variables: Record<string, unknown> = {};
