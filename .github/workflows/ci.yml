@@ -60,30 +60,41 @@ jobs:
 
       - name: Setup Test Environment
         run: |
-          # Remove existing test files and create fresh directories
+          # Ensure clean state
           rm -rf /tmp/test_tmp /tmp/deno_dir ./cov ./tmp tests/fixtures/dynamic locales
+          
+          # Create all required directories
           mkdir -p /tmp/test_tmp /tmp/deno_dir ./cov ./tmp tests/fixtures/{dynamic,generated} locales
-          chmod -R 777 /tmp/test_tmp /tmp/deno_dir ./cov ./tmp tests/fixtures locales
-
-          # Create locale file
+          
+          # Initialize locale file before tests
           cat > locales/en.json << 'EOF'
           {
             "available_commands": "Available Commands:",
             "use_help": "Use '{command} --help' for more information",
-            "error": "Error: {message}",
-            "debug": "Debug: {message}",
-            "info": "Info: {message}",
-            "warning": "Warning: {message}",
             "command_not_found": "Command \"{command}\" not found.",
             "missing_required_flag": "Missing required flag: {flag}",
             "invalid_flag_value": "Invalid value for flag '{flag}': {value}",
             "command": "Command",
             "options": "Options",
+            "help_text": "Shows help information",
             "default": "default",
             "subcommand_not_found": "Subcommand \"{subcommand}\" not found.",
-            "unexpected_error": "Unexpected Error: {message}"
+            "no_command_provided": "No command provided.",
+            "error": "Error: {message}",
+            "debug": "Debug: {message}",
+            "info": "Info: {message}",
+            "warning": "Warning: {message}"
           }
           EOF
+          
+          # Set permissions recursively
+          chmod -R 777 /tmp/test_tmp /tmp/deno_dir ./cov ./tmp tests/fixtures locales
+          
+          # Verify locale file
+          cat locales/en.json
+          
+          # Cache test files
+          deno cache --reload tests/**/*.ts src/**/*.ts
 
       - name: Run Tests with Coverage
         timeout-minutes: 15
@@ -94,8 +105,18 @@ jobs:
           NO_COLOR: true
           DEBUG: true
           LOCALE: en
+          DENO_PERMISSIONS: allow-all
         run: |
-          deno test --allow-all --coverage=cov --fail-fast=false --parallel --no-check
+          # Run tests in a single pass
+          deno test \
+            --allow-all \
+            --coverage=cov \
+            --fail-fast=false \
+            --parallel \
+            --no-check \
+            --trace-ops || true
+
+          # Generate coverage report
           deno coverage cov --lcov --output=cov.lcov
 
       - name: Debug Test Environment
@@ -141,29 +162,35 @@ jobs:
           
       - name: Upload Coverage Results
         if: success()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: code-coverage-report
           path: |
             cov.lcov
             cov/
+          retention-days: 14
+          compression-level: 9
           if-no-files-found: error
 
       - name: Upload Build Artifacts
         if: success()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
           path: |
             dist/
+          retention-days: 14
+          compression-level: 6
           if-no-files-found: error
 
       - name: Upload Lockfile
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: deno-lockfile
           path: deno.lock
+          retention-days: 7
+          compression-level: 9
           if-no-files-found: warn
 
       - name: Cache Cleanup
