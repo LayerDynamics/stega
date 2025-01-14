@@ -8,3 +8,4 @@ gh-check.sh
 coverage/
 .coverage/
 coverage.lcov
+cov

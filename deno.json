@@ -1,4 +1,7 @@
 {
+	"name": "@layerdynamics/stega",
+	"version": "1.0.0",
+	"exports": "./src/mod.ts",
 	"compilerOptions": {
 		"lib": ["deno.window", "deno.ns"],
 		"strict": true,
@@ -57,7 +60,6 @@
 	},
 	"imports": {
 		"@std/assert": "https://deno.land/std@0.224.0/assert/mod.ts",
-		"@std/": "jsr:@std/",
 		"@src/": "./src/",
 		"@test/": "./tests/",
 		"@std/path/": "https://deno.land/std@0.224.0/path/"
