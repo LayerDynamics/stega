@@ -1,10 +1,10 @@
 // /src/compiler/parser.ts
 import {
-	Diagnostic,
-	Project,
-	SourceFile,
-	ts,
-} from "https://deno.land/x/ts_morph@17.0.1/mod.ts";
+  Diagnostic,
+  Project,
+  SourceFile,
+  ts,
+} from "npm:ts-morph@17.0.1";
 import type { CompilerOptions } from "./types.ts";
 import { logger } from "./logger.ts";
 

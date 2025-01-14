@@ -6,9 +6,9 @@
 
 import { DependencyGraph } from "./dependency-graph.ts";
 import type { CompilerOptions, ModuleFormat } from "./types.ts";
-import { SourceMapGenerator } from "https://esm.sh/source-map@0.7.4";
+import { SourceMapGenerator } from "npm:source-map@0.7.4";
 import { logger } from "./logger.ts";
-import { ts } from "https://deno.land/x/ts_morph@17.0.1/mod.ts";
+import { ts } from "npm:ts-morph@17.0.1";
 
 /**
  * Interface representing the result of the bundling process.
@@ -38,12 +38,13 @@ export class Bundler {
 		// Add format-specific preamble based on module format
 		const moduleFormat: ModuleFormat = this.getModuleFormat();
 		logger.info(`Using module format: ${moduleFormat}`);
-		let code = this.generatePreamble();
 
 		// Log external modules being skipped
-		this.options.externals.forEach((ext) => {
+		this.options.externals.forEach((ext: string) => {
 			logger.info(`Skipping external module: ${ext}`);
 		});
+
+		let code = this.generatePreamble();
 
 		// Initialize source map generator
 		const sourceMap = new SourceMapGenerator({ file: "bundle.js" });

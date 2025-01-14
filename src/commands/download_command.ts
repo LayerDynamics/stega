@@ -1,6 +1,7 @@
-import { Command } from "../core.ts";
+import type { Command } from "../core.ts";
 import { logger } from "../logger.ts";
-import ProgressBar from "https://deno.land/x/progress@v1.3.8/mod.ts";
+import ProgressBar from "npm:progress@2.0.3";
+import type { Args } from "../types.ts";
 
 export const downloadCommand: Command = {
 	name: "download",
@@ -21,7 +22,7 @@ export const downloadCommand: Command = {
 			required: false,
 		},
 	],
-	action: async (args) => {
+	action: async (args: Args) => {
 		const url = args.flags.url as string;
 		const output = args.flags.output as string ||
 			new URL(url).pathname.split("/").pop() || "download";

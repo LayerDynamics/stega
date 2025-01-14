@@ -15,7 +15,7 @@ import {
 	SourceFile,
 } from "./types.ts";
 
-import { ts } from "https://deno.land/x/ts_morph@17.0.1/mod.ts";
+import { ts } from "npm:ts-morph@17.0.1";
 import { Parser } from "./parser.ts";
 import { Transformer } from "./transformer.ts";
 import { Bundler } from "./bundler.ts";

@@ -14,9 +14,11 @@ import { logger, setup } from "./logger.ts";
 import { I18n } from "./i18n.ts";
 import { PluginLoader } from "./plugin_loader.ts";
 import { Plugin } from "./plugin.ts";
-import type { LevelName } from "https://deno.land/std@0.224.0/log/levels.ts";
+import type { LevelName } from "jsr:@std/log@0.224.0/levels"; // Changed from /levels.ts to /levels
 import type { ILogger } from "./logger_interface.ts";
 import type { Args } from "./types.ts";
+
+export type { Command };
 
 export interface Option {
 	name: string;

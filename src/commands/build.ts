@@ -8,7 +8,7 @@ import { logger } from "../logger.ts";
 import {
 	Input,
 	Select,
-} from "https://deno.land/x/cliffy@v0.25.7/prompt/mod.ts";
+} from "jsr:@cliffy/prompt@1.0.0-rc.3";
 import type { Plugin } from "../plugin.ts";
 
 const supportedTargets = [

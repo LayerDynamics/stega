@@ -3,8 +3,8 @@ import {
 	ConsoleHandler,
 	LogRecord,
 	setup as logSetup,
-} from "https://deno.land/std@0.224.0/log/mod.ts";
-import type { LevelName } from "https://deno.land/std@0.224.0/log/levels.ts";
+} from "jsr:@std/log@0.224.0";
+import type { LevelName } from "jsr:@std/log@0.224.0/levels";
 import { ILogger } from "./logger_interface.ts";
 
 export interface LogConfig {

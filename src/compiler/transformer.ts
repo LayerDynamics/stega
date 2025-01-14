@@ -4,11 +4,11 @@ import {
 	FunctionDeclaration,
 	SourceFile,
 	SyntaxKind,
-	ts,
-} from "https://deno.land/x/ts_morph@17.0.1/mod.ts";
+} from "npm:ts-morph@17.0.1";
 import type { CompilerOptions } from "./types.ts";
-import { SourceMapGenerator } from "https://esm.sh/source-map@0.7.4";
+import { SourceMapGenerator } from "npm:source-map@0.7.4";
 import { logger } from "./logger.ts";
+import { ts } from "npm:ts-morph@17.0.1";
 
 /**
  * Represents the result of a transformation, including the transformed AST and an optional source map.

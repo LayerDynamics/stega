@@ -1,7 +1,7 @@
 // /src/compiler/dependency-graph.ts
 import type { ModuleInfo } from "./types.ts";
-import * as path from "https://deno.land/std@0.203.0/path/mod.ts";
-import { ts } from "https://deno.land/x/ts_morph@17.0.1/mod.ts";
+import * as path from "@std/path@0.224.0";
+import { ts } from "npm:ts-morph@17.0.1";
 
 /**
  * Manages the dependency graph of modules, tracking their dependencies and dependents.

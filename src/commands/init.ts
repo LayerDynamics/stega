@@ -4,7 +4,7 @@ import { Args } from "../types.ts";
 import { logger, setup } from "../logger.ts";
 import { ConfigLoader } from "../config.ts";
 import { I18n } from "../i18n.ts";
-import type { LevelName } from "https://deno.land/std@0.224.0/log/levels.ts";
+import type { LevelName } from "jsr:@std/log@0.224.0/levels.ts";
 
 interface InitConfig {
 	logLevel: string;

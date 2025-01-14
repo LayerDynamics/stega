@@ -1,8 +1,8 @@
 // src/prompts.ts
 import {
-	Confirm,
-	Input,
-} from "https://deno.land/x/cliffy@v1.0.0-rc.3/prompt/mod.ts";
+  Confirm,
+  Input,
+} from "jsr:@cliffy/prompt@1";
 
 /**
  * Prompts the user for a string input.

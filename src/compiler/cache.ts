@@ -1,5 +1,5 @@
 // /src/compiler/cache.ts
-import { crypto } from "https://deno.land/std@0.203.0/crypto/mod.ts";
+import { crypto } from "@std/crypto@0.224.0";
 /**
  * Simple caching mechanism to store and retrieve parsed modules to avoid redundant parsing.
  * Enhanced with hash-based invalidation for cache consistency.

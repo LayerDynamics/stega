@@ -1,5 +1,5 @@
 // /src/compiler/types.ts
-import { SourceFile, ts } from "https://deno.land/x/ts_morph@17.0.1/mod.ts";
+import { SourceFile, ts } from "npm:ts-morph@17.0.1";
 
 /**
  * Supported module formats for the bundler.

@@ -1,5 +1,5 @@
-// Core type declarations
-export * from "../core/types.ts";
+// Export core types
+export * from "../core/mod.ts";
 
 // Plugin system types
 export interface PluginMetadata {

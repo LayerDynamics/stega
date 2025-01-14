@@ -8,17 +8,21 @@
       "LICENSE",
       "README.md",
       "src/mod.ts",
-      "src/core/mod.ts",
-      "src/core/errors.ts",
       "src/core/types.ts",
-      "src/commands/mod.ts",
       "src/types/mod.ts",
       "src/types/symbols.d.ts",
-      "src/utils/mod.ts",
-      "src/cli/mod.ts",
-      "src/middleware/mod.ts",
-      "locales/en.json"
+      "src/core/*.ts"
     ]
+  },
+  "dependencies": {
+    "@std/path": "^0.224.0",
+    "@std/crypto": "^0.224.0",
+    "@std/log": "^0.224.0",
+    "@cliffy/prompt": "^1.0.0-rc.3",
+    "source-map": "0.7.4",
+    "terser": "5.14.2",
+    "ts-morph": "17.0.1",
+    "progress": "2.0.3"
   },
   "devDependencies": {
     "@std/testing": "^0.224.0"
