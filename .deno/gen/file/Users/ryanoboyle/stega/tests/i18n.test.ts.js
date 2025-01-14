@@ -1,0 +1,20 @@
+// tests/i18n.test.ts
+import { I18n } from "../src/i18n.ts";
+import { ConfigLoader } from "../src/config.ts";
+import { assertEquals } from "https://deno.land/std@0.203.0/testing/asserts.ts";
+Deno.test("i18n should load and retrieve messages correctly", async ()=>{
+  // Mock ConfigLoader with English locale
+  const loader = new ConfigLoader();
+  const config = {
+    locale: "en"
+  };
+  loader.load = ()=>Promise.resolve(config);
+  const i18n = new I18n(config);
+  await i18n.load();
+  assertEquals(i18n.t("available_commands"), "Available Commands:");
+  assertEquals(i18n.t("command_not_found", {
+    command: "test"
+  }), 'Command "test" not found.');
+});
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImZpbGU6Ly8vVXNlcnMvcnlhbm9ib3lsZS9zdGVnYS90ZXN0cy9pMThuLnRlc3QudHMiXSwic291cmNlc0NvbnRlbnQiOlsiLy8gdGVzdHMvaTE4bi50ZXN0LnRzXG5pbXBvcnQgeyBJMThuIH0gZnJvbSBcIi4uL3NyYy9pMThuLnRzXCI7XG5pbXBvcnQgeyBDb25maWdMb2FkZXIgfSBmcm9tIFwiLi4vc3JjL2NvbmZpZy50c1wiO1xuaW1wb3J0IHsgYXNzZXJ0RXF1YWxzIH0gZnJvbSBcImh0dHBzOi8vZGVuby5sYW5kL3N0ZEAwLjIwMy4wL3Rlc3RpbmcvYXNzZXJ0cy50c1wiO1xuXG5EZW5vLnRlc3QoXCJpMThuIHNob3VsZCBsb2FkIGFuZCByZXRyaWV2ZSBtZXNzYWdlcyBjb3JyZWN0bHlcIiwgYXN5bmMgKCkgPT4ge1xuXHQvLyBNb2NrIENvbmZpZ0xvYWRlciB3aXRoIEVuZ2xpc2ggbG9jYWxlXG5cdGNvbnN0IGxvYWRlciA9IG5ldyBDb25maWdMb2FkZXIoKTtcblx0Y29uc3QgY29uZmlnID0geyBsb2NhbGU6IFwiZW5cIiB9O1xuXHRsb2FkZXIubG9hZCA9ICgpID0+IFByb21pc2UucmVzb2x2ZShjb25maWcpO1xuXHRjb25zdCBpMThuID0gbmV3IEkxOG4oY29uZmlnKTtcblx0YXdhaXQgaTE4bi5sb2FkKCk7XG5cblx0YXNzZXJ0RXF1YWxzKGkxOG4udChcImF2YWlsYWJsZV9jb21tYW5kc1wiKSwgXCJBdmFpbGFibGUgQ29tbWFuZHM6XCIpO1xuXHRhc3NlcnRFcXVhbHMoXG5cdFx0aTE4bi50KFwiY29tbWFuZF9ub3RfZm91bmRcIiwgeyBjb21tYW5kOiBcInRlc3RcIiB9KSxcblx0XHQnQ29tbWFuZCBcInRlc3RcIiBub3QgZm91bmQuJyxcblx0KTtcbn0pO1xuIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLHFCQUFxQjtBQUNyQixTQUFTLElBQUksUUFBUSxpQkFBaUI7QUFDdEMsU0FBUyxZQUFZLFFBQVEsbUJBQW1CO0FBQ2hELFNBQVMsWUFBWSxRQUFRLG1EQUFtRDtBQUVoRixLQUFLLElBQUksQ0FBQyxvREFBb0Q7RUFDN0Qsd0NBQXdDO0VBQ3hDLE1BQU0sU0FBUyxJQUFJO0VBQ25CLE1BQU0sU0FBUztJQUFFLFFBQVE7RUFBSztFQUM5QixPQUFPLElBQUksR0FBRyxJQUFNLFFBQVEsT0FBTyxDQUFDO0VBQ3BDLE1BQU0sT0FBTyxJQUFJLEtBQUs7RUFDdEIsTUFBTSxLQUFLLElBQUk7RUFFZixhQUFhLEtBQUssQ0FBQyxDQUFDLHVCQUF1QjtFQUMzQyxhQUNDLEtBQUssQ0FBQyxDQUFDLHFCQUFxQjtJQUFFLFNBQVM7RUFBTyxJQUM5QztBQUVGIn0=
+// denoCacheMetadata=12910419371333357496,3171934071758807466

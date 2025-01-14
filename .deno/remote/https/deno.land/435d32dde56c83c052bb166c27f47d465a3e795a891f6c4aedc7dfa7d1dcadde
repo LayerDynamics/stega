@@ -1,0 +1,54 @@
+// Copyright 2018-2022 the Deno authors. All rights reserved. MIT license.
+import { getFileInfoType } from "./_util.ts";
+
+/**
+ * Ensures that the directory exists.
+ * If the directory structure does not exist, it is created. Like mkdir -p.
+ * Requires the `--allow-read` and `--allow-write` flag.
+ */
+export async function ensureDir(dir: string) {
+  try {
+    const fileInfo = await Deno.lstat(dir);
+    if (!fileInfo.isDirectory) {
+      throw new Error(
+        `Ensure path exists, expected 'dir', got '${
+          getFileInfoType(fileInfo)
+        }'`,
+      );
+    }
+  } catch (err) {
+    if (err instanceof Deno.errors.NotFound) {
+      // if dir not exists. then create it.
+      await Deno.mkdir(dir, { recursive: true });
+      return;
+    }
+    throw err;
+  }
+}
+
+/**
+ * Ensures that the directory exists.
+ * If the directory structure does not exist, it is created. Like mkdir -p.
+ * Requires the `--allow-read` and `--allow-write` flag.
+ */
+export function ensureDirSync(dir: string): void {
+  try {
+    const fileInfo = Deno.lstatSync(dir);
+    if (!fileInfo.isDirectory) {
+      throw new Error(
+        `Ensure path exists, expected 'dir', got '${
+          getFileInfoType(fileInfo)
+        }'`,
+      );
+    }
+  } catch (err) {
+    if (err instanceof Deno.errors.NotFound) {
+      // if dir not exists. then create it.
+      Deno.mkdirSync(dir, { recursive: true });
+      return;
+    }
+    throw err;
+  }
+}
+
+// denoCacheMetadata={"headers":{"age":"203756","content-type":"application/typescript; charset=utf-8","referrer-policy":"strict-origin-when-cross-origin","x-amz-replication-status":"COMPLETED","date":"Sun, 12 Jan 2025 02:33:10 GMT","x-content-type-options":"nosniff","vary":"Accept-Encoding, Origin","last-modified":"Wed, 18 May 2022 13:28:50 GMT","x-cache":"Hit from cloudfront","content-length":"1425","accept-ranges":"bytes","cross-origin-embedder-policy":"same-origin","strict-transport-security":"max-age=63072000; includeSubDomains; preload","server-timing":"fetchSource;dur=58","via":"http/2 edgeproxy-h","x-frame-options":"DENY","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","etag":"\"0b49825de91174189a129b821e585165\"","x-amz-cf-id":"m2ZCr3W5JsuKd1PJjEkLKLX4ZNTsq1CQvm8BsMtx48mZRA2yNdCDxQ==","cross-origin-opener-policy":"same-origin","cache-control":"public, max-age=31536000, immutable","x-amz-cf-pop":"IAD12-P5","x-amz-version-id":"3e5QYmMYofqhF6Oyyo1rLEes8xX.6Ynh","access-control-allow-origin":"*","cross-origin-resource-policy":"same-origin","server":"deno/gcp-us-east4"},"url":"https://deno.land/std@0.140.0/fs/ensure_dir.ts","time":1736852945}

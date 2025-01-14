@@ -1,0 +1,148 @@
+import type { KeyCode } from "../keycode/key_code.ts";
+import { brightBlue, dim, underline, yellow } from "./deps.ts";
+import { Figures } from "./figures.ts";
+import {
+  GenericPrompt,
+  GenericPromptKeys,
+  GenericPromptOptions,
+  GenericPromptSettings,
+} from "./_generic_prompt.ts";
+
+/** Toggle key options. */
+export interface ToggleKeys extends GenericPromptKeys {
+  active?: string[];
+  inactive?: string[];
+}
+
+/** Generic prompt options. */
+export interface ToggleOptions extends GenericPromptOptions<boolean, string> {
+  active?: string;
+  inactive?: string;
+  keys?: ToggleKeys;
+}
+
+/** Toggle prompt settings. */
+interface ToggleSettings extends GenericPromptSettings<boolean, string> {
+  active: string;
+  inactive: string;
+  keys: ToggleKeys;
+}
+
+/** Toggle prompt representation. */
+export class Toggle extends GenericPrompt<boolean, string, ToggleSettings> {
+  protected status: string = typeof this.settings.default !== "undefined"
+    ? this.format(this.settings.default)
+    : "";
+
+  /** Execute the prompt and show cursor on end. */
+  public static prompt(
+    options: string | ToggleOptions,
+  ): Promise<boolean> {
+    if (typeof options === "string") {
+      options = { message: options };
+    }
+
+    return new this({
+      pointer: brightBlue(Figures.POINTER_SMALL),
+      prefix: yellow("? "),
+      indent: " ",
+      active: "Yes",
+      inactive: "No",
+      ...options,
+      keys: {
+        active: ["right", "y", "j", "s", "o"],
+        inactive: ["left", "n"],
+        ...(options.keys ?? {}),
+      },
+    }).prompt();
+  }
+
+  protected message(): string {
+    let message = super.message() + " " + this.settings.pointer + " ";
+
+    if (this.status === this.settings.active) {
+      message += dim(this.settings.inactive + " / ") +
+        underline(this.settings.active);
+    } else if (this.status === this.settings.inactive) {
+      message += underline(this.settings.inactive) +
+        dim(" / " + this.settings.active);
+    } else {
+      message += dim(this.settings.inactive + " / " + this.settings.active);
+    }
+
+    return message;
+  }
+
+  /** Read user input from stdin, handle events and validate user input. */
+  protected read(): Promise<boolean> {
+    this.tty.cursorHide();
+    return super.read();
+  }
+
+  /**
+   * Handle user input event.
+   * @param event Key event.
+   */
+  protected async handleEvent(event: KeyCode): Promise<void> {
+    switch (true) {
+      case event.sequence === this.settings.inactive[0].toLowerCase():
+      case this.isKey(this.settings.keys, "inactive", event):
+        this.selectInactive();
+        break;
+      case event.sequence === this.settings.active[0].toLowerCase():
+      case this.isKey(this.settings.keys, "active", event):
+        this.selectActive();
+        break;
+      default:
+        await super.handleEvent(event);
+    }
+  }
+
+  /** Set active. */
+  protected selectActive() {
+    this.status = this.settings.active;
+  }
+
+  /** Set inactive. */
+  protected selectInactive() {
+    this.status = this.settings.inactive;
+  }
+
+  /**
+   * Validate input value.
+   * @param value User input value.
+   * @return True on success, false or error message on error.
+   */
+  protected validate(value: string): boolean | string {
+    return [this.settings.active, this.settings.inactive].indexOf(value) !== -1;
+  }
+
+  /**
+   * Map input value to output value.
+   * @param value Input value.
+   * @return Output value.
+   */
+  protected transform(value: string): boolean | undefined {
+    switch (value) {
+      case this.settings.active:
+        return true;
+      case this.settings.inactive:
+        return false;
+    }
+  }
+
+  /**
+   * Format output value.
+   * @param value Output value.
+   */
+  protected format(value: boolean): string {
+    return value ? this.settings.active : this.settings.inactive;
+  }
+
+  /** Get input value. */
+  protected getValue(): string {
+    return this.status;
+  }
+}
+
+// denoCacheMetadata={"headers":{"date":"Sun, 12 Jan 2025 02:26:43 GMT","x-amz-cf-id":"VrGKEU7vDjsyvRq8-wdJT2DuNoNcaIs2LiA3RAFK36FW_eDlTnNucQ==","age":"204142","x-amz-server-side-encryption":"AES256","x-frame-options":"DENY","access-control-allow-origin":"*","cache-control":"public, max-age=31536000, immutable","last-modified":"Thu, 05 Jan 2023 20:39:47 GMT","cross-origin-opener-policy":"same-origin","accept-ranges":"bytes","etag":"\"28c2ede18526fe9c916a945ced8b87ff\"","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","via":"http/2 edgeproxy-h","x-content-type-options":"nosniff","cross-origin-embedder-policy":"same-origin","x-cache":"Hit from cloudfront","strict-transport-security":"max-age=63072000; includeSubDomains; preload","content-type":"application/typescript; charset=utf-8","server":"deno/gcp-us-east4","referrer-policy":"strict-origin-when-cross-origin","content-length":"3885","x-amz-version-id":"G.ElPQNSeDAoViE9pPUo_dY3lOWL9quN","x-amz-cf-pop":"IAD12-P5","server-timing":"fetchSource;dur=20","vary":"Accept-Encoding, Origin","cross-origin-resource-policy":"same-origin","x-amz-replication-status":"COMPLETED"},"url":"https://deno.land/x/cliffy@v0.25.7/prompt/toggle.ts","time":1736852944}

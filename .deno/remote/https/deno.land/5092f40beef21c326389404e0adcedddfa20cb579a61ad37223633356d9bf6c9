@@ -1,0 +1,160 @@
+import { GenericPrompt } from "./_generic_prompt.ts";
+import {
+  GenericSuggestions,
+  GenericSuggestionsKeys,
+  GenericSuggestionsOptions,
+  GenericSuggestionsSettings,
+} from "./_generic_suggestions.ts";
+import { dim } from "./deps.ts";
+
+type UnsupportedOptions =
+  | "files"
+  | "complete"
+  | "suggestions"
+  | "list"
+  | "info";
+
+/** Confirm prompt options. */
+export interface ConfirmOptions
+  extends Omit<GenericSuggestionsOptions<boolean, string>, UnsupportedOptions> {
+  /** Keymap to assign key names to prompt actions. */
+  keys?: ConfirmKeys;
+  /** Change active label. Default is `Yes`. */
+  active?: string;
+  /** Change inactive label. Default is `No`. */
+  inactive?: string;
+}
+
+/** Confirm prompt settings. */
+interface ConfirmSettings extends GenericSuggestionsSettings<boolean, string> {
+  active: string;
+  inactive: string;
+  keys?: ConfirmKeys;
+}
+
+/** Confirm prompt keymap. */
+export type ConfirmKeys = GenericSuggestionsKeys;
+
+/**
+ * Confirm prompt representation.
+ *
+ * ```ts
+ * import { Confirm } from "./mod.ts";
+ *
+ * const confirmed: boolean = await Confirm.prompt("Please confirm");
+ * ```
+ */
+export class Confirm extends GenericSuggestions<boolean, string> {
+  protected readonly settings: ConfirmSettings;
+
+  /** Execute the prompt with provided options. */
+  public static prompt(
+    options: string | ConfirmOptions,
+  ): Promise<boolean> {
+    return new this(options).prompt();
+  }
+
+  /**
+   * Inject prompt value. If called, the prompt doesn't prompt for an input and
+   * returns immediately the injected value. Can be used for unit tests or pre
+   * selections.
+   *
+   * @param value Input value.
+   */
+  public static inject(value: string): void {
+    GenericPrompt.inject(value);
+  }
+
+  constructor(options: string | ConfirmOptions) {
+    super();
+    if (typeof options === "string") {
+      options = { message: options };
+    }
+    this.settings = this.getDefaultSettings(options);
+  }
+
+  public getDefaultSettings(options: ConfirmOptions): ConfirmSettings {
+    return {
+      ...super.getDefaultSettings(options),
+      active: options.active || "Yes",
+      inactive: options.inactive || "No",
+      files: false,
+      complete: undefined,
+      suggestions: [
+        options.active || "Yes",
+        options.inactive || "No",
+      ],
+      list: false,
+      info: false,
+    };
+  }
+
+  protected defaults(): string {
+    let defaultMessage = "";
+
+    if (this.settings.default === true) {
+      defaultMessage += this.settings.active[0].toUpperCase() + "/" +
+        this.settings.inactive[0].toLowerCase();
+    } else if (this.settings.default === false) {
+      defaultMessage += this.settings.active[0].toLowerCase() + "/" +
+        this.settings.inactive[0].toUpperCase();
+    } else {
+      defaultMessage += this.settings.active[0].toLowerCase() + "/" +
+        this.settings.inactive[0].toLowerCase();
+    }
+
+    return defaultMessage ? dim(` (${defaultMessage})`) : "";
+  }
+
+  protected success(value: boolean): string | undefined {
+    this.saveSuggestions(this.format(value));
+    return super.success(value);
+  }
+
+  /** Get input input. */
+  protected getValue(): string {
+    return this.inputValue;
+  }
+
+  /**
+   * Validate input value.
+   * @param value User input value.
+   * @return True on success, false or error message on error.
+   */
+  protected validate(value: string): boolean | string {
+    return typeof value === "string" &&
+      [
+          this.settings.active[0].toLowerCase(),
+          this.settings.active.toLowerCase(),
+          this.settings.inactive[0].toLowerCase(),
+          this.settings.inactive.toLowerCase(),
+        ].indexOf(value.toLowerCase()) !== -1;
+  }
+
+  /**
+   * Map input value to output value.
+   * @param value Input value.
+   * @return Output value.
+   */
+  protected transform(value: string): boolean | undefined {
+    switch (value.toLowerCase()) {
+      case this.settings.active[0].toLowerCase():
+      case this.settings.active.toLowerCase():
+        return true;
+      case this.settings.inactive[0].toLowerCase():
+      case this.settings.inactive.toLowerCase():
+        return false;
+    }
+    return;
+  }
+
+  /**
+   * Format output value.
+   * @param value Output value.
+   */
+  protected format(value: boolean): string {
+    return value ? this.settings.active : this.settings.inactive;
+  }
+}
+
+// denoCacheMetadata={"headers":{"cross-origin-embedder-policy":"same-origin","cross-origin-resource-policy":"same-origin","content-type":"application/typescript; charset=utf-8","etag":"\"c9445353796f6e29f3cee12dbd134ed7\"","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-cf-id":"DYHKMtHP8V0l-VSOr32nr6yaWtT96fEoXtwtpXwswrP3Q5uF65TwcA==","accept-ranges":"bytes","content-length":"4314","via":"http/2 edgeproxy-h","x-amz-cf-pop":"IAD12-P5","x-cache":"Hit from cloudfront","x-content-type-options":"nosniff","cache-control":"public, max-age=31536000, immutable","x-amz-replication-status":"COMPLETED","access-control-allow-origin":"*","server":"deno/gcp-us-east4","last-modified":"Sun, 30 Jul 2023 10:00:26 GMT","x-amz-server-side-encryption":"AES256","age":"111820","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","cross-origin-opener-policy":"same-origin","server-timing":"fetchSource;dur=8","x-frame-options":"DENY","date":"Mon, 13 Jan 2025 04:05:25 GMT","vary":"Accept-Encoding, Origin","x-amz-version-id":"Rva7uyl65Mqzp5qQnCSz85R.h736pO_x","referrer-policy":"strict-origin-when-cross-origin"},"url":"https://deno.land/x/cliffy@v1.0.0-rc.3/prompt/confirm.ts","time":1736852944}

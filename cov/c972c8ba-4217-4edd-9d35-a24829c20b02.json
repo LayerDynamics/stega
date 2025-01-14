@@ -1,0 +1,124 @@
+{
+  "scriptId": "321",
+  "url": "file:///Users/ryanoboyle/stega/src/commands/http_command.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 6556, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "<instance_members_initializer>",
+      "ranges": [{ "startOffset": 155, "endOffset": 200, "count": 6 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "HttpCommand",
+      "ranges": [
+        { "startOffset": 204, "endOffset": 1500, "count": 6 },
+        { "startOffset": 1013, "endOffset": 1018, "count": 3 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "cleanup",
+      "ranges": [{ "startOffset": 1351, "endOffset": 1389, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "onError",
+      "ranges": [{ "startOffset": 1406, "endOffset": 1489, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "cleanupRequests",
+      "ranges": [{ "startOffset": 1608, "endOffset": 2254, "count": 6 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 1742, "endOffset": 1898, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 2004, "endOffset": 2089, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "parseHeaders",
+      "ranges": [
+        { "startOffset": 2426, "endOffset": 2697, "count": 6 },
+        { "startOffset": 2478, "endOffset": 2488, "count": 4 },
+        { "startOffset": 2488, "endOffset": 2696, "count": 2 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 2531, "endOffset": 2687, "count": 2 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "makeRequest",
+      "ranges": [
+        { "startOffset": 2924, "endOffset": 4538, "count": 17 },
+        { "startOffset": 3737, "endOffset": 3780, "count": 7 },
+        { "startOffset": 3780, "endOffset": 3832, "count": 4 },
+        { "startOffset": 3834, "endOffset": 3925, "count": 4 },
+        { "startOffset": 3925, "endOffset": 3955, "count": 3 },
+        { "startOffset": 3955, "endOffset": 4404, "count": 14 },
+        { "startOffset": 4048, "endOffset": 4120, "count": 4 },
+        { "startOffset": 4120, "endOffset": 4176, "count": 10 },
+        { "startOffset": 4176, "endOffset": 4250, "count": 4 },
+        { "startOffset": 4250, "endOffset": 4334, "count": 6 },
+        { "startOffset": 4334, "endOffset": 4404, "count": 0 },
+        { "startOffset": 4404, "endOffset": 4405, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [
+        { "startOffset": 3177, "endOffset": 3380, "count": 17 },
+        { "startOffset": 3362, "endOffset": 3370, "count": 13 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 3227, "endOffset": 3335, "count": 4 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "action",
+      "ranges": [
+        { "startOffset": 4664, "endOffset": 6327, "count": 6 },
+        { "startOffset": 4930, "endOffset": 4934, "count": 5 },
+        { "startOffset": 5021, "endOffset": 6210, "count": 17 },
+        { "startOffset": 5219, "endOffset": 5453, "count": 3 },
+        { "startOffset": 5453, "endOffset": 6202, "count": 14 },
+        { "startOffset": 5522, "endOffset": 5548, "count": 0 },
+        { "startOffset": 5588, "endOffset": 5630, "count": 3 },
+        { "startOffset": 5630, "endOffset": 6202, "count": 11 },
+        { "startOffset": 6210, "endOffset": 6266, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 5799, "endOffset": 6190, "count": 11 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 5927, "endOffset": 6114, "count": 11 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "createHttpCommand",
+      "ranges": [{ "startOffset": 6483, "endOffset": 6555, "count": 6 }],
+      "isBlockCoverage": true
+    }
+  ]
+}

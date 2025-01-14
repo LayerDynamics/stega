@@ -1,0 +1,93 @@
+// tests/test_utils.ts
+import { CLI } from "../src/core.ts";
+import * as path from "https://deno.land/std@0.203.0/path/mod.ts";
+import { MockLogger } from "./utils/mock_logger.ts";
+/**
+ * Create a test CLI instance with a mock logger
+ * @returns The CLI instance and its associated logger
+ */ export async function createTestCLI() {
+  const logger = new MockLogger();
+  const cli = new CLI(undefined, true, true, logger);
+  // Initialize CLI without arguments
+  await cli.run();
+  return {
+    cli,
+    logger
+  };
+}
+/**
+ * Helper function to create temporary files
+ * @param content The initial content of the temporary file
+ * @returns The path to the created temporary file
+ */ export async function createTempFile(content) {
+  const tmpFile = await Deno.makeTempFile({
+    prefix: "stega_test_",
+    suffix: ".tmp"
+  });
+  await Deno.writeTextFile(tmpFile, content);
+  return tmpFile;
+}
+/**
+ * Helper function to clean up temporary files
+ * @param paths Array of file paths to remove
+ */ export async function cleanupTempFiles(...paths) {
+  for (const filePath of paths){
+    try {
+      await Deno.remove(filePath);
+    } catch (error) {
+      // Ignore errors if file doesn't exist or cannot be removed
+      if (!(error instanceof Deno.errors.NotFound) && !(error instanceof Deno.errors.PermissionDenied)) {
+        throw error;
+      }
+    }
+  }
+}
+/**
+ * Gets the project root directory
+ * @returns The absolute path to the project root
+ */ export function getProjectRoot() {
+  // Assumes test_utils.ts is in the tests directory at project root
+  return path.resolve(path.dirname(path.fromFileUrl(import.meta.url)), "..");
+}
+/**
+ * Resolves a path relative to the project root
+ * @param relativePath The relative path to resolve
+ * @returns The absolute path resolved from the project root
+ */ export function resolveProjectPath(relativePath) {
+  return path.resolve(getProjectRoot(), relativePath);
+}
+/**
+ * Helper to import a source file relative to project root
+ * @param relativePath The relative path to the source file
+ * @returns The imported module
+ */ export function importSourceFile(relativePath) {
+  const fullPath = resolveProjectPath(relativePath);
+  return import(path.toFileUrl(fullPath).href);
+}
+/**
+ * Mock fetch implementation with abort support
+ * @param status The HTTP status code to return
+ * @param data The JSON data to return in the response
+ * @param delay The delay in milliseconds before resolving the response
+ * @returns A mock fetch function
+ */ export function mockFetchWithAbort(status = 200, data = {
+  success: true
+}, delay = 200) {
+  return (input, init)=>{
+    return new Promise((resolve, reject)=>{
+      const timer = setTimeout(()=>{
+        resolve(new Response(JSON.stringify(data), {
+          status
+        }));
+      }, delay);
+      if (init?.signal) {
+        init.signal.addEventListener("abort", ()=>{
+          clearTimeout(timer);
+          reject(new DOMException("Aborted", "AbortError"));
+        });
+      }
+    });
+  };
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImZpbGU6Ly8vVXNlcnMvcnlhbm9ib3lsZS9zdGVnYS90ZXN0cy90ZXN0X3V0aWxzLnRzIl0sInNvdXJjZXNDb250ZW50IjpbIi8vIHRlc3RzL3Rlc3RfdXRpbHMudHNcbmltcG9ydCB7IENMSSB9IGZyb20gXCIuLi9zcmMvY29yZS50c1wiO1xuaW1wb3J0IHsgSUxvZ2dlciB9IGZyb20gXCIuLi9zcmMvbG9nZ2VyX2ludGVyZmFjZS50c1wiO1xuaW1wb3J0ICogYXMgcGF0aCBmcm9tIFwiaHR0cHM6Ly9kZW5vLmxhbmQvc3RkQDAuMjAzLjAvcGF0aC9tb2QudHNcIjtcbmltcG9ydCB7IE1vY2tMb2dnZXIgfSBmcm9tIFwiLi91dGlscy9tb2NrX2xvZ2dlci50c1wiO1xuXG5leHBvcnQgaW50ZXJmYWNlIFRlc3RDTEkge1xuXHRjbGk6IENMSTtcblx0bG9nZ2VyOiBNb2NrTG9nZ2VyO1xufVxuXG4vKipcbiAqIENyZWF0ZSBhIHRlc3QgQ0xJIGluc3RhbmNlIHdpdGggYSBtb2NrIGxvZ2dlclxuICogQHJldHVybnMgVGhlIENMSSBpbnN0YW5jZSBhbmQgaXRzIGFzc29jaWF0ZWQgbG9nZ2VyXG4gKi9cbmV4cG9ydCBhc3luYyBmdW5jdGlvbiBjcmVhdGVUZXN0Q0xJKCk6IFByb21pc2U8VGVzdENMST4ge1xuXHRjb25zdCBsb2dnZXIgPSBuZXcgTW9ja0xvZ2dlcigpO1xuXHRjb25zdCBjbGkgPSBuZXcgQ0xJKHVuZGVmaW5lZCwgdHJ1ZSwgdHJ1ZSwgbG9nZ2VyKTtcblx0Ly8gSW5pdGlhbGl6ZSBDTEkgd2l0aG91dCBhcmd1bWVudHNcblx0YXdhaXQgY2xpLnJ1bigpO1xuXHRyZXR1cm4geyBjbGksIGxvZ2dlciB9O1xufVxuXG4vKipcbiAqIEhlbHBlciBmdW5jdGlvbiB0byBjcmVhdGUgdGVtcG9yYXJ5IGZpbGVzXG4gKiBAcGFyYW0gY29udGVudCBUaGUgaW5pdGlhbCBjb250ZW50IG9mIHRoZSB0ZW1wb3JhcnkgZmlsZVxuICogQHJldHVybnMgVGhlIHBhdGggdG8gdGhlIGNyZWF0ZWQgdGVtcG9yYXJ5IGZpbGVcbiAqL1xuZXhwb3J0IGFzeW5jIGZ1bmN0aW9uIGNyZWF0ZVRlbXBGaWxlKGNvbnRlbnQ6IHN0cmluZyk6IFByb21pc2U8c3RyaW5nPiB7XG5cdGNvbnN0IHRtcEZpbGUgPSBhd2FpdCBEZW5vLm1ha2VUZW1wRmlsZSh7XG5cdFx0cHJlZml4OiBcInN0ZWdhX3Rlc3RfXCIsXG5cdFx0c3VmZml4OiBcIi50bXBcIixcblx0fSk7XG5cdGF3YWl0IERlbm8ud3JpdGVUZXh0RmlsZSh0bXBGaWxlLCBjb250ZW50KTtcblx0cmV0dXJuIHRtcEZpbGU7XG59XG5cbi8qKlxuICogSGVscGVyIGZ1bmN0aW9uIHRvIGNsZWFuIHVwIHRlbXBvcmFyeSBmaWxlc1xuICogQHBhcmFtIHBhdGhzIEFycmF5IG9mIGZpbGUgcGF0aHMgdG8gcmVtb3ZlXG4gKi9cbmV4cG9ydCBhc3luYyBmdW5jdGlvbiBjbGVhbnVwVGVtcEZpbGVzKC4uLnBhdGhzOiBzdHJpbmdbXSk6IFByb21pc2U8dm9pZD4ge1xuXHRmb3IgKGNvbnN0IGZpbGVQYXRoIG9mIHBhdGhzKSB7XG5cdFx0dHJ5IHtcblx0XHRcdGF3YWl0IERlbm8ucmVtb3ZlKGZpbGVQYXRoKTtcblx0XHR9IGNhdGNoIChlcnJvcikge1xuXHRcdFx0Ly8gSWdub3JlIGVycm9ycyBpZiBmaWxlIGRvZXNuJ3QgZXhpc3Qgb3IgY2Fubm90IGJlIHJlbW92ZWRcblx0XHRcdGlmIChcblx0XHRcdFx0IShlcnJvciBpbnN0YW5jZW9mIERlbm8uZXJyb3JzLk5vdEZvdW5kKSAmJlxuXHRcdFx0XHQhKGVycm9yIGluc3RhbmNlb2YgRGVuby5lcnJvcnMuUGVybWlzc2lvbkRlbmllZClcblx0XHRcdCkge1xuXHRcdFx0XHR0aHJvdyBlcnJvcjtcblx0XHRcdH1cblx0XHR9XG5cdH1cbn1cblxuLyoqXG4gKiBHZXRzIHRoZSBwcm9qZWN0IHJvb3QgZGlyZWN0b3J5XG4gKiBAcmV0dXJucyBUaGUgYWJzb2x1dGUgcGF0aCB0byB0aGUgcHJvamVjdCByb290XG4gKi9cbmV4cG9ydCBmdW5jdGlvbiBnZXRQcm9qZWN0Um9vdCgpOiBzdHJpbmcge1xuXHQvLyBBc3N1bWVzIHRlc3RfdXRpbHMudHMgaXMgaW4gdGhlIHRlc3RzIGRpcmVjdG9yeSBhdCBwcm9qZWN0IHJvb3Rcblx0cmV0dXJuIHBhdGgucmVzb2x2ZShwYXRoLmRpcm5hbWUocGF0aC5mcm9tRmlsZVVybChpbXBvcnQubWV0YS51cmwpKSwgXCIuLlwiKTtcbn1cblxuLyoqXG4gKiBSZXNvbHZlcyBhIHBhdGggcmVsYXRpdmUgdG8gdGhlIHByb2plY3Qgcm9vdFxuICogQHBhcmFtIHJlbGF0aXZlUGF0aCBUaGUgcmVsYXRpdmUgcGF0aCB0byByZXNvbHZlXG4gKiBAcmV0dXJucyBUaGUgYWJzb2x1dGUgcGF0aCByZXNvbHZlZCBmcm9tIHRoZSBwcm9qZWN0IHJvb3RcbiAqL1xuZXhwb3J0IGZ1bmN0aW9uIHJlc29sdmVQcm9qZWN0UGF0aChyZWxhdGl2ZVBhdGg6IHN0cmluZyk6IHN0cmluZyB7XG5cdHJldHVybiBwYXRoLnJlc29sdmUoZ2V0UHJvamVjdFJvb3QoKSwgcmVsYXRpdmVQYXRoKTtcbn1cblxuLyoqXG4gKiBIZWxwZXIgdG8gaW1wb3J0IGEgc291cmNlIGZpbGUgcmVsYXRpdmUgdG8gcHJvamVjdCByb290XG4gKiBAcGFyYW0gcmVsYXRpdmVQYXRoIFRoZSByZWxhdGl2ZSBwYXRoIHRvIHRoZSBzb3VyY2UgZmlsZVxuICogQHJldHVybnMgVGhlIGltcG9ydGVkIG1vZHVsZVxuICovXG5leHBvcnQgZnVuY3Rpb24gaW1wb3J0U291cmNlRmlsZShyZWxhdGl2ZVBhdGg6IHN0cmluZyk6IFByb21pc2U8dW5rbm93bj4ge1xuXHRjb25zdCBmdWxsUGF0aCA9IHJlc29sdmVQcm9qZWN0UGF0aChyZWxhdGl2ZVBhdGgpO1xuXHRyZXR1cm4gaW1wb3J0KHBhdGgudG9GaWxlVXJsKGZ1bGxQYXRoKS5ocmVmKTtcbn1cblxuLyoqXG4gKiBNb2NrIGZldGNoIGltcGxlbWVudGF0aW9uIHdpdGggYWJvcnQgc3VwcG9ydFxuICogQHBhcmFtIHN0YXR1cyBUaGUgSFRUUCBzdGF0dXMgY29kZSB0byByZXR1cm5cbiAqIEBwYXJhbSBkYXRhIFRoZSBKU09OIGRhdGEgdG8gcmV0dXJuIGluIHRoZSByZXNwb25zZVxuICogQHBhcmFtIGRlbGF5IFRoZSBkZWxheSBpbiBtaWxsaXNlY29uZHMgYmVmb3JlIHJlc29sdmluZyB0aGUgcmVzcG9uc2VcbiAqIEByZXR1cm5zIEEgbW9jayBmZXRjaCBmdW5jdGlvblxuICovXG5leHBvcnQgZnVuY3Rpb24gbW9ja0ZldGNoV2l0aEFib3J0KFxuXHRzdGF0dXMgPSAyMDAsXG5cdGRhdGE6IFJlY29yZDxzdHJpbmcsIHVua25vd24+ID0geyBzdWNjZXNzOiB0cnVlIH0sXG5cdGRlbGF5ID0gMjAwLCAvLyBkZWZhdWx0IGRlbGF5IGluIG1zXG4pOiAoaW5wdXQ6IHN0cmluZyB8IFVSTCB8IFJlcXVlc3QsIGluaXQ/OiBSZXF1ZXN0SW5pdCkgPT4gUHJvbWlzZTxSZXNwb25zZT4ge1xuXHRyZXR1cm4gKGlucHV0OiBzdHJpbmcgfCBVUkwgfCBSZXF1ZXN0LCBpbml0PzogUmVxdWVzdEluaXQpID0+IHtcblx0XHRyZXR1cm4gbmV3IFByb21pc2U8UmVzcG9uc2U+KChyZXNvbHZlLCByZWplY3QpID0+IHtcblx0XHRcdGNvbnN0IHRpbWVyID0gc2V0VGltZW91dCgoKSA9PiB7XG5cdFx0XHRcdHJlc29sdmUobmV3IFJlc3BvbnNlKEpTT04uc3RyaW5naWZ5KGRhdGEpLCB7IHN0YXR1cyB9KSk7XG5cdFx0XHR9LCBkZWxheSk7XG5cblx0XHRcdGlmIChpbml0Py5zaWduYWwpIHtcblx0XHRcdFx0aW5pdC5zaWduYWwuYWRkRXZlbnRMaXN0ZW5lcihcImFib3J0XCIsICgpID0+IHtcblx0XHRcdFx0XHRjbGVhclRpbWVvdXQodGltZXIpO1xuXHRcdFx0XHRcdHJlamVjdChuZXcgRE9NRXhjZXB0aW9uKFwiQWJvcnRlZFwiLCBcIkFib3J0RXJyb3JcIikpO1xuXHRcdFx0XHR9KTtcblx0XHRcdH1cblx0XHR9KTtcblx0fTtcbn1cbiJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQSxzQkFBc0I7QUFDdEIsU0FBUyxHQUFHLFFBQVEsaUJBQWlCO0FBRXJDLFlBQVksVUFBVSw0Q0FBNEM7QUFDbEUsU0FBUyxVQUFVLFFBQVEseUJBQXlCO0FBT3BEOzs7Q0FHQyxHQUNELE9BQU8sZUFBZTtFQUNyQixNQUFNLFNBQVMsSUFBSTtFQUNuQixNQUFNLE1BQU0sSUFBSSxJQUFJLFdBQVcsTUFBTSxNQUFNO0VBQzNDLG1DQUFtQztFQUNuQyxNQUFNLElBQUksR0FBRztFQUNiLE9BQU87SUFBRTtJQUFLO0VBQU87QUFDdEI7QUFFQTs7OztDQUlDLEdBQ0QsT0FBTyxlQUFlLGVBQWUsT0FBZTtFQUNuRCxNQUFNLFVBQVUsTUFBTSxLQUFLLFlBQVksQ0FBQztJQUN2QyxRQUFRO0lBQ1IsUUFBUTtFQUNUO0VBQ0EsTUFBTSxLQUFLLGFBQWEsQ0FBQyxTQUFTO0VBQ2xDLE9BQU87QUFDUjtBQUVBOzs7Q0FHQyxHQUNELE9BQU8sZUFBZSxpQkFBaUIsR0FBRyxLQUFlO0VBQ3hELEtBQUssTUFBTSxZQUFZLE1BQU87SUFDN0IsSUFBSTtNQUNILE1BQU0sS0FBSyxNQUFNLENBQUM7SUFDbkIsRUFBRSxPQUFPLE9BQU87TUFDZiwyREFBMkQ7TUFDM0QsSUFDQyxDQUFDLENBQUMsaUJBQWlCLEtBQUssTUFBTSxDQUFDLFFBQVEsS0FDdkMsQ0FBQyxDQUFDLGlCQUFpQixLQUFLLE1BQU0sQ0FBQyxnQkFBZ0IsR0FDOUM7UUFDRCxNQUFNO01BQ1A7SUFDRDtFQUNEO0FBQ0Q7QUFFQTs7O0NBR0MsR0FDRCxPQUFPLFNBQVM7RUFDZixrRUFBa0U7RUFDbEUsT0FBTyxLQUFLLE9BQU8sQ0FBQyxLQUFLLE9BQU8sQ0FBQyxLQUFLLFdBQVcsQ0FBQyxZQUFZLEdBQUcsSUFBSTtBQUN0RTtBQUVBOzs7O0NBSUMsR0FDRCxPQUFPLFNBQVMsbUJBQW1CLFlBQW9CO0VBQ3RELE9BQU8sS0FBSyxPQUFPLENBQUMsa0JBQWtCO0FBQ3ZDO0FBRUE7Ozs7Q0FJQyxHQUNELE9BQU8sU0FBUyxpQkFBaUIsWUFBb0I7RUFDcEQsTUFBTSxXQUFXLG1CQUFtQjtFQUNwQyxPQUFPLE1BQU0sQ0FBQyxLQUFLLFNBQVMsQ0FBQyxVQUFVLElBQUk7QUFDNUM7QUFFQTs7Ozs7O0NBTUMsR0FDRCxPQUFPLFNBQVMsbUJBQ2YsU0FBUyxHQUFHLEVBQ1osT0FBZ0M7RUFBRSxTQUFTO0FBQUssQ0FBQyxFQUNqRCxRQUFRLEdBQUc7RUFFWCxPQUFPLENBQUMsT0FBK0I7SUFDdEMsT0FBTyxJQUFJLFFBQWtCLENBQUMsU0FBUztNQUN0QyxNQUFNLFFBQVEsV0FBVztRQUN4QixRQUFRLElBQUksU0FBUyxLQUFLLFNBQVMsQ0FBQyxPQUFPO1VBQUU7UUFBTztNQUNyRCxHQUFHO01BRUgsSUFBSSxNQUFNLFFBQVE7UUFDakIsS0FBSyxNQUFNLENBQUMsZ0JBQWdCLENBQUMsU0FBUztVQUNyQyxhQUFhO1VBQ2IsT0FBTyxJQUFJLGFBQWEsV0FBVztRQUNwQztNQUNEO0lBQ0Q7RUFDRDtBQUNEIn0=
+// denoCacheMetadata=3721984735635358127,13204848657637394608

@@ -1,0 +1,15 @@
+// Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+import { isWindows } from "./_os.ts";
+import { posixJoin, windowsJoin } from "./_join.ts";
+
+/**
+ * Join all given a sequence of `paths`,then normalizes the resulting path.
+ * @param paths to be joined and normalized
+ */
+export function join(...paths: string[]) {
+  return isWindows ? windowsJoin(...paths) : posixJoin(...paths);
+}
+
+// denoCacheMetadata={"headers":{"server":"deno/gcp-us-east4","vary":"Accept-Encoding, Origin","x-cache":"Hit from cloudfront","cross-origin-embedder-policy":"same-origin","referrer-policy":"strict-origin-when-cross-origin","x-amz-replication-status":"COMPLETED","etag":"\"7b57c1ba86f68df91b4608cdcbddd0e5\"","content-type":"application/typescript; charset=utf-8","cross-origin-resource-policy":"same-origin","age":"109625","cross-origin-opener-policy":"same-origin","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-cf-id":"E-NRWkGbAWTzLO1Vw0JwXrM_GnAjCIDNEHEiXGjOT_mLvGRrVGa8Mw==","accept-ranges":"bytes","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","last-modified":"Wed, 27 Sep 2023 04:05:42 GMT","x-amz-cf-pop":"IAD12-P5","x-amz-server-side-encryption":"AES256","content-length":"445","date":"Mon, 13 Jan 2025 04:42:00 GMT","x-amz-version-id":"7k9nxxGsCBKnag29n5.UGl_p3ChDrxKG","x-content-type-options":"nosniff","server-timing":"fetchSource;dur=8","x-frame-options":"DENY","via":"http/2 edgeproxy-h","cache-control":"public, max-age=31536000, immutable","access-control-allow-origin":"*"},"url":"https://deno.land/std@0.203.0/path/join.ts","time":1736852944}

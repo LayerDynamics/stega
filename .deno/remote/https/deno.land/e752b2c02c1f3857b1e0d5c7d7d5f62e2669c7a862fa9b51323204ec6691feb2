@@ -1,0 +1,111 @@
+import * as ansiEscapes from "./ansi_escapes.ts";
+import type { Chain } from "./chain.ts";
+import { Cursor, getCursorPosition } from "./cursor_position.ts";
+
+/** Create new `Ansi` instance. */
+export interface TtyOptions {
+  writer?: Deno.WriterSync;
+  reader?: Deno.ReaderSync & {
+    readonly rid: number;
+    setRaw(mode: boolean, options?: Deno.SetRawOptions): void;
+  };
+}
+
+type Executor = (this: TtyChain, ...args: Args) => string;
+type Args = Array<unknown>;
+type Property = string | Executor;
+type PropertyNames = keyof Chain<TtyChain>;
+
+/** Ansi instance returned by all ansi escape properties. */
+export interface TtyChain extends Exclude<Chain<TtyChain>, "cursorPosition"> {
+  /** Write ansi escape sequence. */
+  (): void;
+  /** Get current cursor position. */
+  getCursorPosition(): Cursor;
+}
+
+/** Create new `Tty` instance. */
+export type TtyFactory = (options?: TtyOptions) => Tty;
+
+/**
+ * Chainable ansi escape sequences.
+ * If invoked as method, a new Tty instance will be returned.
+ */
+export type Tty = TtyFactory & TtyChain;
+
+/**
+ * Chainable ansi escape sequences.
+ * If invoked as method, a new Tty instance will be returned.
+ *
+ * ```ts
+ * import { tty } from "./mod.ts";
+ *
+ * tty.cursorTo(0, 0).eraseScreen();
+ * ```
+ */
+export const tty: Tty = factory();
+
+const encoder = new TextEncoder();
+
+function factory(options?: TtyOptions): Tty {
+  let result = "";
+  let stack: Array<[Property, Args]> = [];
+  const writer = options?.writer ?? Deno.stdout;
+  const reader = options?.reader ?? Deno.stdin;
+
+  const tty: Tty = function (
+    this: TtyChain | undefined,
+    ...args: Args | [TtyOptions]
+  ): TtyChain {
+    if (this) {
+      update(args);
+      writer.writeSync(encoder.encode(result));
+      return this;
+    }
+    return factory(args[0] as TtyOptions ?? options);
+  } as Tty;
+
+  tty.text = function (text: string): TtyChain {
+    stack.push([text, []]);
+    update();
+    writer.writeSync(encoder.encode(result));
+    return this;
+  };
+
+  tty.getCursorPosition = (): Cursor => getCursorPosition({ writer, reader });
+
+  const methodList: Array<[PropertyNames, Property]> = Object.entries(
+    ansiEscapes,
+  ) as Array<[PropertyNames, Property]>;
+
+  for (const [name, method] of methodList) {
+    if (name === "cursorPosition") {
+      continue;
+    }
+    Object.defineProperty(tty, name, {
+      get(this: TtyChain) {
+        stack.push([method, []]);
+        return this;
+      },
+    });
+  }
+
+  return tty;
+
+  function update(args?: Args) {
+    if (!stack.length) {
+      return;
+    }
+    if (args) {
+      stack[stack.length - 1][1] = args;
+    }
+    result = stack.reduce(
+      (prev: string, [cur, args]: [Property, Args]) =>
+        prev + (typeof cur === "string" ? cur : cur.call(tty, ...args)),
+      "",
+    );
+    stack = [];
+  }
+}
+
+// denoCacheMetadata={"headers":{"date":"Mon, 13 Jan 2025 04:04:52 GMT","x-amz-cf-pop":"IAD12-P5","strict-transport-security":"max-age=63072000; includeSubDomains; preload","content-type":"application/typescript; charset=utf-8","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","etag":"\"19cc920f121009560938484d2d18728b\"","cross-origin-resource-policy":"same-origin","referrer-policy":"strict-origin-when-cross-origin","server":"deno/gcp-us-east4","x-frame-options":"DENY","cross-origin-embedder-policy":"same-origin","server-timing":"fetchSource;dur=28","x-amz-cf-id":"VQ-6v2kY3fjBbUa2XwUTzUF-g06fcTqOQBULIU61PRxXHaGcrJ7jWw==","x-amz-replication-status":"COMPLETED","x-amz-version-id":"w2JpA0sOL6y0Jz_FU6Gh2NCR2W12S3Lk","age":"111853","x-content-type-options":"nosniff","access-control-allow-origin":"*","cache-control":"public, max-age=31536000, immutable","vary":"Accept-Encoding, Origin","cross-origin-opener-policy":"same-origin","x-cache":"Hit from cloudfront","accept-ranges":"bytes","content-length":"2779","x-amz-server-side-encryption":"AES256","last-modified":"Sun, 30 Jul 2023 10:00:25 GMT","via":"http/2 edgeproxy-h"},"url":"https://deno.land/x/cliffy@v1.0.0-rc.3/ansi/tty.ts","time":1736852944}

@@ -1,0 +1,103 @@
+import * as ansiEscapes from "./ansi_escapes.ts";
+import type { Chain } from "./chain.ts";
+import { Cursor, getCursorPosition } from "./cursor_position.ts";
+
+/** Create new `Ansi` instance. */
+export interface TtyOptions {
+  stdout?: Deno.WriterSync;
+  stdin?: Deno.ReaderSync & { rid: number };
+}
+
+type Executor = (this: TtyChain, ...args: Args) => string;
+type Args = Array<unknown>;
+type Property = string | Executor;
+type PropertyNames = keyof Chain<TtyChain>;
+
+/** Ansi instance returned by all ansi escape properties. */
+export interface TtyChain extends Exclude<Chain<TtyChain>, "cursorPosition"> {
+  /** Write ansi escape sequence. */
+  (): void;
+  /** Get current cursor position. */
+  getCursorPosition(): Cursor;
+}
+
+/** Create new `Tty` instance. */
+export type TtyFactory = (options?: TtyOptions) => Tty;
+
+/**
+ * Chainable ansi escape sequences.
+ * If invoked as method, a new Tty instance will be returned.
+ */
+export type Tty = TtyFactory & TtyChain;
+
+/**
+ * Chainable ansi escape sequences.
+ * If invoked as method, a new Tty instance will be returned.
+ * ```
+ * tty.cursorTo(0, 0).eraseScreen();
+ * ```
+ */
+export const tty: Tty = factory();
+
+function factory(options?: TtyOptions): Tty {
+  let result = "";
+  let stack: Array<[Property, Args]> = [];
+  const stdout: Deno.WriterSync = options?.stdout ?? Deno.stdout;
+  const stdin: Deno.ReaderSync & { rid: number } = options?.stdin ?? Deno.stdin;
+
+  const tty: Tty = function (
+    this: TtyChain | undefined,
+    ...args: Args | [TtyOptions]
+  ): TtyChain {
+    if (this) {
+      update(args);
+      stdout.writeSync(new TextEncoder().encode(result));
+      return this;
+    }
+    return factory(args[0] as TtyOptions ?? options);
+  } as Tty;
+
+  tty.text = function (text: string): TtyChain {
+    stack.push([text, []]);
+    update();
+    stdout.writeSync(new TextEncoder().encode(result));
+    return this;
+  };
+
+  tty.getCursorPosition = (): Cursor => getCursorPosition({ stdout, stdin });
+
+  const methodList: Array<[PropertyNames, Property]> = Object.entries(
+    ansiEscapes,
+  ) as Array<[PropertyNames, Property]>;
+
+  for (const [name, method] of methodList) {
+    if (name === "cursorPosition") {
+      continue;
+    }
+    Object.defineProperty(tty, name, {
+      get(this: TtyChain) {
+        stack.push([method, []]);
+        return this;
+      },
+    });
+  }
+
+  return tty;
+
+  function update(args?: Args) {
+    if (!stack.length) {
+      return;
+    }
+    if (args) {
+      stack[stack.length - 1][1] = args;
+    }
+    result = stack.reduce(
+      (prev: string, [cur, args]: [Property, Args]) =>
+        prev + (typeof cur === "string" ? cur : cur.call(tty, ...args)),
+      "",
+    );
+    stack = [];
+  }
+}
+
+// denoCacheMetadata={"headers":{"content-length":"2689","cross-origin-embedder-policy":"same-origin","server-timing":"fetchSource;dur=8","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-cf-id":"eLyBz0QRT1rldeoHZwYtZO5GvDkAHCXmbhKdA61JyZOWVtdCdYzjsA==","age":"204594","accept-ranges":"bytes","referrer-policy":"strict-origin-when-cross-origin","server":"deno/gcp-us-east4","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","x-amz-cf-pop":"IAD12-P5","content-type":"application/typescript; charset=utf-8","x-amz-server-side-encryption":"AES256","x-amz-version-id":"iXFCpsHTfNIOWFYjUyZtxvnCYnxEMVbN","cross-origin-resource-policy":"same-origin","cross-origin-opener-policy":"same-origin","etag":"\"7c5c366cf1a254057cff05c26e2dac9d\"","x-amz-replication-status":"COMPLETED","x-cache":"Hit from cloudfront","access-control-allow-origin":"*","last-modified":"Thu, 05 Jan 2023 20:39:46 GMT","vary":"Accept-Encoding, Origin","x-content-type-options":"nosniff","x-frame-options":"DENY","date":"Sun, 12 Jan 2025 02:19:11 GMT","cache-control":"public, max-age=31536000, immutable","via":"http/2 edgeproxy-h"},"url":"https://deno.land/x/cliffy@v0.25.7/ansi/tty.ts","time":1736852944}

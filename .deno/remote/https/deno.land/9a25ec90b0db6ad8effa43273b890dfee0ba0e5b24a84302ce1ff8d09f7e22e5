@@ -1,0 +1,32 @@
+// Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
+import { AssertionError } from "./assertion_error.ts";
+import { format } from "./_format.ts";
+
+/**
+ * Make an assertion that `actual` and `expected` are not strictly equal.
+ * If the values are strictly equal then throw.
+ *
+ * ```ts
+ * import { assertNotStrictEquals } from "https://deno.land/std@$STD_VERSION/assert/assert_not_strict_equals.ts";
+ *
+ * assertNotStrictEquals(1, 1)
+ * ```
+ */
+export function assertNotStrictEquals<T>(
+  actual: T,
+  expected: T,
+  msg?: string,
+) {
+  if (!Object.is(actual, expected)) {
+    return;
+  }
+
+  const msgSuffix = msg ? `: ${msg}` : ".";
+  throw new AssertionError(
+    `Expected "actual" to be strictly unequal to: ${
+      format(actual)
+    }${msgSuffix}\n`,
+  );
+}
+
+// denoCacheMetadata={"headers":{"last-modified":"Wed, 27 Sep 2023 04:05:39 GMT","accept-ranges":"bytes","date":"Tue, 14 Jan 2025 11:06:30 GMT","x-frame-options":"DENY","cache-control":"public, max-age=31536000, immutable","cross-origin-embedder-policy":"same-origin","content-type":"application/typescript; charset=utf-8","server":"deno/gcp-us-east4","server-timing":"fetchSource;dur=48","vary":"Accept-Encoding, Origin","via":"http/2 edgeproxy-h","x-amz-cf-id":"J5Ilxo-XMEPo5aNgp8rB-kB8Y0YQ8_hQyn6lt2fc1nnScwV1m2K35w==","x-cache":"Hit from cloudfront","age":"155","x-amz-replication-status":"COMPLETED","referrer-policy":"strict-origin-when-cross-origin","x-content-type-options":"nosniff","strict-transport-security":"max-age=63072000; includeSubDomains; preload","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","access-control-allow-origin":"*","x-amz-server-side-encryption":"AES256","x-amz-version-id":"OWSZKDfFzIZog1HXpxk40En.GVgaGUrj","cross-origin-resource-policy":"same-origin","content-length":"787","x-amz-cf-pop":"IAD12-P5","cross-origin-opener-policy":"same-origin","etag":"\"d2c9e7c9d0ed8e5eb99f64ab44007dcf\""},"url":"https://deno.land/std@0.203.0/assert/assert_not_strict_equals.ts","time":1736852944}

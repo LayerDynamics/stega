@@ -1,0 +1,113 @@
+// Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
+function isKeyedCollection(x: unknown): x is Set<unknown> {
+  return [Symbol.iterator, "size"].every((k) => k in (x as Set<unknown>));
+}
+
+function constructorsEqual(a: object, b: object) {
+  return a.constructor === b.constructor ||
+    a.constructor === Object && !b.constructor ||
+    !a.constructor && b.constructor === Object;
+}
+
+/**
+ * Deep equality comparison used in assertions
+ * @param c actual value
+ * @param d expected value
+ */
+export function equal(c: unknown, d: unknown): boolean {
+  const seen = new Map();
+  return (function compare(a: unknown, b: unknown): boolean {
+    // Have to render RegExp & Date for string comparison
+    // unless it's mistreated as object
+    if (
+      a &&
+      b &&
+      ((a instanceof RegExp && b instanceof RegExp) ||
+        (a instanceof URL && b instanceof URL))
+    ) {
+      return String(a) === String(b);
+    }
+    if (a instanceof Date && b instanceof Date) {
+      const aTime = a.getTime();
+      const bTime = b.getTime();
+      // Check for NaN equality manually since NaN is not
+      // equal to itself.
+      if (Number.isNaN(aTime) && Number.isNaN(bTime)) {
+        return true;
+      }
+      return aTime === bTime;
+    }
+    if (typeof a === "number" && typeof b === "number") {
+      return Number.isNaN(a) && Number.isNaN(b) || a === b;
+    }
+    if (Object.is(a, b)) {
+      return true;
+    }
+    if (a && typeof a === "object" && b && typeof b === "object") {
+      if (a && b && !constructorsEqual(a, b)) {
+        return false;
+      }
+      if (a instanceof WeakMap || b instanceof WeakMap) {
+        if (!(a instanceof WeakMap && b instanceof WeakMap)) return false;
+        throw new TypeError("cannot compare WeakMap instances");
+      }
+      if (a instanceof WeakSet || b instanceof WeakSet) {
+        if (!(a instanceof WeakSet && b instanceof WeakSet)) return false;
+        throw new TypeError("cannot compare WeakSet instances");
+      }
+      if (seen.get(a) === b) {
+        return true;
+      }
+      if (Object.keys(a || {}).length !== Object.keys(b || {}).length) {
+        return false;
+      }
+      seen.set(a, b);
+      if (isKeyedCollection(a) && isKeyedCollection(b)) {
+        if (a.size !== b.size) {
+          return false;
+        }
+
+        let unmatchedEntries = a.size;
+
+        for (const [aKey, aValue] of a.entries()) {
+          for (const [bKey, bValue] of b.entries()) {
+            /* Given that Map keys can be references, we need
+             * to ensure that they are also deeply equal */
+            if (
+              (aKey === aValue && bKey === bValue && compare(aKey, bKey)) ||
+              (compare(aKey, bKey) && compare(aValue, bValue))
+            ) {
+              unmatchedEntries--;
+              break;
+            }
+          }
+        }
+
+        return unmatchedEntries === 0;
+      }
+      const merged = { ...a, ...b };
+      for (
+        const key of [
+          ...Object.getOwnPropertyNames(merged),
+          ...Object.getOwnPropertySymbols(merged),
+        ]
+      ) {
+        type Key = keyof typeof merged;
+        if (!compare(a && a[key as Key], b && b[key as Key])) {
+          return false;
+        }
+        if (((key in a) && (!(key in b))) || ((key in b) && (!(key in a)))) {
+          return false;
+        }
+      }
+      if (a instanceof WeakRef || b instanceof WeakRef) {
+        if (!(a instanceof WeakRef && b instanceof WeakRef)) return false;
+        return compare(a.deref(), b.deref());
+      }
+      return true;
+    }
+    return false;
+  })(c, d);
+}
+
+// denoCacheMetadata={"headers":{"via":"http/2 edgeproxy-h","content-length":"3585","x-amz-cf-pop":"IAD12-P5","x-amz-server-side-encryption":"AES256","server-timing":"fetchSource;dur=32","content-type":"application/typescript; charset=utf-8","cache-control":"public, max-age=31536000, immutable","x-amz-replication-status":"COMPLETED","x-cache":"Hit from cloudfront","cross-origin-resource-policy":"same-origin","last-modified":"Wed, 27 Sep 2023 04:05:40 GMT","vary":"Accept-Encoding, Origin","cross-origin-embedder-policy":"same-origin","access-control-allow-origin":"*","x-content-type-options":"nosniff","referrer-policy":"strict-origin-when-cross-origin","server":"deno/gcp-us-east4","accept-ranges":"bytes","etag":"\"bbc4e97822d68cb233a6a8bd0567968b\"","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-cf-id":"mo09Eb0rYVXVn8F43leouRq_DEx7aFmvBUu9fSK5XrDDyPYvdtx6_g==","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","age":"155","x-frame-options":"DENY","cross-origin-opener-policy":"same-origin","date":"Tue, 14 Jan 2025 11:06:30 GMT","x-amz-version-id":"unqrThHuErziuuyfAkNP_BRdTmDF4L90"},"url":"https://deno.land/std@0.203.0/assert/equal.ts","time":1736852944}

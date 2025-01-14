@@ -18,17 +18,13 @@ jobs:
       - name: Set up Deno
         uses: denoland/setup-deno@v1
         with:
-          deno-version: v1.34.0
+          deno-version: v1.x
 
       - name: Initialize Dependencies
         run: |
-          # Remove any existing lockfile
           rm -f deno.lock
-          # Cache all dependencies and generate lockfile
           deno cache --reload mod.ts
-          # Generate lockfile
           deno cache --lock=deno.lock --lock-write mod.ts
-          # Verify dependencies
           deno cache --lock=deno.lock mod.ts
 
       - name: Cache Deno Dependencies
@@ -50,11 +46,13 @@ jobs:
       - name: Clean Coverage Data
         run: deno task test:clean
 
-      - name: Run Tests with Coverage
-        run: deno task test
+      - name: Clear Deno Cache
+        run: deno cache --reload mod.ts
 
-      - name: Generate Coverage Report
-        run: deno task test:coverage
+      - name: Run Tests with Coverage
+        run: |
+          deno test --allow-read --allow-env --allow-write --coverage=cov --parallel --no-check
+          deno coverage cov --lcov --output=cov.lcov
 
       - name: Build Verification
         run: |

@@ -1,0 +1,113 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+import { AssertionError } from "./assertion_error.ts";
+import { assertIsError } from "./assert_is_error.ts";
+
+/**
+ * Executes a function which returns a promise, expecting it to reject.
+ *
+ * To assert that a synchronous function throws, use {@linkcode assertThrows}.
+ *
+ * @example
+ * ```ts
+ * import { assertRejects } from "https://deno.land/std@$STD_VERSION/assert/assert_rejects.ts";
+ *
+ * await assertRejects(async () => Promise.reject(new Error())); // Doesn't throw
+ * await assertRejects(async () => console.log("Hello world")); // Throws
+ * ```
+ */
+export function assertRejects(
+  fn: () => PromiseLike<unknown>,
+  msg?: string,
+): Promise<unknown>;
+/**
+ * Executes a function which returns a promise, expecting it to reject.
+ * If it does not, then it throws. An error class and a string that should be
+ * included in the error message can also be asserted.
+ *
+ * To assert that a synchronous function throws, use {@linkcode assertThrows}.
+ *
+ * @example
+ * ```ts
+ * import { assertRejects } from "https://deno.land/std@$STD_VERSION/assert/assert_rejects.ts";
+ *
+ * await assertRejects(async () => Promise.reject(new Error()), Error); // Doesn't throw
+ * await assertRejects(async () => Promise.reject(new Error()), SyntaxError); // Throws
+ * ```
+ */
+export function assertRejects<E extends Error = Error>(
+  fn: () => PromiseLike<unknown>,
+  // deno-lint-ignore no-explicit-any
+  ErrorClass: new (...args: any[]) => E,
+  msgIncludes?: string,
+  msg?: string,
+): Promise<E>;
+export async function assertRejects<E extends Error = Error>(
+  fn: () => PromiseLike<unknown>,
+  errorClassOrMsg?:
+    // deno-lint-ignore no-explicit-any
+    | (new (...args: any[]) => E)
+    | string,
+  msgIncludesOrMsg?: string,
+  msg?: string,
+): Promise<E | Error | unknown> {
+  // deno-lint-ignore no-explicit-any
+  let ErrorClass: (new (...args: any[]) => E) | undefined = undefined;
+  let msgIncludes: string | undefined = undefined;
+  let err;
+
+  if (typeof errorClassOrMsg !== "string") {
+    if (
+      errorClassOrMsg === undefined ||
+      errorClassOrMsg.prototype instanceof Error ||
+      errorClassOrMsg.prototype === Error.prototype
+    ) {
+      // deno-lint-ignore no-explicit-any
+      ErrorClass = errorClassOrMsg as new (...args: any[]) => E;
+      msgIncludes = msgIncludesOrMsg;
+    }
+  } else {
+    msg = errorClassOrMsg;
+  }
+  let doesThrow = false;
+  let isPromiseReturned = false;
+  const msgSuffix = msg ? `: ${msg}` : ".";
+  try {
+    const possiblePromise = fn();
+    if (
+      possiblePromise &&
+      typeof possiblePromise === "object" &&
+      typeof possiblePromise.then === "function"
+    ) {
+      isPromiseReturned = true;
+      await possiblePromise;
+    }
+  } catch (error) {
+    if (!isPromiseReturned) {
+      throw new AssertionError(
+        `Function throws when expected to reject${msgSuffix}`,
+      );
+    }
+    if (ErrorClass) {
+      if (error instanceof Error === false) {
+        throw new AssertionError(`A non-Error object was rejected${msgSuffix}`);
+      }
+      assertIsError(
+        error,
+        ErrorClass,
+        msgIncludes,
+        msg,
+      );
+    }
+    err = error;
+    doesThrow = true;
+  }
+  if (!doesThrow) {
+    throw new AssertionError(
+      `Expected function to reject${msgSuffix}`,
+    );
+  }
+  return err;
+}
+
+// denoCacheMetadata={"headers":{"content-type":"application/typescript; charset=utf-8","x-amz-cf-id":"ffA5zA8Rt3DN-aljBn1q7DVW45kG5oKtU7E6qNciY8AHXL0tAZIXaw==","x-amz-cf-pop":"IAD12-P5","age":"204721","accept-ranges":"bytes","x-amz-replication-status":"COMPLETED","x-frame-options":"DENY","access-control-allow-origin":"*","content-length":"3390","x-amz-server-side-encryption":"AES256","x-amz-version-id":"vWa5ySm5FGXR3RBTH5Knk9UI_dxJVs.I","x-cache":"Hit from cloudfront","last-modified":"Thu, 25 Apr 2024 03:01:08 GMT","x-content-type-options":"nosniff","referrer-policy":"strict-origin-when-cross-origin","vary":"Accept-Encoding, Origin","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","cross-origin-resource-policy":"same-origin","server":"deno/gcp-us-east4","cross-origin-embedder-policy":"same-origin","cross-origin-opener-policy":"same-origin","etag":"\"8b961b8ea5ea9a7fbb1fdfe30ce121a1\"","via":"http/2 edgeproxy-h","date":"Sun, 12 Jan 2025 02:17:04 GMT","server-timing":"fetchSource;dur=12","strict-transport-security":"max-age=63072000; includeSubDomains; preload","cache-control":"public, max-age=31536000, immutable"},"url":"https://deno.land/std@0.224.0/assert/assert_rejects.ts","time":1736852944}

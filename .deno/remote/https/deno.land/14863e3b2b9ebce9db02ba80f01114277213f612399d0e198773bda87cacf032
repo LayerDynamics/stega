@@ -1,0 +1,116 @@
+import { GenericPrompt } from "./_generic_prompt.ts";
+import { brightBlue, underline, yellow } from "./deps.ts";
+import { Figures } from "./figures.ts";
+import {
+  GenericInput,
+  GenericInputKeys,
+  GenericInputPromptOptions,
+  GenericInputPromptSettings,
+} from "./_generic_input.ts";
+
+/** Secret key options. */
+export type SecretKeys = GenericInputKeys;
+
+/** Secret prompt options. */
+export interface SecretOptions
+  extends GenericInputPromptOptions<string, string> {
+  label?: string;
+  hidden?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  keys?: SecretKeys;
+}
+
+/** Secret prompt settings. */
+interface SecretSettings extends GenericInputPromptSettings<string, string> {
+  label: string;
+  hidden: boolean;
+  minLength: number;
+  maxLength: number;
+  keys?: SecretKeys;
+}
+
+/** Secret prompt representation. */
+export class Secret extends GenericInput<string, string, SecretSettings> {
+  /** Execute the prompt and show cursor on end. */
+  public static prompt(options: string | SecretOptions): Promise<string> {
+    if (typeof options === "string") {
+      options = { message: options };
+    }
+
+    return new this({
+      pointer: brightBlue(Figures.POINTER_SMALL),
+      prefix: yellow("? "),
+      indent: " ",
+      label: "Password",
+      hidden: false,
+      minLength: 0,
+      maxLength: Infinity,
+      ...options,
+    }).prompt();
+  }
+
+  /**
+   * Inject prompt value. Can be used for unit tests or pre selections.
+   * @param value Input value.
+   */
+  public static inject(value: string): void {
+    GenericPrompt.inject(value);
+  }
+
+  protected input(): string {
+    return underline(
+      this.settings.hidden ? "" : "*".repeat(this.inputValue.length),
+    );
+  }
+
+  /** Read user input. */
+  protected read(): Promise<boolean> {
+    if (this.settings.hidden) {
+      this.tty.cursorHide();
+    }
+    return super.read();
+  }
+
+  /**
+   * Validate input value.
+   * @param value User input value.
+   * @return True on success, false or error message on error.
+   */
+  protected validate(value: string): boolean | string {
+    if (typeof value !== "string") {
+      return false;
+    }
+    if (value.length < this.settings.minLength) {
+      return `${this.settings.label} must be longer than ${this.settings.minLength} but has a length of ${value.length}.`;
+    }
+    if (value.length > this.settings.maxLength) {
+      return `${this.settings.label} can't be longer than ${this.settings.maxLength} but has a length of ${value.length}.`;
+    }
+    return true;
+  }
+
+  /**
+   * Map input value to output value.
+   * @param value Input value.
+   * @return Output value.
+   */
+  protected transform(value: string): string | undefined {
+    return value;
+  }
+
+  /**
+   * Format output value.
+   * @param value Output value.
+   */
+  protected format(value: string): string {
+    return this.settings.hidden ? "*".repeat(8) : "*".repeat(value.length);
+  }
+
+  /** Get input input. */
+  protected getValue(): string {
+    return this.inputValue;
+  }
+}
+
+// denoCacheMetadata={"headers":{"x-amz-server-side-encryption":"AES256","cross-origin-opener-policy":"same-origin","x-amz-version-id":"hr5cW4h24AyGCNITuy03vRozUiWKN0T4","x-cache":"Hit from cloudfront","via":"http/2 edgeproxy-h","vary":"Accept-Encoding, Origin","age":"204595","server":"deno/gcp-us-east4","server-timing":"fetchSource;dur=10","cache-control":"public, max-age=31536000, immutable","content-length":"2977","x-amz-cf-pop":"IAD12-P5","content-type":"application/typescript; charset=utf-8","x-content-type-options":"nosniff","accept-ranges":"bytes","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","x-frame-options":"DENY","x-amz-cf-id":"KTe1i-NvjbdrkBNLqZLI-KQA2Pev_889TxrtNjYgkhd_JCYo0HqSlw==","cross-origin-embedder-policy":"same-origin","date":"Sun, 12 Jan 2025 02:19:10 GMT","cross-origin-resource-policy":"same-origin","etag":"\"f07da54f82aa3c0b5e2531936fac0a61\"","access-control-allow-origin":"*","referrer-policy":"strict-origin-when-cross-origin","strict-transport-security":"max-age=63072000; includeSubDomains; preload","last-modified":"Thu, 05 Jan 2023 20:39:47 GMT","x-amz-replication-status":"COMPLETED"},"url":"https://deno.land/x/cliffy@v0.25.7/prompt/secret.ts","time":1736852944}

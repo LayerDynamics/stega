@@ -1,0 +1,70 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+import {
+  getLevelByName,
+  getLevelName,
+  type LevelName,
+  type LogLevel,
+} from "./levels.ts";
+import type { LogRecord } from "./logger.ts";
+
+export type FormatterFunction = (logRecord: LogRecord) => string;
+const DEFAULT_FORMATTER: FormatterFunction = ({ levelName, msg }) =>
+  `${levelName} ${msg}`;
+
+export interface BaseHandlerOptions {
+  formatter?: FormatterFunction;
+}
+
+export class BaseHandler {
+  #levelName: LevelName;
+  #level: LogLevel;
+  formatter: FormatterFunction;
+
+  constructor(
+    levelName: LevelName,
+    { formatter = DEFAULT_FORMATTER }: BaseHandlerOptions = {},
+  ) {
+    this.#levelName = levelName;
+    this.#level = getLevelByName(levelName);
+    this.formatter = formatter;
+  }
+
+  get level(): LogLevel {
+    return this.#level;
+  }
+
+  set level(level: LogLevel) {
+    this.#level = level;
+    this.#levelName = getLevelName(level);
+  }
+
+  get levelName(): LevelName {
+    return this.#levelName;
+  }
+  set levelName(levelName: LevelName) {
+    this.#levelName = levelName;
+    this.#level = getLevelByName(levelName);
+  }
+
+  handle(logRecord: LogRecord) {
+    if (this.level > logRecord.level) return;
+
+    const msg = this.format(logRecord);
+    this.log(msg);
+  }
+
+  format(logRecord: LogRecord): string {
+    return this.formatter(logRecord);
+  }
+
+  log(_msg: string) {}
+  setup() {}
+  destroy() {}
+
+  [Symbol.dispose]() {
+    this.destroy();
+  }
+}
+
+// denoCacheMetadata={"headers":{"last-modified":"Thu, 25 Apr 2024 03:01:10 GMT","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-cf-id":"AFQs13D9vK3ItJgtXRSA8-0UsF0AP7BIM3m6PxF67xftGWYpoPUnOQ==","x-amz-cf-pop":"IAD12-P5","cross-origin-embedder-policy":"same-origin","x-content-type-options":"nosniff","x-frame-options":"DENY","x-amz-replication-status":"COMPLETED","referrer-policy":"strict-origin-when-cross-origin","etag":"\"1011ffecba181e6788fba2b28cf6acfe\"","x-amz-server-side-encryption":"AES256","cache-control":"public, max-age=31536000, immutable","vary":"Accept-Encoding, Origin","age":"204750","cross-origin-resource-policy":"same-origin","date":"Sun, 12 Jan 2025 02:16:35 GMT","via":"http/2 edgeproxy-h","x-amz-version-id":"4kprEtBzTMRImSLTYVXirZAyDxSxOZgP","content-length":"1500","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","access-control-allow-origin":"*","server-timing":"fetchSource;dur=8","x-cache":"Hit from cloudfront","server":"deno/gcp-us-east4","content-type":"application/typescript; charset=utf-8","accept-ranges":"bytes","cross-origin-opener-policy":"same-origin"},"url":"https://deno.land/std@0.224.0/log/base_handler.ts","time":1736852944}

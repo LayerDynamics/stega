@@ -1,0 +1,91 @@
+// Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+/**
+ * {@linkcode encodeBase64Url} and {@linkcode decodeBase64Url} for
+ * [base64 URL safe](https://en.wikipedia.org/wiki/Base64#URL_applications) encoding.
+ *
+ * This module is browser compatible.
+ *
+ * @example
+ * ```ts
+ * import {
+ *   decodeBase64Url,
+ *   encodeBase64Url,
+ * } from "https://deno.land/std@$STD_VERSION/encoding/base64url.ts";
+ *
+ * const binary = new TextEncoder().encode("foobar");
+ * const encoded = encodeBase64Url(binary);
+ * console.log(encoded);
+ * // => "Zm9vYmFy"
+ *
+ * console.log(decodeBase64Url(encoded));
+ * // => Uint8Array(6) [ 102, 111, 111, 98, 97, 114 ]
+ * ```
+ *
+ * @module
+ */
+
+import * as base64 from "./base64.ts";
+
+/*
+ * Some variants allow or require omitting the padding '=' signs:
+ * https://en.wikipedia.org/wiki/Base64#The_URL_applications
+ * @param base64url
+ */
+function addPaddingToBase64url(base64url: string): string {
+  if (base64url.length % 4 === 2) return base64url + "==";
+  if (base64url.length % 4 === 3) return base64url + "=";
+  if (base64url.length % 4 === 1) {
+    throw new TypeError("Illegal base64url string!");
+  }
+  return base64url;
+}
+
+function convertBase64urlToBase64(b64url: string): string {
+  if (!/^[-_A-Z0-9]*?={0,2}$/i.test(b64url)) {
+    // Contains characters not part of base64url spec.
+    throw new TypeError("Failed to decode base64url: invalid character");
+  }
+  return addPaddingToBase64url(b64url).replace(/\-/g, "+").replace(/_/g, "/");
+}
+
+function convertBase64ToBase64url(b64: string): string {
+  return b64.replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+}
+
+/**
+ * @deprecated (will be removed in 0.210.0) Use a `encodeBase64Url` instead.
+ *
+ * Encodes a given ArrayBuffer or string into a base64url representation
+ * @param data
+ */
+export const encode = encodeBase64Url;
+
+/**
+ * @deprecated (will be removed in 0.210.0) Use a `decodeBase64Url` instead.
+ *
+ * Converts given base64url encoded data back to original
+ * @param b64url
+ */
+export const decode = decodeBase64Url;
+
+/**
+ * Encodes a given ArrayBuffer or string into a base64url representation
+ * @param data
+ */
+export function encodeBase64Url(
+  data: ArrayBuffer | Uint8Array | string,
+): string {
+  return convertBase64ToBase64url(base64.encodeBase64(data));
+}
+
+/**
+ * Converts given base64url encoded data back to original
+ * @param b64url
+ */
+export function decodeBase64Url(b64url: string): Uint8Array {
+  return base64.decodeBase64(convertBase64urlToBase64(b64url));
+}
+
+// denoCacheMetadata={"headers":{"strict-transport-security":"max-age=63072000; includeSubDomains; preload","etag":"\"cf19dfb1772b5863b94ae888107ffe99\"","last-modified":"Wed, 27 Sep 2023 04:05:40 GMT","referrer-policy":"strict-origin-when-cross-origin","x-amz-version-id":"Yzse7dRWqwKNmgMMb7PRyFz.zRuJmZ5p","content-length":"2554","cross-origin-opener-policy":"same-origin","accept-ranges":"bytes","x-amz-replication-status":"COMPLETED","x-amz-server-side-encryption":"AES256","access-control-allow-origin":"*","x-frame-options":"DENY","content-type":"application/typescript; charset=utf-8","cross-origin-embedder-policy":"same-origin","via":"http/2 edgeproxy-h","server":"deno/gcp-us-east4","x-amz-cf-id":"qPAHMOfuTAzK1hS6_ByLaWdzfry4-gXFc3uePOrkHRNVh_UsZ1VrYg==","x-amz-cf-pop":"IAD12-P5","server-timing":"fetchSource;dur=14","x-cache":"Hit from cloudfront","x-content-type-options":"nosniff","cache-control":"public, max-age=31536000, immutable","cross-origin-resource-policy":"same-origin","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","age":"158","date":"Tue, 14 Jan 2025 11:06:27 GMT","vary":"Accept-Encoding, Origin"},"url":"https://deno.land/std@0.203.0/encoding/base64url.ts","time":1736852944}

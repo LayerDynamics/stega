@@ -1,0 +1,18 @@
+// src/prompts.ts
+import { Confirm, Input } from "https://deno.land/x/cliffy@v1.0.0-rc.3/prompt/mod.ts";
+/**
+ * Prompts the user for a string input.
+ * @param message The message to display.
+ * @returns The user's input.
+ */ export async function promptString(message) {
+  return await Input.prompt(message);
+}
+/**
+ * Prompts the user for confirmation.
+ * @param message The message to display.
+ * @returns True if confirmed, false otherwise.
+ */ export async function promptConfirm(message) {
+  return await Confirm.prompt(message);
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImZpbGU6Ly8vVXNlcnMvcnlhbm9ib3lsZS9zdGVnYS9zcmMvcHJvbXB0cy50cyJdLCJzb3VyY2VzQ29udGVudCI6WyIvLyBzcmMvcHJvbXB0cy50c1xuaW1wb3J0IHtcblx0Q29uZmlybSxcblx0SW5wdXQsXG59IGZyb20gXCJodHRwczovL2Rlbm8ubGFuZC94L2NsaWZmeUB2MS4wLjAtcmMuMy9wcm9tcHQvbW9kLnRzXCI7XG5cbi8qKlxuICogUHJvbXB0cyB0aGUgdXNlciBmb3IgYSBzdHJpbmcgaW5wdXQuXG4gKiBAcGFyYW0gbWVzc2FnZSBUaGUgbWVzc2FnZSB0byBkaXNwbGF5LlxuICogQHJldHVybnMgVGhlIHVzZXIncyBpbnB1dC5cbiAqL1xuZXhwb3J0IGFzeW5jIGZ1bmN0aW9uIHByb21wdFN0cmluZyhtZXNzYWdlOiBzdHJpbmcpOiBQcm9taXNlPHN0cmluZz4ge1xuXHRyZXR1cm4gYXdhaXQgSW5wdXQucHJvbXB0KG1lc3NhZ2UpO1xufVxuXG4vKipcbiAqIFByb21wdHMgdGhlIHVzZXIgZm9yIGNvbmZpcm1hdGlvbi5cbiAqIEBwYXJhbSBtZXNzYWdlIFRoZSBtZXNzYWdlIHRvIGRpc3BsYXkuXG4gKiBAcmV0dXJucyBUcnVlIGlmIGNvbmZpcm1lZCwgZmFsc2Ugb3RoZXJ3aXNlLlxuICovXG5leHBvcnQgYXN5bmMgZnVuY3Rpb24gcHJvbXB0Q29uZmlybShtZXNzYWdlOiBzdHJpbmcpOiBQcm9taXNlPGJvb2xlYW4+IHtcblx0cmV0dXJuIGF3YWl0IENvbmZpcm0ucHJvbXB0KG1lc3NhZ2UpO1xufVxuIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLGlCQUFpQjtBQUNqQixTQUNDLE9BQU8sRUFDUCxLQUFLLFFBQ0MsdURBQXVEO0FBRTlEOzs7O0NBSUMsR0FDRCxPQUFPLGVBQWUsYUFBYSxPQUFlO0VBQ2pELE9BQU8sTUFBTSxNQUFNLE1BQU0sQ0FBQztBQUMzQjtBQUVBOzs7O0NBSUMsR0FDRCxPQUFPLGVBQWUsY0FBYyxPQUFlO0VBQ2xELE9BQU8sTUFBTSxRQUFRLE1BQU0sQ0FBQztBQUM3QiJ9
+// denoCacheMetadata=15401337126766348521,16948218961204702065

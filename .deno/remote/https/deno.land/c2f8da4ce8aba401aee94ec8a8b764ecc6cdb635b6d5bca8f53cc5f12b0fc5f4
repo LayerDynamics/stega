@@ -1,0 +1,55 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+import { equal } from "./equal.ts";
+import { buildMessage, diff, diffstr, format } from "../internal/mod.ts";
+import { AssertionError } from "./assertion_error.ts";
+import { red } from "../fmt/colors.ts";
+import { CAN_NOT_DISPLAY } from "./_constants.ts";
+
+/**
+ * Make an assertion that `actual` and `expected` are equal, deeply. If not
+ * deeply equal, then throw.
+ *
+ * Type parameter can be specified to ensure values under comparison have the
+ * same type.
+ *
+ * @example
+ * ```ts
+ * import { assertEquals } from "https://deno.land/std@$STD_VERSION/assert/assert_equals.ts";
+ *
+ * assertEquals("world", "world"); // Doesn't throw
+ * assertEquals("hello", "world"); // Throws
+ * ```
+ *
+ * Note: formatter option is experimental and may be removed in the future.
+ */
+export function assertEquals<T>(
+  actual: T,
+  expected: T,
+  msg?: string,
+  options: { formatter?: (value: unknown) => string } = {},
+) {
+  if (equal(actual, expected)) {
+    return;
+  }
+  const { formatter = format } = options;
+  const msgSuffix = msg ? `: ${msg}` : ".";
+  let message = `Values are not equal${msgSuffix}`;
+
+  const actualString = formatter(actual);
+  const expectedString = formatter(expected);
+  try {
+    const stringDiff = (typeof actual === "string") &&
+      (typeof expected === "string");
+    const diffResult = stringDiff
+      ? diffstr(actual as string, expected as string)
+      : diff(actualString.split("\n"), expectedString.split("\n"));
+    const diffMsg = buildMessage(diffResult, { stringDiff }).join("\n");
+    message = `${message}\n${diffMsg}`;
+  } catch {
+    message = `${message}\n${red(CAN_NOT_DISPLAY)} + \n\n`;
+  }
+  throw new AssertionError(message);
+}
+
+// denoCacheMetadata={"headers":{"date":"Sun, 12 Jan 2025 02:17:04 GMT","x-amz-cf-id":"KytHL0ZqQU7xf-bJQ5S_UdRZcMizJjfKDVtRTWaWlXwhYfJLVR-0vw==","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","cross-origin-opener-policy":"same-origin","cross-origin-resource-policy":"same-origin","strict-transport-security":"max-age=63072000; includeSubDomains; preload","cache-control":"public, max-age=31536000, immutable","last-modified":"Thu, 25 Apr 2024 03:01:08 GMT","vary":"Accept-Encoding, Origin","referrer-policy":"strict-origin-when-cross-origin","content-type":"application/typescript; charset=utf-8","via":"http/2 edgeproxy-h","content-length":"1784","access-control-allow-origin":"*","server-timing":"fetchSource;dur=24","accept-ranges":"bytes","x-amz-server-side-encryption":"AES256","age":"204721","server":"deno/gcp-us-east4","x-amz-version-id":"_4j3BfhLdPMpD0mDrz7jrnxPN7dXkv9R","x-amz-cf-pop":"IAD12-P5","x-cache":"Hit from cloudfront","x-frame-options":"DENY","cross-origin-embedder-policy":"same-origin","x-amz-replication-status":"COMPLETED","x-content-type-options":"nosniff","etag":"\"68e2e20cd99410fb98a348f0f6064836\""},"url":"https://deno.land/std@0.224.0/assert/assert_equals.ts","time":1736852944}

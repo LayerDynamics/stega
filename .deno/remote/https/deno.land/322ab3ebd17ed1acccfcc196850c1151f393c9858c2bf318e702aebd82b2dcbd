@@ -1,0 +1,45 @@
+// Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
+import { AssertionError } from "./assertion_error.ts";
+import { stripColor } from "../fmt/colors.ts";
+
+/**
+ * Make an assertion that `error` is an `Error`.
+ * If not then an error will be thrown.
+ * An error class and a string that should be included in the
+ * error message can also be asserted.
+ */
+export function assertIsError<E extends Error = Error>(
+  error: unknown,
+  // deno-lint-ignore no-explicit-any
+  ErrorClass?: new (...args: any[]) => E,
+  msgIncludes?: string,
+  msg?: string,
+): asserts error is E {
+  const msgSuffix = msg ? `: ${msg}` : ".";
+  if (error instanceof Error === false) {
+    throw new AssertionError(
+      `Expected "error" to be an Error object${msgSuffix}}`,
+    );
+  }
+  if (ErrorClass && !(error instanceof ErrorClass)) {
+    msg = `Expected error to be instance of "${ErrorClass.name}", but was "${
+      typeof error === "object" ? error?.constructor?.name : "[not an object]"
+    }"${msgSuffix}`;
+    throw new AssertionError(msg);
+  }
+  if (
+    msgIncludes && (!(error instanceof Error) ||
+      !stripColor(error.message).includes(stripColor(msgIncludes)))
+  ) {
+    msg = `Expected error message to include ${
+      JSON.stringify(msgIncludes)
+    }, but got ${
+      error instanceof Error
+        ? JSON.stringify(error.message)
+        : '"[not an Error]"' // TODO(kt3k): show more useful information
+    }${msgSuffix}`;
+    throw new AssertionError(msg);
+  }
+}
+
+// denoCacheMetadata={"headers":{"accept-ranges":"bytes","access-control-allow-origin":"*","etag":"\"a0b34c41b4f31d2cbca8a7cab6c6545c\"","x-frame-options":"DENY","date":"Tue, 14 Jan 2025 11:06:30 GMT","server":"deno/gcp-us-east4","via":"http/2 edgeproxy-h","content-type":"application/typescript; charset=utf-8","x-amz-cf-pop":"IAD12-P5","x-amz-server-side-encryption":"AES256","x-cache":"Hit from cloudfront","strict-transport-security":"max-age=63072000; includeSubDomains; preload","age":"155","x-content-type-options":"nosniff","cross-origin-resource-policy":"same-origin","server-timing":"fetchSource;dur=36","vary":"Accept-Encoding, Origin","x-amz-cf-id":"rdblJjDoF3J8xHBf62JI4Hv2A5tpuQaehPiu4o-AFb9wxDe36NNk7w==","x-amz-version-id":"cjMcdfSI1AVqphDfYlrWiOyNYnanYhl2","content-length":"1486","x-amz-replication-status":"COMPLETED","cross-origin-embedder-policy":"same-origin","cross-origin-opener-policy":"same-origin","cache-control":"public, max-age=31536000, immutable","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","last-modified":"Wed, 27 Sep 2023 04:05:39 GMT","referrer-policy":"strict-origin-when-cross-origin"},"url":"https://deno.land/std@0.203.0/assert/assert_is_error.ts","time":1736852944}

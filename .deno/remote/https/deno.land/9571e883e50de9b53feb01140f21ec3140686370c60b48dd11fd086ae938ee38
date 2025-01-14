@@ -1,0 +1,24 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+import { getLogger } from "./get_logger.ts";
+import type { GenericFunction } from "./logger.ts";
+
+/** Log with debug level, using default logger. */
+export function debug<T>(msg: () => T, ...args: unknown[]): T | undefined;
+export function debug<T>(
+  msg: T extends GenericFunction ? never : T,
+  ...args: unknown[]
+): T;
+export function debug<T>(
+  msg: (T extends GenericFunction ? never : T) | (() => T),
+  ...args: unknown[]
+): T | undefined {
+  // Assist TS compiler with pass-through generic type
+  if (msg instanceof Function) {
+    return getLogger("default").debug(msg, ...args);
+  }
+  return getLogger("default").debug(msg, ...args);
+}
+
+// denoCacheMetadata={"headers":{"access-control-allow-origin":"*","cache-control":"public, max-age=31536000, immutable","referrer-policy":"strict-origin-when-cross-origin","last-modified":"Thu, 25 Apr 2024 03:01:10 GMT","via":"http/2 edgeproxy-h","cross-origin-resource-policy":"same-origin","x-amz-cf-pop":"IAD12-P5","age":"204750","x-frame-options":"DENY","content-length":"761","strict-transport-security":"max-age=63072000; includeSubDomains; preload","server-timing":"fetchSource;dur=10","cross-origin-embedder-policy":"same-origin","cross-origin-opener-policy":"same-origin","accept-ranges":"bytes","etag":"\"1203a84b077d296e8b84a89ba6f51651\"","x-amz-version-id":"mXzJLfHa1dfdP_o7hpw_Z_Bv04vtro59","x-cache":"Hit from cloudfront","x-content-type-options":"nosniff","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","date":"Sun, 12 Jan 2025 02:16:35 GMT","x-amz-cf-id":"KREML64MBl9M4EgiCzsQlVEosQJ0zvtZB9_3JbdpHUJKUXcXDFNCuQ==","x-amz-replication-status":"COMPLETED","content-type":"application/typescript; charset=utf-8","vary":"Accept-Encoding, Origin","x-amz-server-side-encryption":"AES256","server":"deno/gcp-us-east4"},"url":"https://deno.land/std@0.224.0/log/debug.ts","time":1736852944}

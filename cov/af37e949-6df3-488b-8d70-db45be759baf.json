@@ -1,0 +1,29 @@
+{
+  "scriptId": "383",
+  "url": "file:///Users/ryanoboyle/stega/tmp/95e590e5dd08a135/lifecycle-plugin.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 867, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "init",
+      "ranges": [
+        { "startOffset": 157, "endOffset": 619, "count": 1 },
+        { "startOffset": 421, "endOffset": 615, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "action",
+      "ranges": [{ "startOffset": 286, "endOffset": 359, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "unload",
+      "ranges": [{ "startOffset": 631, "endOffset": 840, "count": 1 }],
+      "isBlockCoverage": true
+    }
+  ]
+}

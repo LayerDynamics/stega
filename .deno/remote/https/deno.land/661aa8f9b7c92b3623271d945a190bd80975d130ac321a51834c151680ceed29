@@ -1,0 +1,48 @@
+// Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
+export {
+  DigestContext,
+  instantiate as instantiateWasm,
+} from "./lib/deno_std_wasm_crypto.generated.mjs";
+
+/**
+ * All cryptographic hash/digest algorithms supported by std/crypto/_wasm.
+ *
+ * For algorithms that are supported by WebCrypto, the name here must match the
+ * one used by WebCrypto. Otherwise we should prefer the formatting used in the
+ * official specification. All names are uppercase to facilitate case-insensitive
+ * comparisons required by the WebCrypto spec.
+ */
+export const digestAlgorithms = [
+  "BLAKE2B-224",
+  "BLAKE2B-256",
+  "BLAKE2B-384",
+  "BLAKE2B",
+  "BLAKE2S",
+  "BLAKE3",
+  "KECCAK-224",
+  "KECCAK-256",
+  "KECCAK-384",
+  "KECCAK-512",
+  "SHA-384",
+  "SHA3-224",
+  "SHA3-256",
+  "SHA3-384",
+  "SHA3-512",
+  "SHAKE128",
+  "SHAKE256",
+  "TIGER",
+  // insecure (length-extendable):
+  "RIPEMD-160",
+  "SHA-224",
+  "SHA-256",
+  "SHA-512",
+  // insecure (collidable and length-extendable):
+  "MD4",
+  "MD5",
+  "SHA-1",
+] as const;
+
+/** An algorithm name supported by std/crypto/_wasm. */
+export type DigestAlgorithm = typeof digestAlgorithms[number];
+
+// denoCacheMetadata={"headers":{"last-modified":"Wed, 27 Sep 2023 04:05:40 GMT","server":"deno/gcp-us-east4","content-type":"application/typescript; charset=utf-8","vary":"Accept-Encoding, Origin","accept-ranges":"bytes","access-control-allow-origin":"*","age":"158","referrer-policy":"strict-origin-when-cross-origin","x-amz-replication-status":"COMPLETED","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","cross-origin-embedder-policy":"same-origin","etag":"\"54eb4c1831990b7e8ada79f3dbee8371\"","server-timing":"fetchSource;dur=20","x-frame-options":"DENY","cache-control":"public, max-age=31536000, immutable","strict-transport-security":"max-age=63072000; includeSubDomains; preload","via":"http/2 edgeproxy-h","x-amz-cf-pop":"IAD12-P5","x-amz-server-side-encryption":"AES256","x-amz-version-id":"DD78tYBxxnKtdPNX8sGJfeC.397rKxco","cross-origin-opener-policy":"same-origin","content-length":"1158","cross-origin-resource-policy":"same-origin","date":"Tue, 14 Jan 2025 11:06:27 GMT","x-amz-cf-id":"hqssWYV1VehNU9JN8NIoJsB5VEG87PAbVup6iPGfWg2dJPXwYouw1A==","x-cache":"Hit from cloudfront","x-content-type-options":"nosniff"},"url":"https://deno.land/std@0.203.0/crypto/_wasm/mod.ts","time":1736852944}

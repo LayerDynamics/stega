@@ -1,0 +1,83 @@
+// /src/compiler/parser.ts
+import { Project, ts } from "https://deno.land/x/ts_morph@17.0.1/mod.ts";
+import { logger } from "./logger.ts";
+/**
+ * Parses TypeScript/JavaScript files to generate ASTs and collect dependencies.
+ */ export class Parser {
+  project;
+  /**
+	 * Initializes the Parser with compiler options.
+	 * @param options - Partial CompilerOptions to customize the parsing behavior.
+	 */ constructor(options = {}){
+    this.project = new Project({
+      compilerOptions: {
+        target: options.target ?? ts.ScriptTarget.ESNext,
+        module: options.module ?? ts.ModuleKind.ESNext,
+        experimentalDecorators: options.experimentalDecorators ?? true,
+        sourceMap: options.sourceMaps ?? true,
+        declaration: false,
+        strict: true,
+        esModuleInterop: true,
+        skipLibCheck: true,
+        moduleResolution: ts.ModuleResolutionKind.NodeJs
+      },
+      useInMemoryFileSystem: false
+    });
+  }
+  /**
+	 * Parses the given contents of a file and returns the AST, dependencies, and any errors.
+	 * @param contents - The contents of the file to parse.
+	 * @param path - The file path.
+	 * @returns The ParseResult containing the AST, dependencies, and errors.
+	 */ parse(contents, path) {
+    const sourceFile = this.project.createSourceFile(path, contents, {
+      overwrite: true
+    });
+    const dependencies = this.collectDependencies(sourceFile);
+    const diagnostics = sourceFile.getPreEmitDiagnostics();
+    const errors = diagnostics.map((diag)=>diag.getMessageText().toString());
+    if (diagnostics.length > 0) {
+      // Use ts.Diagnostic instead of TsMorph diagnostic
+      diagnostics.forEach((diag)=>this.logDiagnostic(diag));
+    }
+    return {
+      ast: sourceFile,
+      dependencies,
+      errors
+    };
+  }
+  /**
+	 * Collects all module dependencies from import and export declarations.
+	 * @param sourceFile - The SourceFile object.
+	 * @returns An array of dependency module specifiers.
+	 */ collectDependencies(sourceFile) {
+    const deps = new Set();
+    sourceFile.getImportDeclarations().forEach((importDecl)=>{
+      const moduleSpecifier = importDecl.getModuleSpecifierValue();
+      deps.add(moduleSpecifier);
+    });
+    sourceFile.getExportDeclarations().forEach((exportDecl)=>{
+      const moduleSpecifier = exportDecl.getModuleSpecifierValue();
+      if (moduleSpecifier) {
+        deps.add(moduleSpecifier);
+      }
+    });
+    return Array.from(deps);
+  }
+  /**
+	 * Logs TypeScript diagnostics to the console.
+	 * @param diagnostic - The TypeScript diagnostic to log.
+	 */ logDiagnostic(diagnostic) {
+    const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n");
+    const sourceFile = diagnostic.file;
+    const pos = diagnostic.start;
+    if (sourceFile && pos !== undefined) {
+      const { line, character } = sourceFile.getLineAndCharacterOfPosition(pos);
+      logger.error(`${sourceFile.fileName} (${line + 1},${character + 1}): ${message}`);
+    } else {
+      logger.error(message);
+    }
+  }
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImZpbGU6Ly8vVXNlcnMvcnlhbm9ib3lsZS9zdGVnYS9zcmMvY29tcGlsZXIvcGFyc2VyLnRzIl0sInNvdXJjZXNDb250ZW50IjpbIi8vIC9zcmMvY29tcGlsZXIvcGFyc2VyLnRzXG5pbXBvcnQge1xuXHREaWFnbm9zdGljLFxuXHRQcm9qZWN0LFxuXHRTb3VyY2VGaWxlLFxuXHR0cyxcbn0gZnJvbSBcImh0dHBzOi8vZGVuby5sYW5kL3gvdHNfbW9ycGhAMTcuMC4xL21vZC50c1wiO1xuaW1wb3J0IHR5cGUgeyBDb21waWxlck9wdGlvbnMgfSBmcm9tIFwiLi90eXBlcy50c1wiO1xuaW1wb3J0IHsgbG9nZ2VyIH0gZnJvbSBcIi4vbG9nZ2VyLnRzXCI7XG5cbi8qKlxuICogUmVwcmVzZW50cyB0aGUgcmVzdWx0IG9mIHBhcnNpbmcgYSBtb2R1bGUsIGluY2x1ZGluZyBpdHMgQVNULCBkZXBlbmRlbmNpZXMsIGFuZCBhbnkgZXJyb3JzLlxuICovXG5leHBvcnQgaW50ZXJmYWNlIFBhcnNlUmVzdWx0IHtcblx0YXN0OiBTb3VyY2VGaWxlO1xuXHRkZXBlbmRlbmNpZXM6IHN0cmluZ1tdO1xuXHRlcnJvcnM6IHN0cmluZ1tdO1xufVxuXG4vKipcbiAqIFBhcnNlcyBUeXBlU2NyaXB0L0phdmFTY3JpcHQgZmlsZXMgdG8gZ2VuZXJhdGUgQVNUcyBhbmQgY29sbGVjdCBkZXBlbmRlbmNpZXMuXG4gKi9cbmV4cG9ydCBjbGFzcyBQYXJzZXIge1xuXHRwcml2YXRlIHByb2plY3Q6IFByb2plY3Q7XG5cblx0LyoqXG5cdCAqIEluaXRpYWxpemVzIHRoZSBQYXJzZXIgd2l0aCBjb21waWxlciBvcHRpb25zLlxuXHQgKiBAcGFyYW0gb3B0aW9ucyAtIFBhcnRpYWwgQ29tcGlsZXJPcHRpb25zIHRvIGN1c3RvbWl6ZSB0aGUgcGFyc2luZyBiZWhhdmlvci5cblx0ICovXG5cdGNvbnN0cnVjdG9yKG9wdGlvbnM6IFBhcnRpYWw8Q29tcGlsZXJPcHRpb25zPiA9IHt9KSB7XG5cdFx0dGhpcy5wcm9qZWN0ID0gbmV3IFByb2plY3Qoe1xuXHRcdFx0Y29tcGlsZXJPcHRpb25zOiB7XG5cdFx0XHRcdHRhcmdldDogb3B0aW9ucy50YXJnZXQgPz8gdHMuU2NyaXB0VGFyZ2V0LkVTTmV4dCxcblx0XHRcdFx0bW9kdWxlOiBvcHRpb25zLm1vZHVsZSA/PyB0cy5Nb2R1bGVLaW5kLkVTTmV4dCxcblx0XHRcdFx0ZXhwZXJpbWVudGFsRGVjb3JhdG9yczogb3B0aW9ucy5leHBlcmltZW50YWxEZWNvcmF0b3JzID8/IHRydWUsXG5cdFx0XHRcdHNvdXJjZU1hcDogb3B0aW9ucy5zb3VyY2VNYXBzID8/IHRydWUsXG5cdFx0XHRcdGRlY2xhcmF0aW9uOiBmYWxzZSxcblx0XHRcdFx0c3RyaWN0OiB0cnVlLFxuXHRcdFx0XHRlc01vZHVsZUludGVyb3A6IHRydWUsXG5cdFx0XHRcdHNraXBMaWJDaGVjazogdHJ1ZSxcblx0XHRcdFx0bW9kdWxlUmVzb2x1dGlvbjogdHMuTW9kdWxlUmVzb2x1dGlvbktpbmQuTm9kZUpzLFxuXHRcdFx0fSxcblx0XHRcdHVzZUluTWVtb3J5RmlsZVN5c3RlbTogZmFsc2UsXG5cdFx0fSk7XG5cdH1cblxuXHQvKipcblx0ICogUGFyc2VzIHRoZSBnaXZlbiBjb250ZW50cyBvZiBhIGZpbGUgYW5kIHJldHVybnMgdGhlIEFTVCwgZGVwZW5kZW5jaWVzLCBhbmQgYW55IGVycm9ycy5cblx0ICogQHBhcmFtIGNvbnRlbnRzIC0gVGhlIGNvbnRlbnRzIG9mIHRoZSBmaWxlIHRvIHBhcnNlLlxuXHQgKiBAcGFyYW0gcGF0aCAtIFRoZSBmaWxlIHBhdGguXG5cdCAqIEByZXR1cm5zIFRoZSBQYXJzZVJlc3VsdCBjb250YWluaW5nIHRoZSBBU1QsIGRlcGVuZGVuY2llcywgYW5kIGVycm9ycy5cblx0ICovXG5cdHB1YmxpYyBwYXJzZShjb250ZW50czogc3RyaW5nLCBwYXRoOiBzdHJpbmcpOiBQYXJzZVJlc3VsdCB7XG5cdFx0Y29uc3Qgc291cmNlRmlsZSA9IHRoaXMucHJvamVjdC5jcmVhdGVTb3VyY2VGaWxlKHBhdGgsIGNvbnRlbnRzLCB7XG5cdFx0XHRvdmVyd3JpdGU6IHRydWUsXG5cdFx0fSk7XG5cdFx0Y29uc3QgZGVwZW5kZW5jaWVzID0gdGhpcy5jb2xsZWN0RGVwZW5kZW5jaWVzKHNvdXJjZUZpbGUpO1xuXHRcdGNvbnN0IGRpYWdub3N0aWNzID0gc291cmNlRmlsZS5nZXRQcmVFbWl0RGlhZ25vc3RpY3MoKTtcblxuXHRcdGNvbnN0IGVycm9ycyA9IGRpYWdub3N0aWNzLm1hcCgoZGlhZykgPT4gZGlhZy5nZXRNZXNzYWdlVGV4dCgpLnRvU3RyaW5nKCkpO1xuXG5cdFx0aWYgKGRpYWdub3N0aWNzLmxlbmd0aCA+IDApIHtcblx0XHRcdC8vIFVzZSB0cy5EaWFnbm9zdGljIGluc3RlYWQgb2YgVHNNb3JwaCBkaWFnbm9zdGljXG5cdFx0XHRkaWFnbm9zdGljcy5mb3JFYWNoKChkaWFnKSA9PlxuXHRcdFx0XHR0aGlzLmxvZ0RpYWdub3N0aWMoZGlhZyBhcyB1bmtub3duIGFzIHRzLkRpYWdub3N0aWMpXG5cdFx0XHQpO1xuXHRcdH1cblxuXHRcdHJldHVybiB7XG5cdFx0XHRhc3Q6IHNvdXJjZUZpbGUsXG5cdFx0XHRkZXBlbmRlbmNpZXMsXG5cdFx0XHRlcnJvcnMsXG5cdFx0fTtcblx0fVxuXG5cdC8qKlxuXHQgKiBDb2xsZWN0cyBhbGwgbW9kdWxlIGRlcGVuZGVuY2llcyBmcm9tIGltcG9ydCBhbmQgZXhwb3J0IGRlY2xhcmF0aW9ucy5cblx0ICogQHBhcmFtIHNvdXJjZUZpbGUgLSBUaGUgU291cmNlRmlsZSBvYmplY3QuXG5cdCAqIEByZXR1cm5zIEFuIGFycmF5IG9mIGRlcGVuZGVuY3kgbW9kdWxlIHNwZWNpZmllcnMuXG5cdCAqL1xuXHRwcml2YXRlIGNvbGxlY3REZXBlbmRlbmNpZXMoc291cmNlRmlsZTogU291cmNlRmlsZSk6IHN0cmluZ1tdIHtcblx0XHRjb25zdCBkZXBzOiBTZXQ8c3RyaW5nPiA9IG5ldyBTZXQoKTtcblxuXHRcdHNvdXJjZUZpbGUuZ2V0SW1wb3J0RGVjbGFyYXRpb25zKCkuZm9yRWFjaCgoaW1wb3J0RGVjbCkgPT4ge1xuXHRcdFx0Y29uc3QgbW9kdWxlU3BlY2lmaWVyID0gaW1wb3J0RGVjbC5nZXRNb2R1bGVTcGVjaWZpZXJWYWx1ZSgpO1xuXHRcdFx0ZGVwcy5hZGQobW9kdWxlU3BlY2lmaWVyKTtcblx0XHR9KTtcblxuXHRcdHNvdXJjZUZpbGUuZ2V0RXhwb3J0RGVjbGFyYXRpb25zKCkuZm9yRWFjaCgoZXhwb3J0RGVjbCkgPT4ge1xuXHRcdFx0Y29uc3QgbW9kdWxlU3BlY2lmaWVyID0gZXhwb3J0RGVjbC5nZXRNb2R1bGVTcGVjaWZpZXJWYWx1ZSgpO1xuXHRcdFx0aWYgKG1vZHVsZVNwZWNpZmllcikge1xuXHRcdFx0XHRkZXBzLmFkZChtb2R1bGVTcGVjaWZpZXIpO1xuXHRcdFx0fVxuXHRcdH0pO1xuXG5cdFx0cmV0dXJuIEFycmF5LmZyb20oZGVwcyk7XG5cdH1cblxuXHQvKipcblx0ICogTG9ncyBUeXBlU2NyaXB0IGRpYWdub3N0aWNzIHRvIHRoZSBjb25zb2xlLlxuXHQgKiBAcGFyYW0gZGlhZ25vc3RpYyAtIFRoZSBUeXBlU2NyaXB0IGRpYWdub3N0aWMgdG8gbG9nLlxuXHQgKi9cblx0cHJpdmF0ZSBsb2dEaWFnbm9zdGljKGRpYWdub3N0aWM6IHRzLkRpYWdub3N0aWMpOiB2b2lkIHtcblx0XHRjb25zdCBtZXNzYWdlID0gdHMuZmxhdHRlbkRpYWdub3N0aWNNZXNzYWdlVGV4dChcblx0XHRcdGRpYWdub3N0aWMubWVzc2FnZVRleHQsXG5cdFx0XHRcIlxcblwiLFxuXHRcdCk7XG5cdFx0Y29uc3Qgc291cmNlRmlsZSA9IGRpYWdub3N0aWMuZmlsZTtcblx0XHRjb25zdCBwb3MgPSBkaWFnbm9zdGljLnN0YXJ0O1xuXG5cdFx0aWYgKHNvdXJjZUZpbGUgJiYgcG9zICE9PSB1bmRlZmluZWQpIHtcblx0XHRcdGNvbnN0IHsgbGluZSwgY2hhcmFjdGVyIH0gPSBzb3VyY2VGaWxlLmdldExpbmVBbmRDaGFyYWN0ZXJPZlBvc2l0aW9uKHBvcyk7XG5cdFx0XHRsb2dnZXIuZXJyb3IoXG5cdFx0XHRcdGAke3NvdXJjZUZpbGUuZmlsZU5hbWV9ICgke2xpbmUgKyAxfSwke2NoYXJhY3RlciArIDF9KTogJHttZXNzYWdlfWAsXG5cdFx0XHQpO1xuXHRcdH0gZWxzZSB7XG5cdFx0XHRsb2dnZXIuZXJyb3IobWVzc2FnZSk7XG5cdFx0fVxuXHR9XG59XG4iXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUEsMEJBQTBCO0FBQzFCLFNBRUMsT0FBTyxFQUVQLEVBQUUsUUFDSSw2Q0FBNkM7QUFFcEQsU0FBUyxNQUFNLFFBQVEsY0FBYztBQVdyQzs7Q0FFQyxHQUNELE9BQU8sTUFBTTtFQUNKLFFBQWlCO0VBRXpCOzs7RUFHQyxHQUNELFlBQVksVUFBb0MsQ0FBQyxDQUFDLENBQUU7SUFDbkQsSUFBSSxDQUFDLE9BQU8sR0FBRyxJQUFJLFFBQVE7TUFDMUIsaUJBQWlCO1FBQ2hCLFFBQVEsUUFBUSxNQUFNLElBQUksR0FBRyxZQUFZLENBQUMsTUFBTTtRQUNoRCxRQUFRLFFBQVEsTUFBTSxJQUFJLEdBQUcsVUFBVSxDQUFDLE1BQU07UUFDOUMsd0JBQXdCLFFBQVEsc0JBQXNCLElBQUk7UUFDMUQsV0FBVyxRQUFRLFVBQVUsSUFBSTtRQUNqQyxhQUFhO1FBQ2IsUUFBUTtRQUNSLGlCQUFpQjtRQUNqQixjQUFjO1FBQ2Qsa0JBQWtCLEdBQUcsb0JBQW9CLENBQUMsTUFBTTtNQUNqRDtNQUNBLHVCQUF1QjtJQUN4QjtFQUNEO0VBRUE7Ozs7O0VBS0MsR0FDRCxBQUFPLE1BQU0sUUFBZ0IsRUFBRSxJQUFZLEVBQWU7SUFDekQsTUFBTSxhQUFhLElBQUksQ0FBQyxPQUFPLENBQUMsZ0JBQWdCLENBQUMsTUFBTSxVQUFVO01BQ2hFLFdBQVc7SUFDWjtJQUNBLE1BQU0sZUFBZSxJQUFJLENBQUMsbUJBQW1CLENBQUM7SUFDOUMsTUFBTSxjQUFjLFdBQVcscUJBQXFCO0lBRXBELE1BQU0sU0FBUyxZQUFZLEdBQUcsQ0FBQyxDQUFDLE9BQVMsS0FBSyxjQUFjLEdBQUcsUUFBUTtJQUV2RSxJQUFJLFlBQVksTUFBTSxHQUFHLEdBQUc7TUFDM0Isa0RBQWtEO01BQ2xELFlBQVksT0FBTyxDQUFDLENBQUMsT0FDcEIsSUFBSSxDQUFDLGFBQWEsQ0FBQztJQUVyQjtJQUVBLE9BQU87TUFDTixLQUFLO01BQ0w7TUFDQTtJQUNEO0VBQ0Q7RUFFQTs7OztFQUlDLEdBQ0QsQUFBUSxvQkFBb0IsVUFBc0IsRUFBWTtJQUM3RCxNQUFNLE9BQW9CLElBQUk7SUFFOUIsV0FBVyxxQkFBcUIsR0FBRyxPQUFPLENBQUMsQ0FBQztNQUMzQyxNQUFNLGtCQUFrQixXQUFXLHVCQUF1QjtNQUMxRCxLQUFLLEdBQUcsQ0FBQztJQUNWO0lBRUEsV0FBVyxxQkFBcUIsR0FBRyxPQUFPLENBQUMsQ0FBQztNQUMzQyxNQUFNLGtCQUFrQixXQUFXLHVCQUF1QjtNQUMxRCxJQUFJLGlCQUFpQjtRQUNwQixLQUFLLEdBQUcsQ0FBQztNQUNWO0lBQ0Q7SUFFQSxPQUFPLE1BQU0sSUFBSSxDQUFDO0VBQ25CO0VBRUE7OztFQUdDLEdBQ0QsQUFBUSxjQUFjLFVBQXlCLEVBQVE7SUFDdEQsTUFBTSxVQUFVLEdBQUcsNEJBQTRCLENBQzlDLFdBQVcsV0FBVyxFQUN0QjtJQUVELE1BQU0sYUFBYSxXQUFXLElBQUk7SUFDbEMsTUFBTSxNQUFNLFdBQVcsS0FBSztJQUU1QixJQUFJLGNBQWMsUUFBUSxXQUFXO01BQ3BDLE1BQU0sRUFBRSxJQUFJLEVBQUUsU0FBUyxFQUFFLEdBQUcsV0FBVyw2QkFBNkIsQ0FBQztNQUNyRSxPQUFPLEtBQUssQ0FDWCxDQUFDLEVBQUUsV0FBVyxRQUFRLENBQUMsRUFBRSxFQUFFLE9BQU8sRUFBRSxDQUFDLEVBQUUsWUFBWSxFQUFFLEdBQUcsRUFBRSxRQUFRLENBQUM7SUFFckUsT0FBTztNQUNOLE9BQU8sS0FBSyxDQUFDO0lBQ2Q7RUFDRDtBQUNEIn0=
+// denoCacheMetadata=14127789512310338623,18354250576040963523

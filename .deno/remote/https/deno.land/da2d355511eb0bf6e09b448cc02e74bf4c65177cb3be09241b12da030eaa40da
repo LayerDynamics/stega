@@ -1,0 +1,41 @@
+// Copyright 2018-2022 the Deno authors. All rights reserved. MIT license.
+// Copyright the Browserify authors. MIT License.
+
+/**
+ * Ported mostly from https://github.com/browserify/path-browserify/
+ * This module is browser compatible.
+ * @module
+ */
+
+import { isWindows } from "../_util/os.ts";
+import * as _win32 from "./win32.ts";
+import * as _posix from "./posix.ts";
+
+const path = isWindows ? _win32 : _posix;
+
+export const win32 = _win32;
+export const posix = _posix;
+export const {
+  basename,
+  delimiter,
+  dirname,
+  extname,
+  format,
+  fromFileUrl,
+  isAbsolute,
+  join,
+  normalize,
+  parse,
+  relative,
+  resolve,
+  sep,
+  toFileUrl,
+  toNamespacedPath,
+} = path;
+
+export * from "./common.ts";
+export { SEP, SEP_PATTERN } from "./separator.ts";
+export * from "./_interface.ts";
+export * from "./glob.ts";
+
+// denoCacheMetadata={"headers":{"x-frame-options":"DENY","content-length":"820","age":"203756","content-type":"application/typescript; charset=utf-8","date":"Sun, 12 Jan 2025 02:33:10 GMT","x-amz-replication-status":"COMPLETED","x-amz-cf-id":"kanSX2G5s30EafKiBtwNw8s55fEuaBLpKV5NoolJEM8Ahqu0bUoqNA==","x-cache":"Hit from cloudfront","cache-control":"public, max-age=31536000, immutable","x-content-type-options":"nosniff","via":"http/2 edgeproxy-h","accept-ranges":"bytes","cross-origin-embedder-policy":"same-origin","server-timing":"fetchSource;dur=46","server":"deno/gcp-us-east4","access-control-allow-origin":"*","etag":"\"c7e67cf4f74600bb722cb49a908f6269\"","last-modified":"Wed, 18 May 2022 13:28:52 GMT","cross-origin-opener-policy":"same-origin","referrer-policy":"strict-origin-when-cross-origin","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","vary":"Accept-Encoding, Origin","strict-transport-security":"max-age=63072000; includeSubDomains; preload","cross-origin-resource-policy":"same-origin","x-amz-cf-pop":"IAD12-P5","x-amz-version-id":"eHOtirwCUVYJxzfnnz_t26SbMRDft3wT"},"url":"https://deno.land/std@0.140.0/path/mod.ts","time":1736852945}

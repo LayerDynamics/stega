@@ -1,0 +1,55 @@
+// Copyright 2018-2022 the Deno authors. All rights reserved. MIT license.
+// Copyright the Browserify authors. MIT License.
+// Ported mostly from https://github.com/browserify/path-browserify/
+
+/**
+ * Utilities for working with OS-specific file paths.
+ *
+ * Codes in the examples uses POSIX path but it automatically use Windows path
+ * on Windows. Use methods under `posix` or `win32` object instead to handle non
+ * platform specific path like:
+ * ```ts
+ * import { posix, win32 } from "https://deno.land/std@$STD_VERSION/path/mod.ts";
+ * const p1 = posix.fromFileUrl("file:///home/foo");
+ * const p2 = win32.fromFileUrl("file:///home/foo");
+ * console.log(p1); // "/home/foo"
+ * console.log(p2); // "\\home\\foo"
+ * ```
+ *
+ * This module is browser compatible.
+ *
+ * @module
+ */
+
+import { isWindows } from "../_util/os.ts";
+import * as _win32 from "./win32.ts";
+import * as _posix from "./posix.ts";
+
+const path = isWindows ? _win32 : _posix;
+
+export const win32 = _win32;
+export const posix = _posix;
+export const {
+  basename,
+  delimiter,
+  dirname,
+  extname,
+  format,
+  fromFileUrl,
+  isAbsolute,
+  join,
+  normalize,
+  parse,
+  relative,
+  resolve,
+  sep,
+  toFileUrl,
+  toNamespacedPath,
+} = path;
+
+export * from "./common.ts";
+export { SEP, SEP_PATTERN } from "./separator.ts";
+export * from "./_interface.ts";
+export * from "./glob.ts";
+
+// denoCacheMetadata={"headers":{"cache-control":"public, max-age=31536000, immutable","cross-origin-resource-policy":"same-origin","age":"204594","x-cache":"Hit from cloudfront","content-type":"application/typescript; charset=utf-8","etag":"\"9599aa2447a349107cfec3aa2a2f34df\"","server":"deno/gcp-us-east4","referrer-policy":"strict-origin-when-cross-origin","date":"Sun, 12 Jan 2025 02:19:11 GMT","last-modified":"Mon, 19 Dec 2022 13:27:52 GMT","cross-origin-embedder-policy":"same-origin","server-timing":"fetchSource;dur=6","via":"http/2 edgeproxy-h","vary":"Accept-Encoding, Origin","x-amz-replication-status":"COMPLETED","x-content-type-options":"nosniff","cross-origin-opener-policy":"same-origin","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-cf-pop":"IAD12-P5","x-frame-options":"DENY","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","x-amz-version-id":"lsRPIBFAxX2GdMbMoc.bs7wTigXBQvU6","x-amz-cf-id":"q132kpGdMLYR7PIHMBuMLe2PNo4-ryuiYqd1XZ78kJeZYl_7KCCIAw==","content-length":"1351","access-control-allow-origin":"*","accept-ranges":"bytes","x-amz-server-side-encryption":"AES256"},"url":"https://deno.land/std@0.170.0/path/mod.ts","time":1736852944}

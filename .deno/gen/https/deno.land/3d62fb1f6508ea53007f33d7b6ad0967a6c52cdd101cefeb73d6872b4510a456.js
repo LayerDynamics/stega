@@ -1,0 +1,28 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+import { assertArgs, lastPathSegment, stripSuffix } from "../_common/basename.ts";
+import { stripTrailingSeparators } from "../_common/strip_trailing_separators.ts";
+import { isPosixPathSeparator } from "./_util.ts";
+/**
+ * Return the last portion of a `path`.
+ * Trailing directory separators are ignored, and optional suffix is removed.
+ *
+ * @example
+ * ```ts
+ * import { basename } from "https://deno.land/std@$STD_VERSION/path/basename.ts";
+ *
+ * console.log(basename("/home/user/Documents/")); // "Documents"
+ * console.log(basename("/home/user/Documents/image.png")); // "image.png"
+ * console.log(basename("/home/user/Documents/image.png", ".png")); // "image"
+ * ```
+ *
+ * @param path - path to extract the name from.
+ * @param [suffix] - suffix to remove from extracted name.
+ */ export function basename(path, suffix = "") {
+  assertArgs(path, suffix);
+  const lastSegment = lastPathSegment(path, isPosixPathSeparator);
+  const strippedSegment = stripTrailingSeparators(lastSegment, isPosixPathSeparator);
+  return suffix ? stripSuffix(strippedSegment, suffix) : strippedSegment;
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImh0dHBzOi8vZGVuby5sYW5kL3N0ZEAwLjIyNC4wL3BhdGgvcG9zaXgvYmFzZW5hbWUudHMiXSwic291cmNlc0NvbnRlbnQiOlsiLy8gQ29weXJpZ2h0IDIwMTgtMjAyNCB0aGUgRGVubyBhdXRob3JzLiBBbGwgcmlnaHRzIHJlc2VydmVkLiBNSVQgbGljZW5zZS5cbi8vIFRoaXMgbW9kdWxlIGlzIGJyb3dzZXIgY29tcGF0aWJsZS5cblxuaW1wb3J0IHtcbiAgYXNzZXJ0QXJncyxcbiAgbGFzdFBhdGhTZWdtZW50LFxuICBzdHJpcFN1ZmZpeCxcbn0gZnJvbSBcIi4uL19jb21tb24vYmFzZW5hbWUudHNcIjtcbmltcG9ydCB7IHN0cmlwVHJhaWxpbmdTZXBhcmF0b3JzIH0gZnJvbSBcIi4uL19jb21tb24vc3RyaXBfdHJhaWxpbmdfc2VwYXJhdG9ycy50c1wiO1xuaW1wb3J0IHsgaXNQb3NpeFBhdGhTZXBhcmF0b3IgfSBmcm9tIFwiLi9fdXRpbC50c1wiO1xuXG4vKipcbiAqIFJldHVybiB0aGUgbGFzdCBwb3J0aW9uIG9mIGEgYHBhdGhgLlxuICogVHJhaWxpbmcgZGlyZWN0b3J5IHNlcGFyYXRvcnMgYXJlIGlnbm9yZWQsIGFuZCBvcHRpb25hbCBzdWZmaXggaXMgcmVtb3ZlZC5cbiAqXG4gKiBAZXhhbXBsZVxuICogYGBgdHNcbiAqIGltcG9ydCB7IGJhc2VuYW1lIH0gZnJvbSBcImh0dHBzOi8vZGVuby5sYW5kL3N0ZEAkU1REX1ZFUlNJT04vcGF0aC9iYXNlbmFtZS50c1wiO1xuICpcbiAqIGNvbnNvbGUubG9nKGJhc2VuYW1lKFwiL2hvbWUvdXNlci9Eb2N1bWVudHMvXCIpKTsgLy8gXCJEb2N1bWVudHNcIlxuICogY29uc29sZS5sb2coYmFzZW5hbWUoXCIvaG9tZS91c2VyL0RvY3VtZW50cy9pbWFnZS5wbmdcIikpOyAvLyBcImltYWdlLnBuZ1wiXG4gKiBjb25zb2xlLmxvZyhiYXNlbmFtZShcIi9ob21lL3VzZXIvRG9jdW1lbnRzL2ltYWdlLnBuZ1wiLCBcIi5wbmdcIikpOyAvLyBcImltYWdlXCJcbiAqIGBgYFxuICpcbiAqIEBwYXJhbSBwYXRoIC0gcGF0aCB0byBleHRyYWN0IHRoZSBuYW1lIGZyb20uXG4gKiBAcGFyYW0gW3N1ZmZpeF0gLSBzdWZmaXggdG8gcmVtb3ZlIGZyb20gZXh0cmFjdGVkIG5hbWUuXG4gKi9cbmV4cG9ydCBmdW5jdGlvbiBiYXNlbmFtZShwYXRoOiBzdHJpbmcsIHN1ZmZpeCA9IFwiXCIpOiBzdHJpbmcge1xuICBhc3NlcnRBcmdzKHBhdGgsIHN1ZmZpeCk7XG5cbiAgY29uc3QgbGFzdFNlZ21lbnQgPSBsYXN0UGF0aFNlZ21lbnQocGF0aCwgaXNQb3NpeFBhdGhTZXBhcmF0b3IpO1xuICBjb25zdCBzdHJpcHBlZFNlZ21lbnQgPSBzdHJpcFRyYWlsaW5nU2VwYXJhdG9ycyhcbiAgICBsYXN0U2VnbWVudCxcbiAgICBpc1Bvc2l4UGF0aFNlcGFyYXRvcixcbiAgKTtcbiAgcmV0dXJuIHN1ZmZpeCA/IHN0cmlwU3VmZml4KHN0cmlwcGVkU2VnbWVudCwgc3VmZml4KSA6IHN0cmlwcGVkU2VnbWVudDtcbn1cbiJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQSwwRUFBMEU7QUFDMUUscUNBQXFDO0FBRXJDLFNBQ0UsVUFBVSxFQUNWLGVBQWUsRUFDZixXQUFXLFFBQ04seUJBQXlCO0FBQ2hDLFNBQVMsdUJBQXVCLFFBQVEsMENBQTBDO0FBQ2xGLFNBQVMsb0JBQW9CLFFBQVEsYUFBYTtBQUVsRDs7Ozs7Ozs7Ozs7Ozs7O0NBZUMsR0FDRCxPQUFPLFNBQVMsU0FBUyxJQUFZLEVBQUUsU0FBUyxFQUFFO0VBQ2hELFdBQVcsTUFBTTtFQUVqQixNQUFNLGNBQWMsZ0JBQWdCLE1BQU07RUFDMUMsTUFBTSxrQkFBa0Isd0JBQ3RCLGFBQ0E7RUFFRixPQUFPLFNBQVMsWUFBWSxpQkFBaUIsVUFBVTtBQUN6RCJ9
+// denoCacheMetadata=15451949619923888221,810175985455827569

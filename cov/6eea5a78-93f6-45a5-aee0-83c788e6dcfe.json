@@ -1,0 +1,66 @@
+{
+  "scriptId": "322",
+  "url": "file:///Users/ryanoboyle/stega/tests/test_utils.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 2990, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "createTestCLI",
+      "ranges": [{ "startOffset": 300, "endOffset": 516, "count": 6 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "createTempFile",
+      "ranges": [{ "startOffset": 688, "endOffset": 890, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "cleanupTempFiles",
+      "ranges": [{ "startOffset": 999, "endOffset": 1355, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "getProjectRoot",
+      "ranges": [{ "startOffset": 1456, "endOffset": 1632, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "resolveProjectPath",
+      "ranges": [{ "startOffset": 1809, "endOffset": 1909, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "importSourceFile",
+      "ranges": [{ "startOffset": 2076, "endOffset": 2220, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "mockFetchWithAbort",
+      "ranges": [{ "startOffset": 2493, "endOffset": 2989, "count": 4 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 2587, "endOffset": 2986, "count": 9 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 2627, "endOffset": 2980, "count": 9 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 2679, "endOffset": 2775, "count": 5 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 2857, "endOffset": 2964, "count": 4 }],
+      "isBlockCoverage": true
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+import { AssertionError } from "./assertion_error.ts";
+/**
+ * Make an assertion, error will be thrown if `expr` have truthy value.
+ *
+ * @example
+ * ```ts
+ * import { assertFalse } from "https://deno.land/std@$STD_VERSION/assert/assert_false.ts";
+ *
+ * assertFalse(false); // Doesn't throw
+ * assertFalse(true); // Throws
+ * ```
+ */ export function assertFalse(expr, msg = "") {
+  if (expr) {
+    throw new AssertionError(msg);
+  }
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImh0dHBzOi8vZGVuby5sYW5kL3N0ZEAwLjIyNC4wL2Fzc2VydC9hc3NlcnRfZmFsc2UudHMiXSwic291cmNlc0NvbnRlbnQiOlsiLy8gQ29weXJpZ2h0IDIwMTgtMjAyNCB0aGUgRGVubyBhdXRob3JzLiBBbGwgcmlnaHRzIHJlc2VydmVkLiBNSVQgbGljZW5zZS5cbi8vIFRoaXMgbW9kdWxlIGlzIGJyb3dzZXIgY29tcGF0aWJsZS5cbmltcG9ydCB7IEFzc2VydGlvbkVycm9yIH0gZnJvbSBcIi4vYXNzZXJ0aW9uX2Vycm9yLnRzXCI7XG5cbi8qKiBBc3NlcnRpb24gY29uZGl0aW9uIGZvciB7QGxpbmtjb2RlIGFzc2VydEZhbHNlfS4gKi9cbmV4cG9ydCB0eXBlIEZhbHN5ID0gZmFsc2UgfCAwIHwgMG4gfCBcIlwiIHwgbnVsbCB8IHVuZGVmaW5lZDtcblxuLyoqXG4gKiBNYWtlIGFuIGFzc2VydGlvbiwgZXJyb3Igd2lsbCBiZSB0aHJvd24gaWYgYGV4cHJgIGhhdmUgdHJ1dGh5IHZhbHVlLlxuICpcbiAqIEBleGFtcGxlXG4gKiBgYGB0c1xuICogaW1wb3J0IHsgYXNzZXJ0RmFsc2UgfSBmcm9tIFwiaHR0cHM6Ly9kZW5vLmxhbmQvc3RkQCRTVERfVkVSU0lPTi9hc3NlcnQvYXNzZXJ0X2ZhbHNlLnRzXCI7XG4gKlxuICogYXNzZXJ0RmFsc2UoZmFsc2UpOyAvLyBEb2Vzbid0IHRocm93XG4gKiBhc3NlcnRGYWxzZSh0cnVlKTsgLy8gVGhyb3dzXG4gKiBgYGBcbiAqL1xuZXhwb3J0IGZ1bmN0aW9uIGFzc2VydEZhbHNlKGV4cHI6IHVua25vd24sIG1zZyA9IFwiXCIpOiBhc3NlcnRzIGV4cHIgaXMgRmFsc3kge1xuICBpZiAoZXhwcikge1xuICAgIHRocm93IG5ldyBBc3NlcnRpb25FcnJvcihtc2cpO1xuICB9XG59XG4iXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUEsMEVBQTBFO0FBQzFFLHFDQUFxQztBQUNyQyxTQUFTLGNBQWMsUUFBUSx1QkFBdUI7QUFLdEQ7Ozs7Ozs7Ozs7Q0FVQyxHQUNELE9BQU8sU0FBUyxZQUFZLElBQWEsRUFBRSxNQUFNLEVBQUU7RUFDakQsSUFBSSxNQUFNO0lBQ1IsTUFBTSxJQUFJLGVBQWU7RUFDM0I7QUFDRiJ9
+// denoCacheMetadata=125011446576688218,101109156403217922

@@ -31,14 +31,15 @@
 	},
 	"test": {
 		"include": ["tests/"],
-		"exclude": ["tests/fixtures"]
+		"exclude": ["tests/fixtures/dynamic/", "tests/fixtures/generated/"]
 	},
 	"tasks": {
 		"dev": "deno run --watch mod.ts",
 		"test": "deno test --allow-read --allow-env --allow-write --coverage=cov --parallel",
-		"test:coverage": "deno coverage cov --lcov --output=cov.lcov",
-		"test:clean": "rm -rf cov && mkdir -p cov",
-		"test:full": "deno task test:clean && deno task test && deno task test:coverage",
+		"test:cache": "rm -rf .deno && mkdir -p .deno && deno cache --reload 'tests/**/*.ts' 'src/**/*.ts' && mkdir -p tests/fixtures/dynamic",
+		"test:coverage": "mkdir -p tests/fixtures/dynamic && chmod +x scripts/coverage.sh && ./scripts/coverage.sh",
+		"test:clean": "rm -rf cov cov.lcov tmp .deno",
+		"test:full": "deno task test:clean && ./scripts/coverage.sh",
 		"start": "deno run --allow-all mod.ts",
 		"build": "deno run --allow-run --allow-read --allow-write --allow-env src/commands/build.ts",
 		"build:linux": "deno task build --output=./dist/stega-linux --target=linux --allow-read --allow-env",

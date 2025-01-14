@@ -1,0 +1,26 @@
+{
+  "scriptId": "328",
+  "url": "file:///Users/ryanoboyle/stega/src/middleware.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 520, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "<instance_members_initializer>",
+      "ranges": [{ "startOffset": 36, "endOffset": 52, "count": 7 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "use",
+      "ranges": [{ "startOffset": 161, "endOffset": 221, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "execute",
+      "ranges": [{ "startOffset": 390, "endOffset": 517, "count": 0 }],
+      "isBlockCoverage": false
+    }
+  ]
+}

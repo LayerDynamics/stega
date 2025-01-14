@@ -1,0 +1,102 @@
+import { GenericPrompt } from "./_generic_prompt.ts";
+import {
+  GenericSuggestions,
+  GenericSuggestionsKeys,
+  GenericSuggestionsOptions,
+  GenericSuggestionsSettings,
+} from "./_generic_suggestions.ts";
+import { brightBlue, normalize, yellow } from "./deps.ts";
+import { Figures } from "./figures.ts";
+
+export type InputKeys = GenericSuggestionsKeys;
+
+/** Input prompt options. */
+export interface InputOptions
+  extends GenericSuggestionsOptions<string, string> {
+  minLength?: number;
+  maxLength?: number;
+  keys?: InputKeys;
+}
+
+/** Input prompt settings. */
+interface InputSettings extends GenericSuggestionsSettings<string, string> {
+  minLength: number;
+  maxLength: number;
+  keys?: InputKeys;
+}
+
+/** Input prompt representation. */
+export class Input extends GenericSuggestions<string, string, InputSettings> {
+  /** Execute the prompt and show cursor on end. */
+  public static prompt(options: string | InputOptions): Promise<string> {
+    if (typeof options === "string") {
+      options = { message: options };
+    }
+
+    return new this({
+      pointer: brightBlue(Figures.POINTER_SMALL),
+      prefix: yellow("? "),
+      indent: " ",
+      listPointer: brightBlue(Figures.POINTER),
+      maxRows: 8,
+      minLength: 0,
+      maxLength: Infinity,
+      ...options,
+    }).prompt();
+  }
+
+  /**
+   * Inject prompt value. Can be used for unit tests or pre selections.
+   * @param value Input value.
+   */
+  public static inject(value: string): void {
+    GenericPrompt.inject(value);
+  }
+
+  protected success(value: string): string | undefined {
+    this.saveSuggestions(value);
+    return super.success(value);
+  }
+
+  /** Get input value. */
+  protected getValue(): string {
+    return this.settings.files ? normalize(this.inputValue) : this.inputValue;
+  }
+
+  /**
+   * Validate input value.
+   * @param value User input value.
+   * @return True on success, false or error message on error.
+   */
+  protected validate(value: string): boolean | string {
+    if (typeof value !== "string") {
+      return false;
+    }
+    if (value.length < this.settings.minLength) {
+      return `Value must be longer than ${this.settings.minLength} but has a length of ${value.length}.`;
+    }
+    if (value.length > this.settings.maxLength) {
+      return `Value can't be longer than ${this.settings.maxLength} but has a length of ${value.length}.`;
+    }
+    return true;
+  }
+
+  /**
+   * Map input value to output value.
+   * @param value Input value.
+   * @return Output value.
+   */
+  protected transform(value: string): string | undefined {
+    return value.trim();
+  }
+
+  /**
+   * Format output value.
+   * @param value Output value.
+   */
+  protected format(value: string): string {
+    return value;
+  }
+}
+
+// denoCacheMetadata={"headers":{"last-modified":"Thu, 05 Jan 2023 20:39:47 GMT","content-length":"2713","date":"Sun, 12 Jan 2025 02:19:10 GMT","cross-origin-embedder-policy":"same-origin","cross-origin-resource-policy":"same-origin","vary":"Accept-Encoding, Origin","x-amz-cf-id":"J9qSk6KC7ZGXeN-BafAakFlJzUDc1xSxDQt8Clpok4lPUlAwP_ekIw==","content-type":"application/typescript; charset=utf-8","accept-ranges":"bytes","cross-origin-opener-policy":"same-origin","x-amz-cf-pop":"IAD12-P5","server-timing":"fetchSource;dur=20","via":"http/2 edgeproxy-h","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-server-side-encryption":"AES256","x-amz-version-id":"cbxqa8fMxfUPS1RH56UXb5qlmTDxIf8X","x-cache":"Hit from cloudfront","referrer-policy":"strict-origin-when-cross-origin","x-content-type-options":"nosniff","server":"deno/gcp-us-east4","x-frame-options":"DENY","cache-control":"public, max-age=31536000, immutable","etag":"\"f603c5bb84ab150cc5dc019ea53096e5\"","access-control-allow-origin":"*","age":"204595","x-amz-replication-status":"COMPLETED"},"url":"https://deno.land/x/cliffy@v0.25.7/prompt/input.ts","time":1736852944}

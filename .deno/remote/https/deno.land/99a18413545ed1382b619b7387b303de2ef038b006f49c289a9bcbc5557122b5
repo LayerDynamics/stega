@@ -1,0 +1,29 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+import { AssertionError } from "./assertion_error.ts";
+
+/**
+ * Make an assertion that actual is not null or undefined.
+ * If not then throw.
+ *
+ * @example
+ * ```ts
+ * import { assertExists } from "https://deno.land/std@$STD_VERSION/assert/assert_exists.ts";
+ *
+ * assertExists("something"); // Doesn't throw
+ * assertExists(undefined); // Throws
+ * ```
+ */
+export function assertExists<T>(
+  actual: T,
+  msg?: string,
+): asserts actual is NonNullable<T> {
+  if (actual === undefined || actual === null) {
+    const msgSuffix = msg ? `: ${msg}` : ".";
+    msg =
+      `Expected actual: "${actual}" to not be null or undefined${msgSuffix}`;
+    throw new AssertionError(msg);
+  }
+}
+
+// denoCacheMetadata={"headers":{"vary":"Accept-Encoding, Origin","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","access-control-allow-origin":"*","x-amz-cf-pop":"IAD12-P5","cross-origin-embedder-policy":"same-origin","cross-origin-resource-policy":"same-origin","etag":"\"245a8b55754ef418a2be745fc618d894\"","server":"deno/gcp-us-east4","x-amz-cf-id":"WilfKha5MbDy7zd664zc7vNoLWplJNLQ0QQBgHWVNmcgESIeOMt4vw==","date":"Sun, 12 Jan 2025 02:17:04 GMT","content-type":"application/typescript; charset=utf-8","cross-origin-opener-policy":"same-origin","last-modified":"Thu, 25 Apr 2024 03:01:08 GMT","x-amz-server-side-encryption":"AES256","x-cache":"Hit from cloudfront","x-content-type-options":"nosniff","server-timing":"fetchSource;dur=14","accept-ranges":"bytes","age":"204721","x-frame-options":"DENY","content-length":"795","strict-transport-security":"max-age=63072000; includeSubDomains; preload","cache-control":"public, max-age=31536000, immutable","via":"http/2 edgeproxy-h","x-amz-replication-status":"COMPLETED","referrer-policy":"strict-origin-when-cross-origin","x-amz-version-id":"XxQ4bqVXGTKknajSvQgSO5VMfHCjPu0C"},"url":"https://deno.land/std@0.224.0/assert/assert_exists.ts","time":1736852944}

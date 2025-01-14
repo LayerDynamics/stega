@@ -1,0 +1,58 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+import { normalizeString } from "../_common/normalize_string.ts";
+import { assertPath } from "../_common/assert_path.ts";
+import { isPosixPathSeparator } from "./_util.ts";
+
+/**
+ * Resolves path segments into a `path`
+ * @param pathSegments to process to path
+ */
+export function resolve(...pathSegments: string[]): string {
+  let resolvedPath = "";
+  let resolvedAbsolute = false;
+
+  for (let i = pathSegments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
+    let path: string;
+
+    if (i >= 0) path = pathSegments[i]!;
+    else {
+      // deno-lint-ignore no-explicit-any
+      const { Deno } = globalThis as any;
+      if (typeof Deno?.cwd !== "function") {
+        throw new TypeError("Resolved a relative path without a CWD.");
+      }
+      path = Deno.cwd();
+    }
+
+    assertPath(path);
+
+    // Skip empty entries
+    if (path.length === 0) {
+      continue;
+    }
+
+    resolvedPath = `${path}/${resolvedPath}`;
+    resolvedAbsolute = isPosixPathSeparator(path.charCodeAt(0));
+  }
+
+  // At this point the path should be resolved to a full absolute path, but
+  // handle relative paths to be safe (might happen when Deno.cwd() fails)
+
+  // Normalize the path
+  resolvedPath = normalizeString(
+    resolvedPath,
+    !resolvedAbsolute,
+    "/",
+    isPosixPathSeparator,
+  );
+
+  if (resolvedAbsolute) {
+    if (resolvedPath.length > 0) return `/${resolvedPath}`;
+    else return "/";
+  } else if (resolvedPath.length > 0) return resolvedPath;
+  else return ".";
+}
+
+// denoCacheMetadata={"headers":{"x-content-type-options":"nosniff","x-frame-options":"DENY","referrer-policy":"strict-origin-when-cross-origin","x-amz-cf-pop":"IAD12-P5","access-control-allow-origin":"*","cache-control":"public, max-age=31536000, immutable","date":"Sun, 12 Jan 2025 02:06:45 GMT","via":"http/2 edgeproxy-h","content-length":"1586","accept-ranges":"bytes","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","server":"deno/gcp-us-east4","last-modified":"Thu, 25 Apr 2024 03:01:10 GMT","server-timing":"fetchSource;dur=58","x-amz-server-side-encryption":"AES256","x-amz-version-id":"ZoKbHnIURnwSyLrSLBPVNZGtdHDQNXS0","age":"205340","strict-transport-security":"max-age=63072000; includeSubDomains; preload","content-type":"application/typescript; charset=utf-8","cross-origin-embedder-policy":"same-origin","etag":"\"45d412c92bb741f6601f71d2c3f33162\"","cross-origin-resource-policy":"same-origin","cross-origin-opener-policy":"same-origin","vary":"Accept-Encoding, Origin","x-amz-cf-id":"-uAYpRJkuLL45nMTm8ZFX3SS4HoCF6MHztNlm3T4QfwpjRYKoJzuDw==","x-amz-replication-status":"COMPLETED","x-cache":"Hit from cloudfront"},"url":"https://deno.land/std@0.224.0/path/posix/resolve.ts","time":1736852944}

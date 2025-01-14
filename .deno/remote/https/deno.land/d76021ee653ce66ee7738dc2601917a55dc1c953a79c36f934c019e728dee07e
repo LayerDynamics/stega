@@ -1,0 +1,46 @@
+// Copyright 2018-2022 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+/** Check whether binary arrays are equal to each other using 8-bit comparisons.
+ * @private
+ * @param a first array to check equality
+ * @param b second array to check equality
+ */
+export function equalsNaive(a: Uint8Array, b: Uint8Array): boolean {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < b.length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+
+/** Check whether binary arrays are equal to each other using 32-bit comparisons.
+ * @private
+ * @param a first array to check equality
+ * @param b second array to check equality
+ */
+export function equals32Bit(a: Uint8Array, b: Uint8Array): boolean {
+  if (a.length !== b.length) return false;
+  const len = a.length;
+  const compressable = Math.floor(len / 4);
+  const compressedA = new Uint32Array(a.buffer, 0, compressable);
+  const compressedB = new Uint32Array(b.buffer, 0, compressable);
+  for (let i = compressable * 4; i < len; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  for (let i = 0; i < compressedA.length; i++) {
+    if (compressedA[i] !== compressedB[i]) return false;
+  }
+  return true;
+}
+
+/** Check whether binary arrays are equal to each other.
+ * @param a first array to check equality
+ * @param b second array to check equality
+ */
+export function equals(a: Uint8Array, b: Uint8Array): boolean {
+  if (a.length < 1000) return equalsNaive(a, b);
+  return equals32Bit(a, b);
+}
+
+// denoCacheMetadata={"headers":{"cross-origin-opener-policy":"same-origin","server":"deno/gcp-us-east4","x-amz-version-id":"nFaECCTlROh4z0fBIQPOrd1cFJSIPANE","x-cache":"Hit from cloudfront","cross-origin-resource-policy":"same-origin","strict-transport-security":"max-age=63072000; includeSubDomains; preload","cache-control":"public, max-age=31536000, immutable","accept-ranges":"bytes","via":"http/2 edgeproxy-h","x-amz-cf-pop":"IAD12-P5","x-amz-replication-status":"COMPLETED","referrer-policy":"strict-origin-when-cross-origin","server-timing":"fetchSource;dur=52","vary":"Accept-Encoding, Origin","content-type":"application/typescript; charset=utf-8","x-frame-options":"DENY","age":"81755","cross-origin-embedder-policy":"same-origin","date":"Mon, 13 Jan 2025 12:26:31 GMT","etag":"\"bacb6e29de430228eeb521562a69dd17\"","x-content-type-options":"nosniff","access-control-allow-origin":"*","x-amz-cf-id":"1VfjcCbhDs7pyeGmtNkLj-avlFTEQK8H5zTvZu6IsULJ9UmMBqUAlQ==","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","content-length":"1508","last-modified":"Thu, 03 Nov 2022 21:15:13 GMT"},"url":"https://deno.land/std@0.162.0/bytes/equals.ts","time":1736852945}

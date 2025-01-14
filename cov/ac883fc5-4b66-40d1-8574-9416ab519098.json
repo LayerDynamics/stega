@@ -1,0 +1,31 @@
+{
+  "scriptId": "326",
+  "url": "file:///Users/ryanoboyle/stega/src/config.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 1095, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "<instance_members_initializer>",
+      "ranges": [{ "startOffset": 47, "endOffset": 67, "count": 0 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "ConfigLoader",
+      "ranges": [{ "startOffset": 71, "endOffset": 173, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "load",
+      "ranges": [{ "startOffset": 307, "endOffset": 917, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "get",
+      "ranges": [{ "startOffset": 1049, "endOffset": 1092, "count": 0 }],
+      "isBlockCoverage": false
+    }
+  ]
+}

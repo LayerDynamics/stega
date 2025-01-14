@@ -1,0 +1,27 @@
+// Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+import { isWindows } from "./_os.ts";
+import { posixToFileUrl, windowsToFileUrl } from "./_to_file_url.ts";
+
+/**
+ * Converts a path string to a file URL.
+ *
+ * ```ts
+ * import { toFileUrl } from "https://deno.land/std@$STD_VERSION/path/to_file_url.ts";
+ *
+ * // posix
+ * toFileUrl("/home/foo"); // new URL("file:///home/foo")
+ *
+ * // win32
+ * toFileUrl("\\home\\foo"); // new URL("file:///home/foo")
+ * toFileUrl("C:\\Users\\foo"); // new URL("file:///C:/Users/foo")
+ * toFileUrl("\\\\127.0.0.1\\home\\foo"); // new URL("file://127.0.0.1/home/foo")
+ * ```
+ * @param path to convert to file URL
+ */
+export function toFileUrl(path: string): URL {
+  return isWindows ? windowsToFileUrl(path) : posixToFileUrl(path);
+}
+
+// denoCacheMetadata={"headers":{"content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","x-cache":"Hit from cloudfront","via":"http/2 edgeproxy-h","date":"Mon, 13 Jan 2025 04:45:54 GMT","accept-ranges":"bytes","content-length":"830","vary":"Accept-Encoding, Origin","x-amz-cf-pop":"IAD12-P5","access-control-allow-origin":"*","age":"109391","x-frame-options":"DENY","x-amz-cf-id":"UNnI3KYtdLSboJOOVJ23m3387yYG6h_EpH7rY6HHFJQFZdNqdKaLyw==","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-content-type-options":"nosniff","x-amz-replication-status":"COMPLETED","server":"deno/gcp-us-east4","content-type":"application/typescript; charset=utf-8","last-modified":"Wed, 27 Sep 2023 04:05:42 GMT","x-amz-version-id":"giMraj81wctbBXF5Qq54hZUWE3IPB24Y","cross-origin-embedder-policy":"same-origin","referrer-policy":"strict-origin-when-cross-origin","x-amz-server-side-encryption":"AES256","cache-control":"public, max-age=31536000, immutable","etag":"\"ee1c7b4e4904d0048ca413d653329b40\"","server-timing":"fetchSource;dur=8","cross-origin-opener-policy":"same-origin","cross-origin-resource-policy":"same-origin"},"url":"https://deno.land/std@0.203.0/path/to_file_url.ts","time":1736852944}

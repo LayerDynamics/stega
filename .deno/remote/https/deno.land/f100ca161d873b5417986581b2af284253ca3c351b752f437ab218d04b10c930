@@ -1,0 +1,139 @@
+/** Chainable ansi escape sequences. */
+import type { ImageOptions } from "./ansi_escapes.ts";
+
+/** Chainable ansi escape method declarations. */
+export interface Chain<TContext extends Chain<TContext>> {
+  /** Add text. */
+  text: (text: string) => TContext;
+  toArray: () => Array<string>;
+  /** Ring audio bell: `\u0007` */
+  bel: TContext;
+  /** Get cursor position. */
+  cursorPosition: TContext;
+  /**
+   * Move cursor to x, y, counting from the top left corner.
+   * @param x Position left.
+   * @param y Position top.
+   */
+  cursorTo: (x: number, y?: number) => TContext;
+  /**
+   * Move cursor by offset.
+   * @param x Offset left.
+   * @param y Offset top.
+   */
+  cursorMove: (x: number, y: number) => TContext;
+  /**
+   * Move cursor up by n lines.
+   * @param count Number of lines.
+   */
+  cursorUp: TContext & ((count: number) => TContext);
+  /**
+   * Move cursor down by n lines.
+   * @param count Number of lines.
+   */
+  cursorDown: TContext & ((count: number) => TContext);
+  /**
+   * Move cursor forward by n lines.
+   * @param count Number of lines.
+   */
+  cursorForward: TContext & ((count: number) => TContext);
+  /**
+   * Move cursor backward by n lines.
+   * @param count Number of lines.
+   */
+  cursorBackward: TContext & ((count: number) => TContext);
+  /**
+   * Move cursor to the beginning of the line n lines down.
+   * @param count Number of lines.
+   */
+  cursorNextLine: TContext & ((count: number) => TContext);
+  /**
+   * Move cursor to the beginning of the line n lines up.
+   * @param count Number of lines.
+   */
+  cursorPrevLine: TContext & ((count: number) => TContext);
+  /** Move cursor to first column of current row. */
+  cursorLeft: TContext;
+  /** Hide cursor. */
+  cursorHide: TContext;
+  /** Show cursor. */
+  cursorShow: TContext;
+  /** Save cursor. */
+  cursorSave: TContext;
+  /** Restore cursor. */
+  cursorRestore: TContext;
+  /**
+   * Scroll window up by n lines.
+   * @param count Number of lines.
+   */
+  scrollUp: TContext & ((count: number) => TContext);
+  /**
+   * Scroll window down by n lines.
+   * @param count Number of lines.
+   */
+  scrollDown: TContext & ((count: number) => TContext);
+  /** Clear screen. */
+  eraseScreen: TContext;
+  /**
+   * Clear screen up by n lines.
+   * @param count Number of lines.
+   */
+  eraseUp: TContext & ((count: number) => TContext);
+  /**
+   * Clear screen down by n lines.
+   * @param count Number of lines.
+   */
+  eraseDown: TContext & ((count: number) => TContext);
+  /** Clear current line. */
+  eraseLine: TContext;
+  /** Clear to line end. */
+  eraseLineEnd: TContext;
+  /** Clear to line start. */
+  eraseLineStart: TContext;
+  /**
+   * Clear screen and move cursor by n lines up and move cursor to first column.
+   * @param count Number of lines.
+   */
+  eraseLines: (count: number) => TContext;
+  /** Clear the terminal screen. (Viewport) */
+  clearScreen: TContext;
+  /**
+   * Clear the whole terminal, including scrollback buffer.
+   * (Not just the visible part of it).
+   */
+  clearTerminal: TContext;
+  /**
+   * Create link.
+   *
+   * @param text Link text.
+   * @param url Link url.
+   *
+   * ```ts
+   * import { ansi } from "./mod.ts";
+   *
+   * console.log(
+   *   ansi.link("Click me.", "https://deno.land"),
+   * );
+   * ```
+   */
+  link: (text: string, url: string) => TContext;
+  /**
+   * Create image.
+   *
+   * @param buffer  Image buffer.
+   * @param options Image options.
+   *
+   * ```ts
+   * import { ansi } from "./mod.ts";
+   *
+   * const response = await fetch("https://deno.land/images/hashrock_simple.png");
+   * const imageBuffer: ArrayBuffer = await response.arrayBuffer();
+   * console.log(
+   *   ansi.image(imageBuffer),
+   * );
+   * ```
+   */
+  image: (buffer: string | ArrayBuffer, options?: ImageOptions) => TContext;
+}
+
+// denoCacheMetadata={"headers":{"content-length":"3764","strict-transport-security":"max-age=63072000; includeSubDomains; preload","content-type":"application/typescript; charset=utf-8","x-amz-version-id":"SHhGL4drNtZHmZ3j3WA6Vf9PUjUU0Gde","access-control-allow-origin":"*","x-frame-options":"DENY","vary":"Accept-Encoding, Origin","x-cache":"Hit from cloudfront","x-content-type-options":"nosniff","cache-control":"public, max-age=31536000, immutable","cross-origin-embedder-policy":"same-origin","x-amz-replication-status":"COMPLETED","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","accept-ranges":"bytes","cross-origin-opener-policy":"same-origin","age":"111853","date":"Mon, 13 Jan 2025 04:04:52 GMT","etag":"\"94e7e91720f79cebc0b7c4b875e2d04d\"","cross-origin-resource-policy":"same-origin","last-modified":"Sun, 30 Jul 2023 10:00:25 GMT","server-timing":"fetchSource;dur=12","via":"http/2 edgeproxy-h","server":"deno/gcp-us-east4","referrer-policy":"strict-origin-when-cross-origin","x-amz-cf-id":"wSzduA17pxqfxAcimgxv-JDP14s1jcwRNpaCp0R3LEKZcu3OOXpnmg==","x-amz-cf-pop":"IAD12-P5","x-amz-server-side-encryption":"AES256"},"url":"https://deno.land/x/cliffy@v1.0.0-rc.3/ansi/chain.ts","time":1736852945}

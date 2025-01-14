@@ -1,0 +1,12 @@
+// Copyright 2018-2024 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+/**
+ * Internal utilities for the public API of the Deno Standard Library.
+ *
+ * Note: this module is for internal use only and should not be used directly.
+ *
+ * @module
+ */ export * from "./format.ts";
+export * from "./diff.ts";
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImh0dHBzOi8vZGVuby5sYW5kL3N0ZEAwLjIyNC4wL2ludGVybmFsL21vZC50cyJdLCJzb3VyY2VzQ29udGVudCI6WyIvLyBDb3B5cmlnaHQgMjAxOC0yMDI0IHRoZSBEZW5vIGF1dGhvcnMuIEFsbCByaWdodHMgcmVzZXJ2ZWQuIE1JVCBsaWNlbnNlLlxuLy8gVGhpcyBtb2R1bGUgaXMgYnJvd3NlciBjb21wYXRpYmxlLlxuLyoqXG4gKiBJbnRlcm5hbCB1dGlsaXRpZXMgZm9yIHRoZSBwdWJsaWMgQVBJIG9mIHRoZSBEZW5vIFN0YW5kYXJkIExpYnJhcnkuXG4gKlxuICogTm90ZTogdGhpcyBtb2R1bGUgaXMgZm9yIGludGVybmFsIHVzZSBvbmx5IGFuZCBzaG91bGQgbm90IGJlIHVzZWQgZGlyZWN0bHkuXG4gKlxuICogQG1vZHVsZVxuICovXG5leHBvcnQgKiBmcm9tIFwiLi9mb3JtYXQudHNcIjtcbmV4cG9ydCAqIGZyb20gXCIuL2RpZmYudHNcIjtcbiJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQSwwRUFBMEU7QUFDMUUscUNBQXFDO0FBQ3JDOzs7Ozs7Q0FNQyxHQUNELGNBQWMsY0FBYztBQUM1QixjQUFjLFlBQVkifQ==
+// denoCacheMetadata=10993013841232999421,9714811811115206052

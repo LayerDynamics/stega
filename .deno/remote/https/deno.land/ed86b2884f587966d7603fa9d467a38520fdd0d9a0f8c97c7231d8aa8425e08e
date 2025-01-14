@@ -1,0 +1,42 @@
+// Copyright 2018-2022 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+import { SEP } from "./separator.ts";
+
+/** Determines the common path from a set of paths, using an optional separator,
+ * which defaults to the OS default separator.
+ *
+ * ```ts
+ *       import { common } from "https://deno.land/std@$STD_VERSION/path/mod.ts";
+ *       const p = common([
+ *         "./deno/std/path/mod.ts",
+ *         "./deno/std/fs/mod.ts",
+ *       ]);
+ *       console.log(p); // "./deno/std/"
+ * ```
+ */
+export function common(paths: string[], sep = SEP): string {
+  const [first = "", ...remaining] = paths;
+  if (first === "" || remaining.length === 0) {
+    return first.substring(0, first.lastIndexOf(sep) + 1);
+  }
+  const parts = first.split(sep);
+
+  let endOfPrefix = parts.length;
+  for (const path of remaining) {
+    const compare = path.split(sep);
+    for (let i = 0; i < endOfPrefix; i++) {
+      if (compare[i] !== parts[i]) {
+        endOfPrefix = i;
+      }
+    }
+
+    if (endOfPrefix === 0) {
+      return "";
+    }
+  }
+  const prefix = parts.slice(0, endOfPrefix).join(sep);
+  return prefix.endsWith(sep) ? prefix : `${prefix}${sep}`;
+}
+
+// denoCacheMetadata={"headers":{"cross-origin-resource-policy":"same-origin","etag":"\"1f1c0bc522651e5fe0bb23cb309ba924\"","last-modified":"Mon, 19 Dec 2022 13:27:52 GMT","x-amz-replication-status":"COMPLETED","server":"deno/gcp-us-east4","access-control-allow-origin":"*","content-length":"1192","x-cache":"Hit from cloudfront","accept-ranges":"bytes","x-frame-options":"DENY","date":"Sun, 12 Jan 2025 02:19:11 GMT","server-timing":"fetchSource;dur=14","x-content-type-options":"nosniff","cache-control":"public, max-age=31536000, immutable","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","cross-origin-opener-policy":"same-origin","via":"http/2 edgeproxy-h","x-amz-cf-id":"iElHaPT7zjh0bmAF61agjW9f-UyZp2wQ6lHTjS8n0D_zQXvGVHKc7g==","x-amz-server-side-encryption":"AES256","x-amz-cf-pop":"IAD12-P5","cross-origin-embedder-policy":"same-origin","age":"204594","content-type":"application/typescript; charset=utf-8","referrer-policy":"strict-origin-when-cross-origin","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-version-id":"ALVJgipUnS.67.DEomW5Rk5symXCdjb5","vary":"Accept-Encoding, Origin"},"url":"https://deno.land/std@0.170.0/path/common.ts","time":1736852945}

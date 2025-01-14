@@ -1,0 +1,27 @@
+// Copyright 2018-2022 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+/**
+ * All internal non-test code, that is files that do not have `test` or `bench` in the name, must use the assertion functions within `_utils/asserts.ts` and not `testing/asserts.ts`. This is to create a separation of concerns between internal and testing assertions.
+ */
+
+export class DenoStdInternalError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "DenoStdInternalError";
+  }
+}
+
+/** Make an assertion, if not `true`, then throw. */
+export function assert(expr: unknown, msg = ""): asserts expr {
+  if (!expr) {
+    throw new DenoStdInternalError(msg);
+  }
+}
+
+/** Use this to assert unreachable code. */
+export function unreachable(): never {
+  throw new DenoStdInternalError("unreachable");
+}
+
+// denoCacheMetadata={"headers":{"x-frame-options":"DENY","etag":"\"b0f1fc60e82f54cf70e2ed1dc86bce1f\"","content-type":"application/typescript; charset=utf-8","via":"http/2 edgeproxy-h","x-amz-version-id":"1Bo_KCsnySjLu7t91DgbU.iQRSZxwn8V","cross-origin-embedder-policy":"same-origin","content-length":"854","cache-control":"public, max-age=31536000, immutable","server-timing":"fetchSource;dur=52","cross-origin-resource-policy":"same-origin","last-modified":"Mon, 19 Dec 2022 13:27:48 GMT","age":"205277","strict-transport-security":"max-age=63072000; includeSubDomains; preload","date":"Sun, 12 Jan 2025 02:07:49 GMT","x-amz-server-side-encryption":"AES256","x-cache":"Hit from cloudfront","access-control-allow-origin":"*","x-content-type-options":"nosniff","x-amz-cf-pop":"IAD12-P5","x-amz-cf-id":"LEFyPZ19OIvhwbEyQan6rkAPht7XuzoNG7ENW9FtC8GH5H4d5M6Aug==","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","vary":"Accept-Encoding, Origin","referrer-policy":"strict-origin-when-cross-origin","accept-ranges":"bytes","cross-origin-opener-policy":"same-origin","server":"deno/gcp-us-east4","x-amz-replication-status":"COMPLETED"},"url":"https://deno.land/std@0.170.0/_util/asserts.ts","time":1736852945}

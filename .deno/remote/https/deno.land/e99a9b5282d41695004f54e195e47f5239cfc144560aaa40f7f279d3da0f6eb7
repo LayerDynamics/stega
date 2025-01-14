@@ -1,0 +1,44 @@
+// Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+import { CHAR_COLON } from "./_constants.ts";
+import {
+  assertPath,
+  isPathSeparator,
+  isPosixPathSeparator,
+  isWindowsDeviceRoot,
+} from "./_util.ts";
+
+/**
+ * Verifies whether provided path is absolute
+ * @param path to be verified as absolute
+ */
+export function windowsIsAbsolute(path: string): boolean {
+  assertPath(path);
+
+  const len = path.length;
+  if (len === 0) return false;
+
+  const code = path.charCodeAt(0);
+  if (isPathSeparator(code)) {
+    return true;
+  } else if (isWindowsDeviceRoot(code)) {
+    // Possible device root
+
+    if (len > 2 && path.charCodeAt(1) === CHAR_COLON) {
+      if (isPathSeparator(path.charCodeAt(2))) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Verifies whether provided path is absolute
+ * @param path to be verified as absolute
+ */
+export function posixIsAbsolute(path: string): boolean {
+  assertPath(path);
+  return path.length > 0 && isPosixPathSeparator(path.charCodeAt(0));
+}
+
+// denoCacheMetadata={"headers":{"cache-control":"public, max-age=31536000, immutable","referrer-policy":"strict-origin-when-cross-origin","via":"http/2 edgeproxy-h","last-modified":"Wed, 27 Sep 2023 04:05:42 GMT","x-cache":"Hit from cloudfront","content-type":"application/typescript; charset=utf-8","x-frame-options":"DENY","cross-origin-embedder-policy":"same-origin","vary":"Accept-Encoding, Origin","x-amz-replication-status":"COMPLETED","content-length":"1050","server-timing":"fetchSource;dur=30","x-amz-cf-id":"FKPxLq4i5a5rv91kcHaMG1ubIBLIkGaRg7kj91a9UDh32enWdRQW2w==","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","x-amz-cf-pop":"IAD12-P5","x-amz-server-side-encryption":"AES256","etag":"\"eefd9ae2cceab2c2225036c517bcd8bc\"","x-content-type-options":"nosniff","access-control-allow-origin":"*","date":"Mon, 13 Jan 2025 04:45:54 GMT","age":"109391","strict-transport-security":"max-age=63072000; includeSubDomains; preload","accept-ranges":"bytes","cross-origin-resource-policy":"same-origin","x-amz-version-id":"zIdvtJTmKoq_hoFRhvKi4CGsvO8E5F7F","cross-origin-opener-policy":"same-origin","server":"deno/gcp-us-east4"},"url":"https://deno.land/std@0.203.0/path/_is_absolute.ts","time":1736852944}

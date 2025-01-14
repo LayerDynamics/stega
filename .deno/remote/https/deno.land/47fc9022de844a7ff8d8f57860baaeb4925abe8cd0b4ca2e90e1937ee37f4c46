@@ -1,0 +1,120 @@
+/** Base key mapping. */
+export const KeyMap: Record<string, string> = {
+  /* xterm/gnome ESC [ letter (with modifier) */
+  "[P": "f1",
+  "[Q": "f2",
+  "[R": "f3",
+  "[S": "f4",
+
+  /* xterm/gnome ESC O letter (without modifier) */
+  "OP": "f1",
+  "OQ": "f2",
+  "OR": "f3",
+  "OS": "f4",
+
+  /* xterm/rxvt ESC [ number ~ */
+  "[11~": "f1",
+  "[12~": "f2",
+  "[13~": "f3",
+  "[14~": "f4",
+
+  /* from Cygwin and used in libuv */
+  "[[A": "f1",
+  "[[B": "f2",
+  "[[C": "f3",
+  "[[D": "f4",
+  "[[E": "f5",
+
+  /* common */
+  "[15~": "f5",
+  "[17~": "f6",
+  "[18~": "f7",
+  "[19~": "f8",
+  "[20~": "f9",
+  "[21~": "f10",
+  "[23~": "f11",
+  "[24~": "f12",
+
+  /* xterm ESC [ letter */
+  "[A": "up",
+  "[B": "down",
+  "[C": "right",
+  "[D": "left",
+  "[E": "clear",
+  "[F": "end",
+  "[H": "home",
+
+  /* xterm/gnome ESC O letter */
+  "OA": "up",
+  "OB": "down",
+  "OC": "right",
+  "OD": "left",
+  "OE": "clear",
+  "OF": "end",
+  "OH": "home",
+
+  /* xterm/rxvt ESC [ number ~ */
+  "[1~": "home",
+  "[2~": "insert",
+  "[3~": "delete",
+  "[4~": "end",
+  "[5~": "pageup",
+  "[6~": "pagedown",
+
+  /* putty */
+  "[[5~": "pageup",
+  "[[6~": "pagedown",
+
+  /* rxvt */
+  "[7~": "home",
+  "[8~": "end",
+};
+
+/** Shift key mapping. */
+export const KeyMapShift: Record<string, string> = {
+  /* rxvt keys with modifiers */
+  "[a": "up",
+  "[b": "down",
+  "[c": "right",
+  "[d": "left",
+  "[e": "clear",
+
+  "[2$": "insert",
+  "[3$": "delete",
+  "[5$": "pageup",
+  "[6$": "pagedown",
+  "[7$": "home",
+  "[8$": "end",
+
+  "[Z": "tab",
+};
+
+/** Ctrl key mapping. */
+export const KeyMapCtrl: Record<string, string> = {
+  /* rxvt keys with modifiers */
+  "Oa": "up",
+  "Ob": "down",
+  "Oc": "right",
+  "Od": "left",
+  "Oe": "clear",
+
+  "[2^": "insert",
+  "[3^": "delete",
+  "[5^": "pageup",
+  "[6^": "pagedown",
+  "[7^": "home",
+  "[8^": "end",
+};
+
+/** Special key mapping. */
+export const SpecialKeyMap: Record<string, string> = {
+  "\r": "return",
+  "\n": "enter",
+  "\t": "tab",
+  "\b": "backspace",
+  "\x7f": "backspace",
+  "\x1b": "escape",
+  " ": "space",
+};
+
+// denoCacheMetadata={"headers":{"cross-origin-resource-policy":"same-origin","accept-ranges":"bytes","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","cache-control":"public, max-age=31536000, immutable","x-amz-server-side-encryption":"AES256","server-timing":"fetchSource;dur=4","content-type":"application/typescript; charset=utf-8","x-amz-cf-id":"skY-4fkpMV7JgWa6doby7ctXlmsuM2dmC5sDMNsttfrRo65GupqOJQ==","last-modified":"Sun, 30 Jul 2023 10:00:25 GMT","access-control-allow-origin":"*","referrer-policy":"strict-origin-when-cross-origin","date":"Mon, 13 Jan 2025 04:05:25 GMT","strict-transport-security":"max-age=63072000; includeSubDomains; preload","vary":"Accept-Encoding, Origin","x-amz-version-id":"WlaPsL84X4eZ3yj7s0AaQVhaVx_bSksb","x-cache":"Hit from cloudfront","x-content-type-options":"nosniff","server":"deno/gcp-us-east4","content-length":"2031","via":"http/2 edgeproxy-h","x-amz-cf-pop":"IAD12-P5","cross-origin-opener-policy":"same-origin","age":"111820","x-frame-options":"DENY","cross-origin-embedder-policy":"same-origin","etag":"\"92d4d26862ee79d48ccb06f9ddb74aa1\"","x-amz-replication-status":"COMPLETED"},"url":"https://deno.land/x/cliffy@v1.0.0-rc.3/keycode/_key_codes.ts","time":1736852944}

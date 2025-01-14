@@ -1,0 +1,6 @@
+/* esm.sh - terser@5.14.2 */
+import "/v135/acorn@8.14.0/denonext/acorn.mjs";
+import "/v135/@jridgewell/source-map@0.3.6/denonext/source-map.mjs";
+export * from "/v135/terser@5.14.2/denonext/terser.mjs";
+
+// denoCacheMetadata={"headers":{"last-modified":"Tue, 14 Jan 2025 11:04:00 GMT","age":"304","vary":"Origin, User-Agent, Accept-Encoding","x-content-source":"origin-server","x-typescript-types":"https://esm.sh/v135/terser@5.14.2/tools/terser.d.ts","cache-control":"public, max-age=604800","server-timing":"cfL4;desc=\"?proto=TCP&rtt=6778&min_rtt=6150&rtt_var=1830&sent=6&recv=8&lost=0&retrans=0&sent_bytes=3696&recv_bytes=582&delivery_rate=535635&cwnd=231&unsent_bytes=0&cid=e236419c9303ab2c&ts=46&x=0\"","alt-svc":"h3=\":443\"; ma=86400","x-esm-id":"v135/terser@5.14.2/denonext/terser.mjs","server":"cloudflare","cf-cache-status":"HIT","cf-ray":"901d2bf5af510cba-EWR","date":"Tue, 14 Jan 2025 11:09:04 GMT","access-control-allow-methods":"*","access-control-allow-origin":"*","access-control-expose-headers":"X-Esm-Id, X-TypeScript-Types","content-type":"application/javascript; charset=utf-8"},"url":"https://esm.sh/terser@5.14.2","time":1736852944}

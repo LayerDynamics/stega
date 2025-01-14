@@ -1,0 +1,36 @@
+{
+  "scriptId": "363",
+  "url": "file:///Users/ryanoboyle/stega/src/plugin_loader.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 2292, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "<instance_members_initializer>",
+      "ranges": [{ "startOffset": 109, "endOffset": 165, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "getLoadedPlugins",
+      "ranges": [{ "startOffset": 278, "endOffset": 354, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "loadPlugin",
+      "ranges": [{ "startOffset": 385, "endOffset": 1874, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "unloadPlugin",
+      "ranges": [{ "startOffset": 1877, "endOffset": 2194, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "listPlugins",
+      "ranges": [{ "startOffset": 2197, "endOffset": 2289, "count": 0 }],
+      "isBlockCoverage": false
+    }
+  ]
+}

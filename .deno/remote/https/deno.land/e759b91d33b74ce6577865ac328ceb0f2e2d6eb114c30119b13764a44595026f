@@ -1,0 +1,23 @@
+// Copyright 2018-2023 the Deno authors. All rights reserved. MIT license.
+// Copyright the Browserify authors. MIT License.
+// Ported from https://github.com/browserify/path-browserify/
+// This module is browser compatible.
+
+export const sep = "/";
+export const delimiter = ":";
+
+export { posixResolve as resolve } from "./_resolve.ts";
+export { posixNormalize as normalize } from "./_normalize.ts";
+export { posixIsAbsolute as isAbsolute } from "./_is_absolute.ts";
+export { posixJoin as join } from "./_join.ts";
+export { posixRelative as relative } from "./_relative.ts";
+export { posixToNamespacedPath as toNamespacedPath } from "./_to_namespaced_path.ts";
+export { posixDirname as dirname } from "./_dirname.ts";
+export { posixBasename as basename } from "./_basename.ts";
+export { posixExtname as extname } from "./_extname.ts";
+export { posixFormat as format } from "./_format.ts";
+export { posixParse as parse } from "./_parse.ts";
+export { posixFromFileUrl as fromFileUrl } from "./_from_file_url.ts";
+export { posixToFileUrl as toFileUrl } from "./_to_file_url.ts";
+
+// denoCacheMetadata={"headers":{"cross-origin-opener-policy":"same-origin","server":"deno/gcp-us-east4","cross-origin-embedder-policy":"same-origin","last-modified":"Wed, 27 Sep 2023 04:05:42 GMT","content-security-policy":"default-src 'none'; style-src 'unsafe-inline'; sandbox","date":"Mon, 13 Jan 2025 04:45:54 GMT","etag":"\"51e9c53b738a8946b512bd0d6c29319e\"","strict-transport-security":"max-age=63072000; includeSubDomains; preload","x-amz-replication-status":"COMPLETED","x-amz-version-id":"gcO7F6PhktM.Jd6szBIm9G4gImSUuQDr","vary":"Accept-Encoding, Origin","via":"http/2 edgeproxy-h","content-type":"application/typescript; charset=utf-8","x-frame-options":"DENY","x-amz-cf-id":"6HsQ_gTg1Rd40FNTmnwJTC9jFfSMNqLRZZERkvI5wnTqyN7goAwwHA==","x-amz-server-side-encryption":"AES256","x-cache":"Hit from cloudfront","referrer-policy":"strict-origin-when-cross-origin","accept-ranges":"bytes","cache-control":"public, max-age=31536000, immutable","content-length":"1077","server-timing":"fetchSource;dur=34","x-amz-cf-pop":"IAD12-P5","x-content-type-options":"nosniff","access-control-allow-origin":"*","age":"109391","cross-origin-resource-policy":"same-origin"},"url":"https://deno.land/std@0.203.0/path/posix.ts","time":1736852944}
