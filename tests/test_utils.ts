@@ -4,6 +4,7 @@ import { ILogger } from "../src/logger_interface.ts";
 import * as path from "@std/path/mod.ts";
 import { MockLogger } from "./utils/mock_logger.ts";
 import { assert } from "@std/assert";
+import { ConsoleLogger } from "../src/logger.ts";
 
 export interface TestCLI {
 	cli: CLI;
@@ -27,18 +28,39 @@ export async function createTestCLI(): Promise<TestCLI> {
 	return { cli, logger };
 }
 
+export async function createMockCLI(): Promise<CLI> {
+	const logger = new ConsoleLogger();
+	const cli = new CLI(undefined, true, true, logger);
+	// Initialize CLI
+	await cli.run();
+	return cli;
+}
+
 /**
- * Helper function to create temporary files
- * @param content The initial content of the temporary file
- * @returns The path to the created temporary file
+ * Helper function to create temporary files in the test fixtures directory
  */
-export async function createTempFile(content: string): Promise<string> {
-	const tmpFile = await Deno.makeTempFile({
-		prefix: "stega_test_",
-		suffix: ".tmp",
-	});
-	await Deno.writeTextFile(tmpFile, content);
-	return tmpFile;
+export async function createTempFile(
+	prefixOrContent: string = "test",
+	isContent = false,
+): Promise<string> {
+	const tempDir = "./tests/fixtures/tmp";
+	await Deno.mkdir(tempDir, { recursive: true });
+
+	// Use UUID for filename to avoid length issues
+	const filename = `${crypto.randomUUID()}.tmp`;
+	const filePath = `${tempDir}/${filename}`;
+
+	await Deno.writeTextFile(filePath, isContent ? prefixOrContent : "");
+	return filePath;
+}
+
+export async function createTempDir(prefix = "test"): Promise<string> {
+	const tempDir = "./tests/fixtures/tmp";
+	await Deno.mkdir(tempDir, { recursive: true });
+
+	const dirPath = `${tempDir}/${prefix}-${crypto.randomUUID()}`;
+	await Deno.mkdir(dirPath, { recursive: true });
+	return dirPath;
 }
 
 /**

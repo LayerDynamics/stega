@@ -1,0 +1,11 @@
+{
+	"available_commands": "Available Commands:",
+	"use_help": "Use '{command} --help' for more information",
+	"command_not_found": "Command \"{command}\" not found.",
+	"missing_required_flag": "Missing required flag: {flag}",
+	"invalid_flag_value": "Invalid value for flag '{flag}': {value}",
+	"command": "Command",
+	"options": "Options",
+	"help_text": "Shows help information",
+	"default": "default"
+}

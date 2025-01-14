@@ -32,8 +32,8 @@ interface TemplateConfig {
 }
 
 export class TemplateCommand extends BaseCommand {
-	private templates: Map<string, Template> = new Map();
-	private config: Partial<TemplateConfig> = {};
+	protected templates: Map<string, Template> = new Map();
+	protected config: Partial<TemplateConfig> = {};
 
 	constructor() {
 		super({
@@ -163,17 +163,14 @@ export class TemplateCommand extends BaseCommand {
 			const regex = await this.validatePattern(validation);
 			const isValid = regex.test(value);
 			if (!isValid) {
-				logger.error(
-					`Validation failed for ${variableName}: Value does not match pattern`,
-				);
+				throw new Error(`Validation failed for ${variableName}`);
 			}
-			return isValid;
+			return true;
 		} catch (error) {
 			const errorMessage = error instanceof Error
 				? error.message
 				: String(error);
-			logger.error(`Validation error for ${variableName}: ${errorMessage}`);
-			return false;
+			throw new Error(`Variable validation failed: ${errorMessage}`);
 		}
 	}
 
@@ -282,17 +279,10 @@ export class TemplateCommand extends BaseCommand {
 		}
 	}
 
-	private async generateFromTemplate(args: Args): Promise<void> {
+	protected async generateFromTemplate(args: Args): Promise<void> {
 		const templateName = args.flags.template as string;
 		const outputPath = args.flags.output as string;
-		// Correctly interpret 'force' as a boolean
-		const force = typeof args.flags.force === "boolean"
-			? args.flags.force
-			: false;
-
-		// Debug log to verify the force flag and all flags
-		logger.debug(`Force flag value: ${force} (${typeof force})`);
-		logger.debug(`All flags: ${JSON.stringify(args.flags)}`);
+		const force = args.flags.force === true;
 
 		const template = this.loadTemplate(templateName);
 		if (!template) {
@@ -311,47 +301,45 @@ export class TemplateCommand extends BaseCommand {
 			}
 		}
 
-		// Merge with default variables
-		if (this.config.defaultVariables) {
-			variables = { ...this.config.defaultVariables, ...variables };
-		}
-
-		// Validate variables
-		if (!(await this.validateVariables(template, variables))) {
-			throw new Error("Variable validation failed");
-		}
-
-		// Render the template
-		const content = await this.renderTemplate(
-			template,
-			variables as Record<string, string>,
-		);
-
-		// Optional validate hook
-		if (template.hooks?.validate) {
-			const isValid = await this.executeHook(template.hooks.validate, content);
-			if (!isValid) {
-				throw new Error("Template validation failed");
-			}
-		}
-
-		// Write out the file
+		// Check if file exists before proceeding
 		try {
 			const fileExists = await Deno.stat(outputPath)
 				.then(() => true)
 				.catch(() => false);
 
-			if (!force && fileExists) {
+			if (fileExists && !force) {
 				throw new Error(`Output file ${outputPath} already exists`);
 			}
-			await Deno.writeTextFile(outputPath, content);
-			logger.info(`Generated content written to ${outputPath}`);
-		} catch (error: unknown) {
-			const errorMessage = error instanceof Error
-				? error.message
-				: String(error);
-			throw new Error(`Failed to write output: ${errorMessage}`);
+		} catch (error) {
+			if (!(error instanceof Deno.errors.NotFound)) {
+				throw error;
+			}
 		}
+
+		// Validate variables
+		for (const templateVar of template.variables) {
+			const value = variables[templateVar.name];
+
+			if (templateVar.required && value === undefined) {
+				throw new Error(`Missing required variable: ${templateVar.name}`);
+			}
+
+			if (value !== undefined && templateVar.validation) {
+				await this.validateVariable(
+					templateVar.validation,
+					String(value),
+					templateVar.name,
+				);
+			}
+		}
+
+		// Render and write template
+		const content = await this.renderTemplate(
+			template,
+			variables as Record<string, string>,
+		);
+		await Deno.writeTextFile(outputPath, content);
+		args.cli.logger.info(`Generated content written to ${outputPath}`);
 	}
 
 	private listTemplates(): void {
@@ -381,7 +369,7 @@ export class TemplateCommand extends BaseCommand {
 		}
 	}
 
-	private async addTemplate(args: Args): Promise<void> {
+	protected async addTemplate(args: Args): Promise<void> {
 		const name = args.flags.name as string;
 		const sourcePath = args.flags.source as string;
 		const configPath = args.flags.config as string;
@@ -400,7 +388,9 @@ export class TemplateCommand extends BaseCommand {
 			if (configPath) {
 				await this.verifySourceFile(configPath);
 				const configContent = await Deno.readTextFile(configPath);
-				config = JSON.parse(configContent);
+				if (configContent.trim()) {
+					config = JSON.parse(configContent);
+				}
 
 				// Validate any regex patterns in variables
 				if (config.variables) {

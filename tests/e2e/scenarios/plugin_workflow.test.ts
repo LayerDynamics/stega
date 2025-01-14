@@ -2,10 +2,16 @@
 import { assertEquals } from "@std/assert";
 import { createTestCLI } from "../../test_utils.ts";
 import type { CLI } from "../../../src/core.ts";
+import { join } from "https://deno.land/std/path/mod.ts"; // or similar import
+import { ensureDir } from "https://deno.land/std/fs/mod.ts";
 
 Deno.test("E2E - Plugin and Workflow Integration", async (t) => {
 	await t.step("loads plugin and executes workflow", async () => {
 		const { cli, logger } = await createTestCLI();
+
+		// Create plugin directory in tests folder
+		const pluginsDir = join(Deno.cwd(), "tests", "plugins");
+		await ensureDir(pluginsDir);
 
 		const pluginContent = `
             import { CLI } from "${
@@ -31,15 +37,18 @@ Deno.test("E2E - Plugin and Workflow Integration", async (t) => {
             export default plugin;
         `;
 
-		const pluginPath = await Deno.makeTempFile({ suffix: ".ts" });
-		await Deno.writeTextFile(pluginPath, pluginContent);
+		// Use a deterministic plugin path
+		const pluginName = `test-plugin-${Date.now()}.ts`;
+		const pluginPath = join(pluginsDir, pluginName);
 
 		try {
+			await Deno.writeTextFile(pluginPath, pluginContent);
 			await cli.loadPlugins([pluginPath]);
 			await cli.runCommand(["test-command"]);
 			assertEquals(logger.errors.length, 0, "Should have no errors");
 		} finally {
-			await Deno.remove(pluginPath);
+			// Cleanup
+			await Deno.remove(pluginPath).catch(() => {});
 		}
 	});
 });

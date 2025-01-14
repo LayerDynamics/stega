@@ -1,6 +1,6 @@
 // /src/compiler/dependency-graph.ts
 import type { ModuleInfo } from "./types.ts";
-import * as path from "@std/path@0.224.0";
+import * as path from "jsr:@std/path@0.224.0";
 import { ts } from "npm:ts-morph@17.0.1";
 
 /**

@@ -1,8 +1,8 @@
 // /tests/compiler/codegen.test.ts
 
-import { assertEquals } from "@std/assert";
+import { assertEquals } from "jsr:@std/assert@0.224.0";
 import { CodeGenerator } from "../../src/compiler/codegen.ts";
-import { Project, ts } from "https://deno.land/x/ts_morph@17.0.1/mod.ts";
+import { Project, ts } from "npm:ts-morph@17.0.1";
 
 Deno.test("CodeGenerator - generates valid JavaScript", async () => {
 	// Create project with strict type stripping options
@@ -64,8 +64,14 @@ Deno.test("CodeGenerator - generates valid JavaScript", async () => {
 		emitDecoratorMetadata: false,
 	});
 
+	// Update the bundle creation
+	const bundle = {
+		ast: stripped,
+		modules: new Map(),
+	};
+
 	const result = await generator.generate(
-		{ ast: stripped, modules: new Map() },
+		bundle,
 		{
 			sourceMaps: false,
 			minify: false,

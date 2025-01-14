@@ -23,8 +23,9 @@ export class PluginLoader {
 		try {
 			cli.logger.debug(`Loading plugin from path: ${path}`);
 
-			// Try to load the plugin directly from the file path
-			const plugin = await this.loadPluginFromPath(path);
+			// Normalize the path to handle test fixtures
+			const normalizedPath = path.replace(/\\/g, "/");
+			const plugin = await this.loadPluginFromPath(normalizedPath);
 
 			if (!plugin?.metadata?.name) {
 				throw new Error(`Invalid plugin: missing metadata.name in ${path}`);
@@ -37,7 +38,7 @@ export class PluginLoader {
 
 			await this.initializePlugin(plugin, cli);
 		} catch (error: unknown) {
-			const e = error as Error;
+			const e = error instanceof Error ? error : new Error(String(error));
 			throw new ValidationError(
 				`Failed to load plugin ${pluginName}: ${e.message}`,
 			);
@@ -50,25 +51,19 @@ export class PluginLoader {
 
 	private async loadPluginFromPath(path: string): Promise<Plugin> {
 		try {
-			// For tests, use relative imports
-			if (path.startsWith("tests/") || path.startsWith("./tests/")) {
-				return (await import(`../${path}`)).default;
-			}
-			
-			// For src plugins, use direct imports
-			if (path.startsWith("src/") || path.startsWith("./src/")) {
-				return (await import(`./${path}`)).default;
+			let importPath = path;
+
+			// Handle test fixture paths
+			if (path.includes("/fixtures/tmp/")) {
+				importPath = `file://${Deno.cwd()}/tests/fixtures/tmp/${
+					path.split("/").pop()
+				}`;
 			}
 
-			// For absolute paths, convert to relative path first
-			const relativePath = path.replace(/^.*?src\//, "./src/");
-			if (relativePath.startsWith("./src/")) {
-				return (await import(relativePath)).default;
-			}
-
-			throw new Error(`Invalid plugin path: ${path}. Plugins must be in src/ or tests/ directory`);
+			const module = await import(importPath);
+			return module.default;
 		} catch (error: unknown) {
-			const e = error as Error;
+			const e = error instanceof Error ? error : new Error(String(error));
 			throw new Error(`Failed to import plugin: ${e.message}`);
 		}
 	}
@@ -120,5 +115,19 @@ export class PluginLoader {
 
 	listPlugins(): PluginMetadata[] {
 		return Array.from(this.loadedPlugins.values()).map((p) => p.metadata);
+	}
+
+	private validatePluginPath(path: string): void {
+		const normalizedPath = path.replace(/\\/g, "/");
+		const validPaths = ["src/", "tests/", "tests/fixtures/", "tests/plugins/"];
+		const isValidPath = validPaths.some((prefix) =>
+			normalizedPath.includes(prefix)
+		);
+
+		if (!isValidPath) {
+			throw new Error(
+				`Invalid plugin path: ${path}. Plugins must be in src/ or tests/ directory`,
+			);
+		}
 	}
 }

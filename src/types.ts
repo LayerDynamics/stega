@@ -235,3 +235,34 @@ export abstract class BaseCommand implements Command {
 		}
 	}
 }
+
+export type ValidationFunction<T> = (
+	value: T,
+) => boolean | string | Promise<boolean | string>;
+
+export type BasePromptOptions = {
+	message: string;
+	defaultValue?: unknown;
+	validate?: ValidationFunction<unknown>;
+	color?: string;
+};
+
+export type ProgressBarOptions = {
+	total: number;
+	width?: number;
+	complete?: string;
+	incomplete?: string;
+	format?: string;
+};
+
+export type SpinnerOptions = {
+	text?: string;
+	frames?: string[];
+	interval?: number;
+};
+
+export interface DatePromptOptions extends BasePromptOptions {
+	min?: Date;
+	max?: Date;
+	format?: string;
+}

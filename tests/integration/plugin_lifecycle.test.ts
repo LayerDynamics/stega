@@ -1,17 +1,20 @@
 // tests/integration/plugin_lifecycle.test.ts
 import { TestFramework } from "../utils/test_framework.ts";
 import { assertEquals } from "@std/assert";
+import { ensureDir } from "https://deno.land/std/fs/mod.ts";
 
 Deno.test("Plugin Lifecycle Integration Tests", async (t) => {
 	const framework = new TestFramework();
 
 	await t.step("plugin load and unload cycle", async () => {
 		const env = await framework.createTestEnvironment();
+		const pluginDir = `${env.getBaseDir()}/tests/plugins`;
+		await ensureDir(pluginDir);
 		framework.getLogger().clear();
 
 		// Create plugin with corrected error handling
 		const pluginPath = await env.createPluginFile(
-			"lifecycle-plugin.ts",
+			"tests/plugins/lifecycle-plugin.ts",
 			`
             import type { CLI } from "${env.resolveSrcPath("core.ts")}";
             import type { Plugin } from "${env.resolveSrcPath("plugin.ts")}";
