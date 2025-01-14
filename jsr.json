@@ -3,37 +3,36 @@
   "version": "1.0.0-beta.1",
   "exports": "./src/mod.ts",
   "publish": {
+    "exclude": ["*"],
     "include": [
       "LICENSE",
       "README.md",
       "src/mod.ts",
-      "src/core/**/*.ts",
-      "src/compiler/**/*.ts",
-      "src/commands/**/*.ts",
-      "src/types/**/*.ts",
-      "src/utils/**/*.ts",
-      "src/cli/**/*.ts",
-      "src/middleware/**/*.ts",
+      "src/core/*.ts",
+      "src/compiler/*.ts",
+      "src/commands/*.ts",
+      "src/types/*.ts",
+      "src/middleware/*.ts",
+      "src/utils/*.ts",
+      "src/cli/*.ts",
+      "src/plugins/*.ts",
       "src/*.ts",
       "locales/*.json"
-    ],
-    "exclude": [
-      "**/*.test.ts",
-      "**/*.spec.ts",
-      "**/*.temp.ts",
-      "**/__tests__/**",
-      "**/fixtures/**",
-      "tests/**/*",
-      ".deno/**/*",
-      "coverage/**/*",
-      "dist/**/*",
-      "docs/**/*",
-      "examples/**/*",
-      "scripts/**/*",
-      "cov.lcov",
-      "coverage.json"
     ]
   },
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/*.d.ts",
+    "**/__tests__/**",
+    "**/fixtures/**",
+    "tests/**",
+    ".deno/**",
+    "coverage/**",
+    "docs/**",
+    "examples/**",
+    "scripts/**"
+  ],
   "devDependencies": {
     "@std/testing": "^0.224.0"
   }

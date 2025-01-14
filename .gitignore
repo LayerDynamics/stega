@@ -1,17 +1,29 @@
+# Dependencies and caches
 node_modules
-coverage
-.history
-
-test-bin
-gh-check.sh
-/tmp
-coverage/
-.coverage/
-coverage.lcov
-cov
 .deno/
 .deno_dir/
 deno.lock
+
+# Build and test artifacts
+coverage/
+.coverage/
+coverage.lcov
+cov.lcov
+cov/
+dist/
+
+# Development files
+.vscode/
+.idea/
+.history/
+test-bin/
+tmp/
+
+# System files
 .DS_Store
 *.log
-dist/
+*.swp
+*.swo
+
+# Project specific
+gh-check.sh
