@@ -1,6 +1,6 @@
 {
-  "name": "@ryanoboyle/stega",
-  "version": "1.0.0",
+  "name": "@layerdynamics/stega",
+  "version": "1.0.0-beta.1",
   "exports": "./src/mod.ts",
   "publish": {
     "include": [

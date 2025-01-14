@@ -1,12 +1,18 @@
 // tests/test_utils.ts
 import { CLI } from "../src/core.ts";
 import { ILogger } from "../src/logger_interface.ts";
-import * as path from "https://deno.land/std@0.203.0/path/mod.ts";
+import * as path from "@std/path/mod.ts";
 import { MockLogger } from "./utils/mock_logger.ts";
+import { assert } from "@std/assert";
 
 export interface TestCLI {
 	cli: CLI;
 	logger: MockLogger;
+}
+
+export interface TestFixture {
+  name: string;
+  path: string;
 }
 
 /**
@@ -109,4 +115,26 @@ export function mockFetchWithAbort(
 			}
 		});
 	};
+}
+
+/**
+ * Load a test fixture
+ * @param fixtureName The name of the fixture to load
+ * @returns The loaded test fixture
+ */
+export async function loadTestFixture(fixtureName: string): Promise<TestFixture> {
+  const fixturesDir = "./tests/fixtures";
+  const fullPath = path.join(fixturesDir, fixtureName);
+  
+  // Use static path resolution
+  try {
+    const fixture = {
+      name: fixtureName,
+      path: fullPath,
+    };
+    assert(await Deno.stat(fullPath), "Fixture must exist");
+    return fixture;
+  } catch (error) {
+    throw new Error(`Failed to load test fixture ${fixtureName}: ${error.message}`);
+  }
 }

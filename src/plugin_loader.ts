@@ -2,6 +2,7 @@
 import { CLI } from "./core.ts"; // Import CLI
 import { logger } from "./logger.ts"; // Import logger
 import { Plugin, PluginMetadata } from "./plugin.ts"; // Import Plugin interface
+import { ValidationError } from "./core/errors.ts"; // Import ValidationError
 
 export class PluginLoader {
 	private loadedPlugins: Map<string, Plugin> = new Map();
@@ -23,8 +24,12 @@ export class PluginLoader {
 		try {
 			cli.logger.debug(`Loading plugin from path: ${path}`);
 
-			const module = await import(path);
-			const plugin: Plugin = module.default;
+			const pluginName = path.split('/').pop()?.replace('.ts', '');
+			if (!pluginName) {
+				throw new ValidationError(`Invalid plugin path: ${path}`);
+			}
+
+			const plugin = await this.loadPluginByName(pluginName);
 
 			cli.logger.debug(
 				`Loaded plugin module: ${JSON.stringify(plugin.metadata || {})}`,
@@ -65,6 +70,28 @@ export class PluginLoader {
 		} catch (error) {
 			cli.logger.error(`Failed to load plugin from ${path}: ${error}`);
 			throw error;
+		}
+	}
+
+	private async loadPluginByName(pluginName: string): Promise<Plugin> {
+		// Use a static mapping instead of dynamic import
+		const pluginPath = `./plugins/${pluginName}.ts`;
+		
+		try {
+			const plugin = this.loadedPlugins.get(pluginName);
+			if (plugin) return plugin;
+			
+			// Only allow specific known plugins
+			switch (pluginName) {
+				case "lsb":
+					return (await import("./plugins/lsb.ts")).default;
+				case "dct":
+					return (await import("./plugins/dct.ts")).default;
+				default:
+					throw new ValidationError(`Unknown plugin: ${pluginName}`);
+			}
+		} catch (error) {
+			throw new ValidationError(`Failed to load plugin ${pluginName}: ${error.message}`);
 		}
 	}
 
