@@ -5,7 +5,7 @@
     "debug": "Debug: {message}",
     "info": "Info: {message}",
     "warning": "Warning: {message}",
-    "command_not_found": "Command not found: {command}",
+    "command_not_found": "Command \"{command}\" not found.",
     "missing_required_flag": "Missing required flag: {flag}",
     "invalid_flag_value": "Invalid value for flag '{flag}': {value}",
     "command": "Command",
