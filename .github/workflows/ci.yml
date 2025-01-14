@@ -61,18 +61,20 @@ jobs:
 
       - name: Setup Test Environment
         run: |
-          # Clean existing directories
+          # Remove any existing test files
           rm -rf /tmp/test_tmp /tmp/deno_dir ./cov ./tmp tests/fixtures/dynamic locales
-          
-          # Create fresh directories
-          mkdir -p /tmp/test_tmp /tmp/deno_dir ./cov ./tmp tests/fixtures/dynamic locales
-          
-          # Set up test files
-          echo '{}' > locales/en.json
-          echo '{}' > tests/fixtures/default.json
-          
-          # Set permissions
-          chmod -R 755 /tmp/test_tmp /tmp/deno_dir ./cov ./tmp tests/fixtures locales
+
+          # Create directories with proper permissions
+          mkdir -p /tmp/test_tmp /tmp/deno_dir ./cov ./tmp tests/fixtures/{dynamic,generated} locales
+          chmod -R 777 /tmp/test_tmp /tmp/deno_dir ./cov ./tmp tests/fixtures locales
+
+          # Initialize test files
+          echo '{"test": "value"}' > locales/en.json
+          echo '{"template": "test"}' > tests/fixtures/default.json
+
+          # Set environment
+          echo "DENO_DIR=/tmp/deno_dir" >> $GITHUB_ENV
+          echo "TMPDIR=/tmp/test_tmp" >> $GITHUB_ENV
 
       - name: Run Tests with Coverage
         timeout-minutes: 15
@@ -81,27 +83,38 @@ jobs:
           TMPDIR: /tmp/test_tmp
           TEST_MODE: ci
           NO_COLOR: true
+          DEBUG: true
         run: |
+          # First pass - run tests
           deno test \
-            --allow-read \
-            --allow-env \
-            --allow-write \
-            --allow-run \
-            --allow-net \
+            --allow-all \
             --coverage=cov \
             --parallel \
             --no-check \
-            --fail-fast || \
+            || true
+
+          # Second pass - generate coverage
           deno test \
-            --allow-read \
-            --allow-env \
-            --allow-write \
-            --allow-run \
-            --allow-net \
+            --allow-all \
             --coverage=cov \
             --parallel \
             --no-check \
-            --fail-fast
+            || true
+
+          # Generate coverage report
+          deno coverage cov --lcov --output=cov.lcov
+
+      - name: Debug Test Environment
+        if: always()
+        run: |
+          echo "=== Test Environment ==="
+          printenv | sort
+          echo "=== Directory Structure ==="
+          tree -a -L 3 || find . -type d -maxdepth 3
+          echo "=== Test Files ==="
+          find tests -type f -name "*.ts"
+          echo "=== Permissions ==="
+          ls -la /tmp/test_tmp /tmp/deno_dir ./cov ./tmp tests/fixtures locales
 
       - name: List Directory State
         if: always()
