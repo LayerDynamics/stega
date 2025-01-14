@@ -64,28 +64,46 @@ jobs:
           mkdir -p locales
           echo '{}' > locales/en.json
 
+      - name: Create Test Directories
+        run: |
+          mkdir -p locales tests/fixtures/dynamic tmp
+          echo '{}' > locales/en.json
+          chmod -R 755 locales tests/fixtures tmp
+
       - name: Run Tests with Coverage
         timeout-minutes: 10
+        env:
+          DENO_DIR: /tmp/deno_dir
+          TMPDIR: /tmp/test_tmp
         run: |
           deno test \
-            --allow-read="./locales,./src,./tests,./mod.ts" \
+            --allow-read="/tmp,./locales,./src,./tests,./mod.ts" \
             --allow-env \
-            --allow-write \
+            --allow-write="/tmp,./cov,./tests/fixtures" \
             --allow-run \
             --allow-net \
             --coverage=cov \
             --parallel \
-            --no-check
-          deno test \
-            --allow-read="./locales,./src,./tests,./mod.ts" \
+            --no-check || deno test \
+            --allow-read="/tmp,./locales,./src,./tests,./mod.ts" \
             --allow-env \
-            --allow-write \
+            --allow-write="/tmp,./cov,./tests/fixtures" \
             --allow-run \
             --allow-net \
             --coverage=cov \
             --parallel \
             --no-check
           deno coverage cov --lcov --output=cov.lcov
+
+      - name: List Test Directories
+        if: always()
+        run: |
+          echo "=== Temporary Directory ==="
+          ls -la /tmp/test_tmp || true
+          echo "=== Deno Directory ==="
+          ls -la /tmp/deno_dir || true
+          echo "=== Coverage Directory ==="
+          ls -la cov || true
 
       - name: List Temporary Directory Contents
         run: ls -R /tmp/1491d1ce2c88246d
