@@ -1,10 +1,10 @@
 // tests/setup.ts
 
-import { FileSystemTracker } from './helpers/fs-tracker.ts';
+import { FileSystemTracker } from "./helpers/fs-tracker.ts";
 
 // Run before all tests
 Deno.test({
-	name: 'test setup',
+	name: "test setup",
 	fn: () => {
 		// Initialize the file system tracker
 		FileSystemTracker.init();
@@ -15,7 +15,7 @@ Deno.test({
 
 // Run after all tests
 Deno.test({
-	name: 'test cleanup',
+	name: "test cleanup",
 	fn: () => {
 		// Print all file system operations that occurred during tests
 		FileSystemTracker.printOperations();

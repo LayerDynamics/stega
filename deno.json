@@ -25,10 +25,9 @@
 		"useTabs": true,
 		"lineWidth": 80,
 		"indentWidth": 2,
-		"singleQuote": true,
+		"singleQuote": false,
 		"proseWrap": "preserve",
-		"semiColons": true,
-		"singleQuote": true
+		"semiColons": true
 	},
 	"test": {
 		"include": ["tests/"],
@@ -53,7 +52,8 @@
 		"cache:update": "deno cache mod.ts",
 		"fmt": "deno fmt",
 		"fmt:check": "deno fmt --check",
-		"fmt:all": "deno task fmt && deno lint --fix"
+		"fmt:fix": "deno task fmt && deno lint --fix",
+		"fmt:all": "./scripts/format-fix.sh"
 	},
 	"imports": {
 		"@std/assert": "https://deno.land/std@0.224.0/assert/mod.ts",

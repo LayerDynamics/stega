@@ -1,30 +1,30 @@
 // src/autocomplete.ts
-import { Command } from './core.ts';
+import { Command } from "./core.ts";
 
 export const autocompleteCommand: Command = {
-	name: 'autocomplete',
-	description: 'Generate shell autocomplete scripts',
+	name: "autocomplete",
+	description: "Generate shell autocomplete scripts",
 	options: [
 		{
-			name: 'shell',
-			alias: 's',
-			type: 'string',
-			description: 'Shell type (bash, zsh, fish)',
+			name: "shell",
+			alias: "s",
+			type: "string",
+			description: "Shell type (bash, zsh, fish)",
 			required: true,
 		},
 	],
 	action: (args) => {
 		const shell = args.flags.shell as string;
-		let script = '';
+		let script = "";
 
 		switch (shell) {
-			case 'bash':
+			case "bash":
 				script = generateBashCompletion();
 				break;
-			case 'zsh':
+			case "zsh":
 				script = generateZshCompletion();
 				break;
-			case 'fish':
+			case "fish":
 				script = generateFishCompletion();
 				break;
 			default:

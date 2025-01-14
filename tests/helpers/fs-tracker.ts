@@ -1,8 +1,8 @@
 // tests/helpers/fs-tracker.ts
 
-import { logger } from '../../src/logger.ts';
-import * as path from 'https://deno.land/std@0.224.0/path/mod.ts';
-import { SEPARATOR } from 'https://deno.land/std@0.224.0/path/separator.ts';
+import { logger } from "../../src/logger.ts";
+import * as path from "https://deno.land/std@0.224.0/path/mod.ts";
+import { SEPARATOR } from "https://deno.land/std@0.224.0/path/separator.ts";
 
 export class FileSystemTracker {
 	private static operations: Map<string, string[]> = new Map();
@@ -11,8 +11,8 @@ export class FileSystemTracker {
 
 	// List of protected directories
 	private static protectedDirs: string[] = [
-		path.resolve('src'),
-		path.resolve('/src'),
+		path.resolve("src"),
+		path.resolve("/src"),
 		// Add other directories you want to protect
 	];
 
@@ -23,7 +23,7 @@ export class FileSystemTracker {
 			options?: Deno.RemoveOptions,
 		) {
 			const resolvedPath = path.resolve(pathToRemove.toString());
-			FileSystemTracker.logOperation('removeSync', resolvedPath);
+			FileSystemTracker.logOperation("removeSync", resolvedPath);
 
 			if (FileSystemTracker.isProtectedPath(resolvedPath)) {
 				logger.warn(
@@ -43,7 +43,7 @@ export class FileSystemTracker {
 			options?: Deno.RemoveOptions,
 		): Promise<void> {
 			const resolvedPath = path.resolve(pathToRemove.toString());
-			FileSystemTracker.logOperation('remove', resolvedPath);
+			FileSystemTracker.logOperation("remove", resolvedPath);
 
 			if (FileSystemTracker.isProtectedPath(resolvedPath)) {
 				logger.warn(
@@ -76,7 +76,7 @@ export class FileSystemTracker {
 	}
 
 	static printOperations() {
-		console.log('\nFile System Operations:');
+		console.log("\nFile System Operations:");
 		for (const [op, paths] of FileSystemTracker.operations) {
 			console.log(`\n${op}:`);
 			paths.forEach((path) => console.log(`  - ${path}`));

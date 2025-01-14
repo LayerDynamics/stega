@@ -1,5 +1,5 @@
-import type { Args } from './types.ts'; // Change import source to types.ts
-import type { Command } from './command.ts';
+import type { Args } from "./types.ts"; // Change import source to types.ts
+import type { Command } from "./command.ts";
 
 export type MiddlewareFunction = (
 	args: Args,

@@ -3,8 +3,8 @@ declare global {
 	namespace Deno {
 		interface RunOptions {
 			cmd: string[];
-			stdout?: 'inherit' | 'piped' | 'null' | number;
-			stderr?: 'inherit' | 'piped' | 'null' | number;
+			stdout?: "inherit" | "piped" | "null" | number;
+			stderr?: "inherit" | "piped" | "null" | number;
 		}
 
 		interface Process {

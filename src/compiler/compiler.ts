@@ -13,16 +13,16 @@ import {
 	OnTransformArgs,
 	OnTransformResult,
 	SourceFile,
-} from './types.ts';
+} from "./types.ts";
 
-import { ts } from 'https://deno.land/x/ts_morph@17.0.1/mod.ts';
-import { Parser } from './parser.ts';
-import { Transformer } from './transformer.ts';
-import { Bundler } from './bundler.ts';
-import { CodeGenerator } from './codegen.ts';
-import { logger } from './logger.ts';
-import { DependencyGraph } from './dependency-graph.ts';
-import { Cache } from './cache.ts';
+import { ts } from "https://deno.land/x/ts_morph@17.0.1/mod.ts";
+import { Parser } from "./parser.ts";
+import { Transformer } from "./transformer.ts";
+import { Bundler } from "./bundler.ts";
+import { CodeGenerator } from "./codegen.ts";
+import { logger } from "./logger.ts";
+import { DependencyGraph } from "./dependency-graph.ts";
+import { Cache } from "./cache.ts";
 
 /**
  * Compiler class orchestrates the parsing, transforming, bundling, and code generation processes.
@@ -45,20 +45,20 @@ export class Compiler {
 	 */
 	constructor(partialOptions: Partial<CompilerOptions>) {
 		const mandatoryDefaults: CompilerOptions = {
-			entryPoint: '',
-			outDir: 'dist',
+			entryPoint: "",
+			outDir: "dist",
 			sourceMaps: false,
 			minify: false,
 			target: ts.ScriptTarget.ES2020,
 			plugins: [],
 			module: ts.ModuleKind.ESNext,
-			platform: 'browser',
+			platform: "browser",
 			externals: [],
 			define: {},
 			treeshake: true,
-			format: 'es6',
+			format: "es6",
 			experimentalDecorators: false,
-			umdName: 'bundle',
+			umdName: "bundle",
 		};
 
 		this.options = {
@@ -113,19 +113,19 @@ export class Compiler {
 	public async compile(): Promise<void> {
 		try {
 			if (!this.options.entryPoint) {
-				throw new Error('Entry point not specified in compiler options.');
+				throw new Error("Entry point not specified in compiler options.");
 			}
 
 			const rawEntryModule = await this.parseModule(this.options.entryPoint);
 			const entryModule = rawEntryModule as ModuleInfo;
 			if (!entryModule) {
-				throw new Error('Invalid entry module.');
+				throw new Error("Invalid entry module.");
 			}
 
 			await this.buildDependencyGraph(entryModule);
 
 			if (this.depGraph.hasCycle()) {
-				throw new Error('Dependency graph contains cycles.');
+				throw new Error("Dependency graph contains cycles.");
 			}
 
 			await this.depGraph.optimizeGraph();
@@ -138,7 +138,7 @@ export class Compiler {
 			await this.writeOutput(code, map);
 		} catch (error) {
 			this.logger.error(
-				'Compilation failed:',
+				"Compilation failed:",
 				error instanceof Error ? error.message : String(error),
 			);
 			throw error;

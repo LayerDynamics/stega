@@ -1,28 +1,28 @@
 // src/core.ts
-import { Command, CommandRegistry } from './command.ts';
-import { FlagValue, Parser } from './parser.ts'; // Imported FlagValue
-import { Help } from './help.ts';
-import { ConfigLoader } from './config.ts';
+import { Command, CommandRegistry } from "./command.ts";
+import { FlagValue, Parser } from "./parser.ts"; // Imported FlagValue
+import { Help } from "./help.ts";
+import { ConfigLoader } from "./config.ts";
 import {
 	CommandNotFoundError,
 	MissingFlagError,
 	StegaError,
 	SubcommandNotFoundError,
-} from './error.ts'; // Removed InvalidFlagValueError as it's unused
-import { MiddlewareFunction, MiddlewareRegistry } from './middleware.ts';
-import { logger, setup } from './logger.ts';
-import { I18n } from './i18n.ts';
-import { PluginLoader } from './plugin_loader.ts';
-import { Plugin } from './plugin.ts';
-import type { LevelName } from 'https://deno.land/std@0.224.0/log/levels.ts';
-import type { ILogger } from './logger_interface.ts';
-import type { Args } from './types.ts';
+} from "./error.ts"; // Removed InvalidFlagValueError as it's unused
+import { MiddlewareFunction, MiddlewareRegistry } from "./middleware.ts";
+import { logger, setup } from "./logger.ts";
+import { I18n } from "./i18n.ts";
+import { PluginLoader } from "./plugin_loader.ts";
+import { Plugin } from "./plugin.ts";
+import type { LevelName } from "https://deno.land/std@0.224.0/log/levels.ts";
+import type { ILogger } from "./logger_interface.ts";
+import type { Args } from "./types.ts";
 
 export interface Option {
 	name: string;
 	alias?: string;
 	description?: string;
-	type: 'boolean' | 'string' | 'number' | 'array';
+	type: "boolean" | "string" | "number" | "array";
 	default?: unknown;
 	required?: boolean;
 }
@@ -81,12 +81,12 @@ export class CLI {
 	 */
 	private registerCoreCommands(): void {
 		this.register({
-			name: 'help',
-			description: 'Display help information',
+			name: "help",
+			description: "Display help information",
 			options: [{
-				name: 'command',
-				type: 'string',
-				description: 'Command to get help for',
+				name: "command",
+				type: "string",
+				description: "Command to get help for",
 				required: false,
 			}],
 			action: async (args: Args) => {
@@ -128,15 +128,15 @@ export class CLI {
 	 * @returns The formatted string.
 	 */
 	formatOutput(data: unknown): string {
-		const format = (this.config['output'] as string) || 'text';
+		const format = (this.config["output"] as string) || "text";
 
 		switch (format) {
-			case 'json':
+			case "json":
 				return JSON.stringify(data, null, 2);
-			case 'yaml':
+			case "yaml":
 				// Placeholder for YAML support
 				return String(data);
-			case 'text':
+			case "text":
 			default:
 				return String(data);
 		}
@@ -189,8 +189,8 @@ export class CLI {
 			}
 
 			// Handle help command or flags
-			if (args.command.includes('help')) {
-				const helpIndex = args.command.indexOf('help');
+			if (args.command.includes("help")) {
+				const helpIndex = args.command.indexOf("help");
 				const helpTarget = args.command[helpIndex + 1];
 				if (helpTarget) {
 					const command = this.registry.findCommand(helpTarget);
@@ -237,7 +237,7 @@ export class CLI {
 			if (subCmds.length > 0 && command.subcommands) {
 				const subcommand = this.registry.findSubcommand(command, subCmds);
 				if (!subcommand) {
-					throw new SubcommandNotFoundError(subCmds.join(' '));
+					throw new SubcommandNotFoundError(subCmds.join(" "));
 				}
 				await this.processOptions(subcommand, args.flags);
 				await subcommand.action(args);
@@ -248,10 +248,10 @@ export class CLI {
 		} catch (err) {
 			const error = err as Error;
 			if (error instanceof StegaError) {
-				console.error(this.i18n.t('error', { message: error.message }));
+				console.error(this.i18n.t("error", { message: error.message }));
 			} else {
 				console.error(
-					this.i18n.t('unexpected_error', { message: error.message }),
+					this.i18n.t("unexpected_error", { message: error.message }),
 				);
 			}
 			this.showHelp();
@@ -287,7 +287,7 @@ export class CLI {
 			if (subCmds.length > 0 && command.subcommands) {
 				const subcommand = this.registry.findSubcommand(command, subCmds);
 				if (!subcommand) {
-					throw new SubcommandNotFoundError(subCmds.join(' '));
+					throw new SubcommandNotFoundError(subCmds.join(" "));
 				}
 				await this.processOptions(subcommand, parsedArgs.flags);
 				await subcommand.action(parsedArgs);
@@ -341,10 +341,10 @@ export class CLI {
 		}
 
 		// Fix logger setup configuration
-		const logLevel = processedFlags['log-level'];
-		if (logLevel && typeof logLevel === 'string') {
+		const logLevel = processedFlags["log-level"];
+		if (logLevel && typeof logLevel === "string") {
 			const level = logLevel.toUpperCase() as LevelName;
-			await setup({ loggers: { default: { level, handlers: ['console'] } } });
+			await setup({ loggers: { default: { level, handlers: ["console"] } } });
 		}
 
 		// Attach processed flags to args.flags
@@ -403,21 +403,21 @@ export class CLI {
 	 */
 	private registerPluginCommands() {
 		this.register({
-			name: 'plugin',
-			description: 'Plugin management commands',
+			name: "plugin",
+			description: "Plugin management commands",
 			options: [
 				// Define any options for the 'plugin' command if necessary
 			],
 			subcommands: [
 				{
-					name: 'load',
-					description: 'Load a plugin',
+					name: "load",
+					description: "Load a plugin",
 					options: [
 						{
-							name: 'path',
-							alias: 'p',
-							type: 'string',
-							description: 'Path to plugin',
+							name: "path",
+							alias: "p",
+							type: "string",
+							description: "Path to plugin",
 							required: true,
 						},
 					],
@@ -427,14 +427,14 @@ export class CLI {
 					},
 				},
 				{
-					name: 'unload',
-					description: 'Unload a plugin',
+					name: "unload",
+					description: "Unload a plugin",
 					options: [
 						{
-							name: 'name',
-							alias: 'n',
-							type: 'string',
-							description: 'Plugin name',
+							name: "name",
+							alias: "n",
+							type: "string",
+							description: "Plugin name",
 							required: true,
 						},
 					],
@@ -444,19 +444,19 @@ export class CLI {
 					},
 				},
 				{
-					name: 'list',
-					description: 'List loaded plugins',
+					name: "list",
+					description: "List loaded plugins",
 					action: () => {
 						const plugins = this.pluginLoader.listPlugins();
 						if (plugins.length === 0) {
-							console.log('No plugins loaded');
+							console.log("No plugins loaded");
 							return;
 						}
-						console.log('Loaded plugins:');
+						console.log("Loaded plugins:");
 						for (const plugin of plugins) {
 							console.log(
 								`- ${plugin.name} v${plugin.version}: ${
-									plugin.description || ''
+									plugin.description || ""
 								}`,
 							);
 						}
@@ -477,7 +477,7 @@ export class CLI {
 	public markAsReady(): void {
 		this.ready = true;
 		this.loadingPromise = Promise.resolve();
-		this.logger.debug('CLI is ready');
+		this.logger.debug("CLI is ready");
 	}
 
 	public async waitForReady(): Promise<void> {

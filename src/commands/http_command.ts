@@ -1,8 +1,8 @@
 // File: HttpCommand.ts
 
-import { BaseCommand } from '../types.ts';
-import { Args, Command } from '../types.ts';
-import { logger } from '../logger.ts';
+import { BaseCommand } from "../types.ts";
+import { Args, Command } from "../types.ts";
+import { logger } from "../logger.ts";
 
 interface HttpCommandOptions {
 	headers?: Record<string, string>;
@@ -24,32 +24,32 @@ export class HttpCommand extends BaseCommand {
 	constructor(config: Partial<Command> & { httpOptions?: HttpCommandOptions }) {
 		super({
 			...config,
-			name: 'http',
-			description: 'Make HTTP requests',
-			category: 'api',
-			permissions: ['net'],
+			name: "http",
+			description: "Make HTTP requests",
+			category: "api",
+			permissions: ["net"],
 			options: [
 				{
-					name: 'method',
-					type: 'string',
-					description: 'HTTP method (GET, POST, PUT, DELETE)',
+					name: "method",
+					type: "string",
+					description: "HTTP method (GET, POST, PUT, DELETE)",
 					required: true,
 				},
 				{
-					name: 'url',
-					type: 'string',
-					description: 'Request URL',
+					name: "url",
+					type: "string",
+					description: "Request URL",
 					required: true,
 				},
 				{
-					name: 'data',
-					type: 'string',
-					description: 'Request body data',
+					name: "data",
+					type: "string",
+					description: "Request body data",
 				},
 				{
-					name: 'headers',
-					type: 'string',
-					description: 'Request headers (comma-separated key:value pairs)',
+					name: "headers",
+					type: "string",
+					description: "Request headers (comma-separated key:value pairs)",
 				},
 			],
 		});
@@ -109,8 +109,8 @@ export class HttpCommand extends BaseCommand {
 	 */
 	private parseHeaders(headerString?: string): Record<string, string> {
 		if (!headerString) return {};
-		return headerString.split(',').reduce((acc, curr) => {
-			const [key, value] = curr.split(':');
+		return headerString.split(",").reduce((acc, curr) => {
+			const [key, value] = curr.split(":");
 			if (key && value) {
 				acc[key.trim()] = value.trim();
 			}
@@ -140,7 +140,7 @@ export class HttpCommand extends BaseCommand {
 			const timeoutPromise = new Promise<never>((_, reject) => {
 				request.timer = setTimeout(() => {
 					controller.abort();
-					reject(new Error('Network error: Request timeout'));
+					reject(new Error("Network error: Request timeout"));
 				}, this.httpOptions.timeout || 30000);
 			});
 
@@ -149,7 +149,7 @@ export class HttpCommand extends BaseCommand {
 				headers: {
 					...this.httpOptions.headers,
 					...headers,
-					'Content-Type': 'application/json',
+					"Content-Type": "application/json",
 				},
 				body: data,
 				signal: controller.signal,
@@ -169,15 +169,15 @@ export class HttpCommand extends BaseCommand {
 			return response;
 		} catch (error) {
 			if (error instanceof Error) {
-				if (error.name === 'AbortError') {
-					throw new Error('Network error: Request timeout');
+				if (error.name === "AbortError") {
+					throw new Error("Network error: Request timeout");
 				}
-				if (error.message.includes('Failed to fetch')) {
-					throw new Error('Network error: Failed to connect');
+				if (error.message.includes("Failed to fetch")) {
+					throw new Error("Network error: Failed to connect");
 				}
 				throw error; // Preserve the original error message for other cases
 			}
-			throw new Error('Network error: Unknown error occurred');
+			throw new Error("Network error: Unknown error occurred");
 		} finally {
 			if (request.timer) {
 				clearTimeout(request.timer);

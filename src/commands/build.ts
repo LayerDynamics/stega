@@ -1,62 +1,62 @@
 // src/commands/build.ts
-import { Command } from '../command.ts';
-import { CLI } from '../core.ts';
-import { FlagValue } from '../flag.ts';
-import { CommandNotFoundError } from '../error.ts';
-import type { Args, BuildOptions } from '../types.ts'; // Correct import
-import { logger } from '../logger.ts';
+import { Command } from "../command.ts";
+import { CLI } from "../core.ts";
+import { FlagValue } from "../flag.ts";
+import { CommandNotFoundError } from "../error.ts";
+import type { Args, BuildOptions } from "../types.ts"; // Correct import
+import { logger } from "../logger.ts";
 import {
 	Input,
 	Select,
-} from 'https://deno.land/x/cliffy@v0.25.7/prompt/mod.ts';
-import type { Plugin } from '../plugin.ts';
+} from "https://deno.land/x/cliffy@v0.25.7/prompt/mod.ts";
+import type { Plugin } from "../plugin.ts";
 
 const supportedTargets = [
-	'x86_64-unknown-linux-gnu',
-	'x86_64-pc-windows-msvc',
-	'x86_64-apple-darwin',
+	"x86_64-unknown-linux-gnu",
+	"x86_64-pc-windows-msvc",
+	"x86_64-apple-darwin",
 ];
 
 const validPermissions = [
-	'read',
-	'write',
-	'net',
-	'env',
-	'run',
-	'ffi',
-	'hrtime',
-	'plugin',
-	'unstable',
+	"read",
+	"write",
+	"net",
+	"env",
+	"run",
+	"ffi",
+	"hrtime",
+	"plugin",
+	"unstable",
 ];
 
 const targetAliases: Record<string, string> = {
-	linux: 'x86_64-unknown-linux-gnu',
-	windows: 'x86_64-pc-windows-msvc',
-	darwin: 'x86_64-apple-darwin',
+	linux: "x86_64-unknown-linux-gnu",
+	windows: "x86_64-pc-windows-msvc",
+	darwin: "x86_64-apple-darwin",
 };
 
 async function runPluginHooks(
 	plugins: Plugin[],
-	hookName: 'beforeBuild' | 'afterBuild',
+	hookName: "beforeBuild" | "afterBuild",
 	buildOptions: BuildOptions,
 	success?: boolean,
 ): Promise<boolean> {
 	for (const plugin of plugins) {
 		try {
-			if (hookName === 'beforeBuild' && plugin.beforeBuild) {
+			if (hookName === "beforeBuild" && plugin.beforeBuild) {
 				const result = await plugin.beforeBuild(buildOptions);
 				if (result === false) {
 					logger.info(`Build cancelled by plugin: ${plugin.metadata.name}`);
 					return false;
 				}
-			} else if (hookName === 'afterBuild' && plugin.afterBuild) {
+			} else if (hookName === "afterBuild" && plugin.afterBuild) {
 				await plugin.afterBuild(buildOptions, success ?? false);
 			}
 		} catch (error) {
 			logger.error(
 				`Plugin ${plugin.metadata.name} ${hookName} hook failed: ${error}`,
 			);
-			if (hookName === 'beforeBuild') return false;
+			if (hookName === "beforeBuild") return false;
 		}
 	}
 	return true;
@@ -69,39 +69,39 @@ async function runPluginHooks(
  */
 export function createBuildCommand(cli: CLI): Command {
 	return {
-		name: 'build',
-		description: 'Compile the CLI into a standalone binary executable',
+		name: "build",
+		description: "Compile the CLI into a standalone binary executable",
 		options: [
 			{
-				name: 'output',
-				alias: 'o',
-				type: 'string',
-				description: 'Path for the output binary',
+				name: "output",
+				alias: "o",
+				type: "string",
+				description: "Path for the output binary",
 				required: false,
-				default: './stega',
+				default: "./stega",
 			},
 			{
-				name: 'target',
-				alias: 't',
-				type: 'string',
-				description: 'Target platform (linux, windows, darwin)',
+				name: "target",
+				alias: "t",
+				type: "string",
+				description: "Target platform (linux, windows, darwin)",
 				required: false,
 			},
 			{
-				name: 'allow',
-				alias: 'A',
-				type: 'array',
-				description: 'Permissions to embed (read, write, net, etc.)',
+				name: "allow",
+				alias: "A",
+				type: "array",
+				description: "Permissions to embed (read, write, net, etc.)",
 				required: false,
 				default: [],
 			},
 			{
-				name: 'entry',
-				alias: 'e',
-				type: 'string',
-				description: 'Entry point file',
+				name: "entry",
+				alias: "e",
+				type: "string",
+				description: "Entry point file",
 				required: false,
-				default: 'src/main.ts',
+				default: "src/main.ts",
 			},
 		],
 		action: async (args: Args): Promise<void> => {
@@ -118,11 +118,11 @@ export function createBuildCommand(cli: CLI): Command {
 
 			if (!target) {
 				target = await Select.prompt({
-					message: 'Select target platform:',
+					message: "Select target platform:",
 					options: [
-						{ name: 'Linux', value: 'linux' },
-						{ name: 'Windows', value: 'windows' },
-						{ name: 'macOS', value: 'darwin' },
+						{ name: "Linux", value: "linux" },
+						{ name: "Windows", value: "windows" },
+						{ name: "macOS", value: "darwin" },
 					],
 				});
 			}
@@ -156,20 +156,20 @@ export function createBuildCommand(cli: CLI): Command {
 				// Execute beforeBuild hooks
 				const shouldContinue = await runPluginHooks(
 					plugins,
-					'beforeBuild',
+					"beforeBuild",
 					buildOptions,
 				);
 				if (!shouldContinue) {
-					throw new Error('Build cancelled by plugin');
+					throw new Error("Build cancelled by plugin");
 				}
 
 				const success = await executeBuild(buildOptions);
 
 				// Execute afterBuild hooks
-				await runPluginHooks(plugins, 'afterBuild', buildOptions, success);
+				await runPluginHooks(plugins, "afterBuild", buildOptions, success);
 
 				if (!success) {
-					throw new Error('Build failed');
+					throw new Error("Build failed");
 				}
 			} catch (error) {
 				logger.error(
@@ -179,7 +179,7 @@ export function createBuildCommand(cli: CLI): Command {
 				);
 
 				// Call plugin afterBuild hooks with failure
-				await runPluginHooks(plugins, 'afterBuild', buildOptions, false);
+				await runPluginHooks(plugins, "afterBuild", buildOptions, false);
 
 				throw error;
 			}
@@ -189,7 +189,7 @@ export function createBuildCommand(cli: CLI): Command {
 
 async function executeBuild(options: BuildOptions): Promise<boolean> {
 	const commandArgs = [
-		'compile',
+		"compile",
 		...options.allowPermissions.map((p: string) => `--allow-${p}`),
 		`--target=${options.target}`,
 		`--output=${options.output}`,
@@ -198,18 +198,18 @@ async function executeBuild(options: BuildOptions): Promise<boolean> {
 
 	const commandOptions: Deno.CommandOptions = {
 		args: commandArgs,
-		stdout: 'inherit',
-		stderr: 'inherit',
+		stdout: "inherit",
+		stderr: "inherit",
 	};
 
-	const command = new Deno.Command('deno', commandOptions);
+	const command = new Deno.Command("deno", commandOptions);
 	const process = command.spawn();
 	const status = await process.status;
 
 	if (status.success) {
 		logger.info(`Successfully created binary: ${options.output}`);
 	} else {
-		logger.error('Build failed');
+		logger.error("Build failed");
 	}
 
 	return status.success;

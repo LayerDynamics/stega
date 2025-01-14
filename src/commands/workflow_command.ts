@@ -1,8 +1,8 @@
 // src/commands/workflow_command.ts
-import { BaseCommand } from '../types.ts';
-import { Args, Command } from '../types.ts';
-import { logger } from '../logger.ts';
-import { CLI } from '../core.ts';
+import { BaseCommand } from "../types.ts";
+import { Args, Command } from "../types.ts";
+import { logger } from "../logger.ts";
+import { CLI } from "../core.ts";
 
 interface WorkflowStep {
 	name: string;
@@ -19,7 +19,7 @@ interface Workflow {
 	description?: string;
 	steps: WorkflowStep[];
 	environment?: Record<string, string>;
-	onError?: 'continue' | 'stop' | 'retry';
+	onError?: "continue" | "stop" | "retry";
 	maxRetries?: number;
 	variables?: Record<string, string>;
 }
@@ -39,69 +39,69 @@ export class WorkflowCommand extends BaseCommand {
 
 	constructor(cli: CLI) {
 		super({
-			name: 'workflow',
-			description: 'Manage and execute workflows',
-			category: 'automation',
-			permissions: ['run', 'read', 'write'],
+			name: "workflow",
+			description: "Manage and execute workflows",
+			category: "automation",
+			permissions: ["run", "read", "write"],
 			subcommands: [
 				{
-					name: 'run',
-					description: 'Run a workflow',
+					name: "run",
+					description: "Run a workflow",
 					options: [
 						{
-							name: 'name',
-							type: 'string',
+							name: "name",
+							type: "string",
 							required: true,
-							description: 'Workflow name',
+							description: "Workflow name",
 						},
 						{
-							name: 'variables',
-							type: 'string',
-							description: 'JSON string of variables',
+							name: "variables",
+							type: "string",
+							description: "JSON string of variables",
 							required: false,
 						},
 						{
-							name: 'parallel',
-							type: 'boolean',
-							description: 'Run eligible steps in parallel',
+							name: "parallel",
+							type: "boolean",
+							description: "Run eligible steps in parallel",
 							default: false,
 						},
 					],
 					action: (args: Args) => this.runWorkflow(args),
 				},
 				{
-					name: 'list',
-					description: 'List available workflows',
+					name: "list",
+					description: "List available workflows",
 					action: () => this.listWorkflows(),
 				},
 				{
-					name: 'add',
-					description: 'Add a new workflow',
+					name: "add",
+					description: "Add a new workflow",
 					options: [
 						{
-							name: 'name',
-							type: 'string',
+							name: "name",
+							type: "string",
 							required: true,
-							description: 'Workflow name',
+							description: "Workflow name",
 						},
 						{
-							name: 'config',
-							type: 'string',
+							name: "config",
+							type: "string",
 							required: true,
-							description: 'Path to workflow configuration file',
+							description: "Path to workflow configuration file",
 						},
 					],
 					action: (args: Args) => this.addWorkflow(args),
 				},
 				{
-					name: 'status',
-					description: 'Show workflow execution status',
+					name: "status",
+					description: "Show workflow execution status",
 					options: [
 						{
-							name: 'name',
-							type: 'string',
+							name: "name",
+							type: "string",
 							required: true,
-							description: 'Workflow name',
+							description: "Workflow name",
 						},
 					],
 					action: (args: Args) => this.showWorkflowStatus(args),
@@ -114,16 +114,16 @@ export class WorkflowCommand extends BaseCommand {
 	async action(args: Args): Promise<void> {
 		const subcommand = args.command[1];
 		switch (subcommand) {
-			case 'run':
+			case "run":
 				await this.runWorkflow(args);
 				break;
-			case 'list':
+			case "list":
 				this.listWorkflows();
 				break;
-			case 'add':
+			case "add":
 				await this.addWorkflow(args);
 				break;
-			case 'status':
+			case "status":
 				this.showWorkflowStatus(args);
 				break;
 			default:
@@ -178,9 +178,9 @@ export class WorkflowCommand extends BaseCommand {
 
 		const execute = async (): Promise<boolean> => {
 			try {
-				if (typeof step.command === 'string') {
+				if (typeof step.command === "string") {
 					// Parse command string and execute
-					const [cmdName, ...args] = step.command.split(' ');
+					const [cmdName, ...args] = step.command.split(" ");
 					const command = this.cli.findCommand(cmdName);
 					if (!command) {
 						throw new Error(`Command "${cmdName}" not found`);
@@ -268,7 +268,7 @@ export class WorkflowCommand extends BaseCommand {
 				});
 
 				if (eligibleSteps.length === 0 && processedSteps.size < steps.length) {
-					throw new Error('Circular dependency detected in workflow');
+					throw new Error("Circular dependency detected in workflow");
 				}
 
 				stepGroups.push(eligibleSteps);
@@ -285,7 +285,7 @@ export class WorkflowCommand extends BaseCommand {
 					stepResults.set(step.name, results[index]);
 				});
 
-				if (results.includes(false) && workflow.onError === 'stop') {
+				if (results.includes(false) && workflow.onError === "stop") {
 					return false;
 				}
 			}
@@ -295,7 +295,7 @@ export class WorkflowCommand extends BaseCommand {
 				const success = await this.executeStep(step, workflow, context);
 				stepResults.set(step.name, success);
 
-				if (!success && workflow.onError === 'stop') {
+				if (!success && workflow.onError === "stop") {
 					return false;
 				}
 			}
@@ -384,7 +384,7 @@ export class WorkflowCommand extends BaseCommand {
 
 			// Validate workflow configuration
 			if (!Array.isArray(workflow.steps) || workflow.steps.length === 0) {
-				throw new Error('Workflow must contain at least one step');
+				throw new Error("Workflow must contain at least one step");
 			}
 
 			// Validate step dependencies
@@ -414,12 +414,12 @@ export class WorkflowCommand extends BaseCommand {
 
 	private listWorkflows(): void {
 		if (this.workflows.size === 0) {
-			console.log('No workflows available');
+			console.log("No workflows available");
 			return;
 		}
 
-		console.log('\nAvailable Workflows:');
-		console.log('===================');
+		console.log("\nAvailable Workflows:");
+		console.log("===================");
 
 		for (const [name, workflow] of this.workflows) {
 			console.log(`\nName: ${name}`);
@@ -427,13 +427,13 @@ export class WorkflowCommand extends BaseCommand {
 				console.log(`Description: ${workflow.description}`);
 			}
 			console.log(`Steps: ${workflow.steps.length}`);
-			console.log('Steps:');
+			console.log("Steps:");
 			workflow.steps.forEach((step) => {
 				console.log(
-					`  - ${step.name}${step.parallel ? ' (parallel)' : ''}${
+					`  - ${step.name}${step.parallel ? " (parallel)" : ""}${
 						step.dependsOn?.length
-							? ` (depends on: ${step.dependsOn.join(', ')})`
-							: ''
+							? ` (depends on: ${step.dependsOn.join(", ")})`
+							: ""
 					}`,
 				);
 			});
@@ -450,10 +450,10 @@ export class WorkflowCommand extends BaseCommand {
 		}
 
 		console.log(`\nWorkflow "${name}" Status:`);
-		console.log('=====================');
+		console.log("=====================");
 
 		for (const [step, success] of results) {
-			console.log(`${step}: ${success ? '✓ Success' : '✗ Failed'}`);
+			console.log(`${step}: ${success ? "✓ Success" : "✗ Failed"}`);
 		}
 	}
 }

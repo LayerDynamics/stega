@@ -1,5 +1,5 @@
 // src/config.ts
-import type { FlagValue } from './flag.ts';
+import type { FlagValue } from "./flag.ts";
 
 export interface Config {
 	[key: string]: FlagValue | undefined;
@@ -8,7 +8,7 @@ export interface Config {
 export class ConfigLoader {
 	private config: Config = {};
 
-	constructor(private configPath: string = './config.json') {}
+	constructor(private configPath: string = "./config.json") {}
 
 	/**
 	 * Loads the configuration from the config file and environment variables.

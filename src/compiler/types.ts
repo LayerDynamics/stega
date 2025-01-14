@@ -1,10 +1,10 @@
 // /src/compiler/types.ts
-import { SourceFile, ts } from 'https://deno.land/x/ts_morph@17.0.1/mod.ts';
+import { SourceFile, ts } from "https://deno.land/x/ts_morph@17.0.1/mod.ts";
 
 /**
  * Supported module formats for the bundler.
  */
-export type ModuleFormat = 'es6' | 'commonjs' | 'umd';
+export type ModuleFormat = "es6" | "commonjs" | "umd";
 
 /**
  * Generated output interface for compilation results.
@@ -37,7 +37,7 @@ export interface CompilerOptions {
 	sourceMaps: boolean;
 	minify: boolean;
 	plugins: Array<CompilerPlugin>;
-	platform: 'browser' | 'node' | 'deno';
+	platform: "browser" | "node" | "deno";
 	externals: string[];
 	define: { [key: string]: string };
 	treeshake: boolean;
@@ -54,7 +54,7 @@ export interface CodeGenOptions {
 	minify: boolean;
 	target: ts.ScriptTarget | string;
 	format?: ModuleFormat;
-	platform?: 'browser' | 'node' | 'deno';
+	platform?: "browser" | "node" | "deno";
 	externals?: string[];
 }
 
@@ -98,7 +98,7 @@ export interface OnLoadArgs {
  */
 export interface OnLoadResult {
 	contents: string;
-	loader: 'ts' | 'js' | 'json';
+	loader: "ts" | "js" | "json";
 	resolveDir?: string;
 }
 

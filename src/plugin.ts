@@ -1,5 +1,5 @@
 // src/plugin.ts
-import { CLI } from './core.ts';
+import { CLI } from "./core.ts";
 
 // Remove unused logger import
 // import { logger } from "./logger.ts";

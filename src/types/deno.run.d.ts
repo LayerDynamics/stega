@@ -7,9 +7,9 @@ declare global {
 	namespace Deno {
 		interface RunOptions {
 			cmd: string[];
-			stdout?: 'inherit' | 'piped' | 'null' | number;
-			stderr?: 'inherit' | 'piped' | 'null' | number;
-			stdin?: 'inherit' | 'piped' | 'null' | number;
+			stdout?: "inherit" | "piped" | "null" | number;
+			stderr?: "inherit" | "piped" | "null" | number;
+			stdin?: "inherit" | "piped" | "null" | number;
 			cwd?: string;
 			env?: Record<string, string>;
 		}
@@ -17,9 +17,9 @@ declare global {
 		interface CommandOptions {
 			cmd?: string[];
 			args?: string[];
-			stdout?: 'inherit' | 'piped' | 'null' | number;
-			stderr?: 'inherit' | 'piped' | 'null' | number;
-			stdin?: 'inherit' | 'piped' | 'null' | number;
+			stdout?: "inherit" | "piped" | "null" | number;
+			stderr?: "inherit" | "piped" | "null" | number;
+			stdin?: "inherit" | "piped" | "null" | number;
 			cwd?: string;
 			env?: Record<string, string>;
 		}

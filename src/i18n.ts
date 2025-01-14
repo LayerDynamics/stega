@@ -1,12 +1,12 @@
 // src/i18n.ts
-import { Config } from './config.ts';
+import { Config } from "./config.ts";
 
 export class I18n {
 	private messages: Record<string, string> = {};
-	private currentLocale = 'en';
+	private currentLocale = "en";
 
 	constructor(private config: Config) {
-		const locale = config['locale'] as string || 'en';
+		const locale = config["locale"] as string || "en";
 		this.currentLocale = locale;
 	}
 
@@ -26,8 +26,8 @@ export class I18n {
 					`Failed to load locale ${this.currentLocale}: ${String(error)}`,
 				);
 			}
-			if (this.currentLocale !== 'en') {
-				await this.loadLocale('en');
+			if (this.currentLocale !== "en") {
+				await this.loadLocale("en");
 			}
 		}
 	}

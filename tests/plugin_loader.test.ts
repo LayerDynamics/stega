@@ -1,20 +1,20 @@
 // tests/plugin_loader.test.ts
-import { PluginLoader } from '../src/plugin_loader.ts';
-import { CLI } from '../src/core.ts';
-import { assertEquals } from 'https://deno.land/std@0.203.0/testing/asserts.ts';
-import type { Plugin } from '../src/plugin.ts';
+import { PluginLoader } from "../src/plugin_loader.ts";
+import { CLI } from "../src/core.ts";
+import { assertEquals } from "https://deno.land/std@0.203.0/testing/asserts.ts";
+import type { Plugin } from "../src/plugin.ts";
 
 // Define interface for globalThis extension
 interface CustomGlobalThis {
 	import: (path: string) => Promise<{ default: Plugin }>;
 }
 
-Deno.test('PluginLoader - basic plugin loading', async () => {
+Deno.test("PluginLoader - basic plugin loading", async () => {
 	const cli = new CLI(undefined, true, true);
 	const loader = new PluginLoader();
 
 	// Mock plugin as a URL string to avoid filesystem access
-	const mockUrl = 'data:text/javascript;base64,' + btoa(`
+	const mockUrl = "data:text/javascript;base64," + btoa(`
         export default {
             metadata: {
                 name: "TestPlugin",
@@ -35,14 +35,14 @@ Deno.test('PluginLoader - basic plugin loading', async () => {
 	await loader.loadPlugin(mockUrl, cli);
 	const plugins = loader.listPlugins();
 	assertEquals(plugins.length, 1);
-	assertEquals(plugins[0].name, 'TestPlugin');
+	assertEquals(plugins[0].name, "TestPlugin");
 });
 
-Deno.test('PluginLoader - dependency handling', async () => {
+Deno.test("PluginLoader - dependency handling", async () => {
 	const cli = new CLI();
 	const loader = new PluginLoader();
 
-	const basePluginUrl = 'data:text/javascript;base64,' + btoa(`
+	const basePluginUrl = "data:text/javascript;base64," + btoa(`
         export default {
             metadata: {
                 name: "BasePlugin",
@@ -58,7 +58,7 @@ Deno.test('PluginLoader - dependency handling', async () => {
         };
     `);
 
-	const dependentPluginUrl = 'data:text/javascript;base64,' + btoa(`
+	const dependentPluginUrl = "data:text/javascript;base64," + btoa(`
         export default {
             metadata: {
                 name: "DependentPlugin",
@@ -80,16 +80,16 @@ Deno.test('PluginLoader - dependency handling', async () => {
 
 	const plugins = loader.listPlugins();
 	assertEquals(plugins.length, 2);
-	assertEquals(plugins[0].name, 'BasePlugin');
-	assertEquals(plugins[1].name, 'DependentPlugin');
+	assertEquals(plugins[0].name, "BasePlugin");
+	assertEquals(plugins[1].name, "DependentPlugin");
 });
 
-Deno.test('PluginLoader should handle dependencies correctly', async () => {
+Deno.test("PluginLoader should handle dependencies correctly", async () => {
 	const cli = new CLI();
 	const pluginLoader = new PluginLoader();
 
 	// Define mock plugins as data URLs
-	const testPluginUrl = 'data:text/javascript;base64,' + btoa(`
+	const testPluginUrl = "data:text/javascript;base64," + btoa(`
         export default {
             metadata: {
                 name: "TestPlugin",
@@ -107,7 +107,7 @@ Deno.test('PluginLoader should handle dependencies correctly', async () => {
         };
     `);
 
-	const dependentPluginUrl = 'data:text/javascript;base64,' + btoa(`
+	const dependentPluginUrl = "data:text/javascript;base64," + btoa(`
         export default {
             metadata: {
                 name: "DependentPlugin",
@@ -134,6 +134,6 @@ Deno.test('PluginLoader should handle dependencies correctly', async () => {
 
 	const plugins = pluginLoader.listPlugins();
 	assertEquals(plugins.length, 2);
-	assertEquals(plugins[0].name, 'TestPlugin');
-	assertEquals(plugins[1].name, 'DependentPlugin');
+	assertEquals(plugins[0].name, "TestPlugin");
+	assertEquals(plugins[1].name, "DependentPlugin");
 });

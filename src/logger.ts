@@ -3,9 +3,9 @@ import {
 	ConsoleHandler,
 	LogRecord,
 	setup as logSetup,
-} from 'https://deno.land/std@0.224.0/log/mod.ts';
-import type { LevelName } from 'https://deno.land/std@0.224.0/log/levels.ts';
-import { ILogger } from './logger_interface.ts';
+} from "https://deno.land/std@0.224.0/log/mod.ts";
+import type { LevelName } from "https://deno.land/std@0.224.0/log/levels.ts";
+import { ILogger } from "./logger_interface.ts";
 
 export interface LogConfig {
 	loggers?: {
@@ -19,7 +19,7 @@ export interface LogConfig {
 export class ConsoleLogger implements ILogger {
 	protected logLevel: LevelName;
 
-	constructor(logLevel: LevelName = 'INFO') {
+	constructor(logLevel: LevelName = "INFO") {
 		this.logLevel = logLevel;
 	}
 
@@ -28,22 +28,22 @@ export class ConsoleLogger implements ILogger {
 	}
 
 	info(message: string): void {
-		const formattedMessage = this.formatMessage('INFO', message);
+		const formattedMessage = this.formatMessage("INFO", message);
 		console.log(formattedMessage);
 	}
 
 	error(message: string): void {
-		const formattedMessage = this.formatMessage('ERROR', message);
+		const formattedMessage = this.formatMessage("ERROR", message);
 		console.error(formattedMessage);
 	}
 
 	debug(message: string): void {
-		const formattedMessage = this.formatMessage('DEBUG', message);
+		const formattedMessage = this.formatMessage("DEBUG", message);
 		console.debug(formattedMessage);
 	}
 
 	warn(message: string): void {
-		const formattedMessage = this.formatMessage('WARN', message);
+		const formattedMessage = this.formatMessage("WARN", message);
 		console.warn(formattedMessage);
 	}
 }
@@ -53,7 +53,7 @@ export const logger = new ConsoleLogger();
 export const setup = async (options?: LogConfig) => {
 	const defaultConfig = {
 		handlers: {
-			console: new ConsoleHandler('DEBUG' as LevelName, {
+			console: new ConsoleHandler("DEBUG" as LevelName, {
 				formatter: (logRecord: LogRecord) => {
 					return `${logRecord.levelName} ${logRecord.msg}`;
 				},
@@ -61,8 +61,8 @@ export const setup = async (options?: LogConfig) => {
 		},
 		loggers: {
 			default: {
-				level: 'DEBUG' as LevelName,
-				handlers: ['console'],
+				level: "DEBUG" as LevelName,
+				handlers: ["console"],
 			},
 		},
 	};

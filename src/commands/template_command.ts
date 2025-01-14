@@ -1,15 +1,15 @@
 // src/commands/template_command.ts
-import { BaseCommand } from '../types.ts';
-import { Args, Command } from '../types.ts';
-import { logger } from '../logger.ts';
-import { CLI } from '../core.ts';
+import { BaseCommand } from "../types.ts";
+import { Args, Command } from "../types.ts";
+import { logger } from "../logger.ts";
+import { CLI } from "../core.ts";
 
 interface TemplateVariable {
 	name: string;
 	description?: string;
 	default?: string;
 	required?: boolean;
-	type?: 'string' | 'number' | 'boolean';
+	type?: "string" | "number" | "boolean";
 	validation?: string;
 }
 
@@ -37,68 +37,68 @@ export class TemplateCommand extends BaseCommand {
 
 	constructor() {
 		super({
-			name: 'template',
-			description: 'Manage and generate from templates',
-			category: 'templates',
-			permissions: ['read', 'write'],
+			name: "template",
+			description: "Manage and generate from templates",
+			category: "templates",
+			permissions: ["read", "write"],
 			subcommands: [
 				{
-					name: 'generate',
-					description: 'Generate content from a template',
+					name: "generate",
+					description: "Generate content from a template",
 					options: [
 						{
-							name: 'template',
-							type: 'string',
+							name: "template",
+							type: "string",
 							required: true,
-							description: 'Template name',
+							description: "Template name",
 						},
 						{
-							name: 'output',
-							type: 'string',
-							description: 'Output file path',
+							name: "output",
+							type: "string",
+							description: "Output file path",
 							required: true,
 						},
 						{
-							name: 'variables',
-							type: 'string',
-							description: 'Variables in JSON format',
+							name: "variables",
+							type: "string",
+							description: "Variables in JSON format",
 							required: false,
 						},
 						{
-							name: 'force',
-							type: 'boolean',
-							description: 'Overwrite existing files',
+							name: "force",
+							type: "boolean",
+							description: "Overwrite existing files",
 							default: false,
 						},
 					],
 					action: (args: Args) => this.generateFromTemplate(args),
 				},
 				{
-					name: 'list',
-					description: 'List available templates',
+					name: "list",
+					description: "List available templates",
 					action: () => this.listTemplates(),
 				},
 				{
-					name: 'add',
-					description: 'Add a new template',
+					name: "add",
+					description: "Add a new template",
 					options: [
 						{
-							name: 'name',
-							type: 'string',
+							name: "name",
+							type: "string",
 							required: true,
-							description: 'Template name',
+							description: "Template name",
 						},
 						{
-							name: 'source',
-							type: 'string',
+							name: "source",
+							type: "string",
 							required: true,
-							description: 'Template source file path',
+							description: "Template source file path",
 						},
 						{
-							name: 'config',
-							type: 'string',
+							name: "config",
+							type: "string",
 							required: false,
-							description: 'Template configuration file path',
+							description: "Template configuration file path",
 						},
 					],
 					action: (args: Args) => this.addTemplate(args),
@@ -110,13 +110,13 @@ export class TemplateCommand extends BaseCommand {
 	async action(args: Args): Promise<void> {
 		const subcommand = args.command[1];
 		switch (subcommand) {
-			case 'generate':
+			case "generate":
 				await this.generateFromTemplate(args);
 				break;
-			case 'list':
+			case "list":
 				await this.listTemplates();
 				break;
-			case 'add':
+			case "add":
 				await this.addTemplate(args);
 				break;
 			default:
@@ -136,7 +136,7 @@ export class TemplateCommand extends BaseCommand {
 	private async validatePattern(pattern: string): Promise<RegExp> {
 		try {
 			// Handle /pattern/flags format
-			if (pattern.startsWith('/') && pattern.match(/\/[gimsuy]*$/)) {
+			if (pattern.startsWith("/") && pattern.match(/\/[gimsuy]*$/)) {
 				const matches = pattern.match(/^\/(.+)\/([gimsuy]*)$/);
 				if (matches) {
 					return new RegExp(matches[1], matches[2]);
@@ -208,7 +208,7 @@ export class TemplateCommand extends BaseCommand {
 		hookScript: string,
 	): (context: unknown) => unknown {
 		return new Function(
-			'context',
+			"context",
 			`"use strict";
       try {
         ${hookScript}
@@ -252,7 +252,7 @@ export class TemplateCommand extends BaseCommand {
 
 		// Replace all variables in the template
 		for (const [key, value] of Object.entries(variables)) {
-			const regex = new RegExp(`\\{\\{\\s*${key}\\s*\\}\\}`, 'g');
+			const regex = new RegExp(`\\{\\{\\s*${key}\\s*\\}\\}`, "g");
 			content = content.replace(regex, value);
 		}
 
@@ -272,7 +272,7 @@ export class TemplateCommand extends BaseCommand {
 		try {
 			const stat = await Deno.stat(filePath);
 			if (!stat.isFile) {
-				throw new Error('Source path is not a file');
+				throw new Error("Source path is not a file");
 			}
 		} catch (error) {
 			if (error instanceof Deno.errors.NotFound) {
@@ -286,7 +286,7 @@ export class TemplateCommand extends BaseCommand {
 		const templateName = args.flags.template as string;
 		const outputPath = args.flags.output as string;
 		// Correctly interpret 'force' as a boolean
-		const force = typeof args.flags.force === 'boolean'
+		const force = typeof args.flags.force === "boolean"
 			? args.flags.force
 			: false;
 
@@ -318,7 +318,7 @@ export class TemplateCommand extends BaseCommand {
 
 		// Validate variables
 		if (!(await this.validateVariables(template, variables))) {
-			throw new Error('Variable validation failed');
+			throw new Error("Variable validation failed");
 		}
 
 		// Render the template
@@ -331,7 +331,7 @@ export class TemplateCommand extends BaseCommand {
 		if (template.hooks?.validate) {
 			const isValid = await this.executeHook(template.hooks.validate, content);
 			if (!isValid) {
-				throw new Error('Template validation failed');
+				throw new Error("Template validation failed");
 			}
 		}
 
@@ -356,12 +356,12 @@ export class TemplateCommand extends BaseCommand {
 
 	private listTemplates(): void {
 		if (this.templates.size === 0) {
-			console.log('No templates available');
+			console.log("No templates available");
 			return;
 		}
 
-		console.log('\nAvailable Templates:');
-		console.log('===================');
+		console.log("\nAvailable Templates:");
+		console.log("===================");
 
 		for (const [name, template] of this.templates) {
 			console.log(`\nName: ${name}`);
@@ -369,11 +369,11 @@ export class TemplateCommand extends BaseCommand {
 				console.log(`Description: ${template.description}`);
 			}
 			if (template.variables.length > 0) {
-				console.log('Variables:');
+				console.log("Variables:");
 				template.variables.forEach((variable) => {
 					console.log(
-						`  - ${variable.name}${variable.required ? ' (required)' : ''}${
-							variable.description ? `: ${variable.description}` : ''
+						`  - ${variable.name}${variable.required ? " (required)" : ""}${
+							variable.description ? `: ${variable.description}` : ""
 						}`,
 					);
 				});

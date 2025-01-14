@@ -1,9 +1,9 @@
 // src/parser.ts
 
-import type { Args } from './types.ts'; // Import Args type
-import type { CLI } from './core.ts'; // Import CLI
-import type { Option } from './command.ts'; // Import Option interface
-import { InvalidFlagValueError, MissingFlagError } from './error.ts'; // Import specific error types
+import type { Args } from "./types.ts"; // Import Args type
+import type { CLI } from "./core.ts"; // Import CLI
+import type { Option } from "./command.ts"; // Import Option interface
+import { InvalidFlagValueError, MissingFlagError } from "./error.ts"; // Import specific error types
 
 export type FlagValue = string | number | boolean | string[];
 
@@ -29,9 +29,9 @@ export class Parser {
 		while (i < argv.length) {
 			const arg = argv[i];
 
-			if (arg.startsWith('--')) {
+			if (arg.startsWith("--")) {
 				// Handle long flags: --key or --key=value
-				const eqIndex = arg.indexOf('=');
+				const eqIndex = arg.indexOf("=");
 				if (eqIndex !== -1) {
 					const key = arg.slice(2, eqIndex);
 					const value = arg.slice(eqIndex + 1);
@@ -47,9 +47,9 @@ export class Parser {
 					const nextArg = argv[i + 1];
 
 					if (
-						flagType !== 'boolean' &&
+						flagType !== "boolean" &&
 						nextArg &&
-						!nextArg.startsWith('-')
+						!nextArg.startsWith("-")
 					) {
 						// Flag expects a value and next argument is the value
 						try {
@@ -63,16 +63,16 @@ export class Parser {
 						args.flags[key] = true;
 					}
 				}
-			} else if (arg.startsWith('-') && arg !== '-') {
+			} else if (arg.startsWith("-") && arg !== "-") {
 				// Handle short flags: -k or grouped like -abc
-				const flags = arg.slice(1).split('');
+				const flags = arg.slice(1).split("");
 				for (let j = 0; j < flags.length; j++) {
 					const flag = flags[j];
 					const flagType = this.getFlagType(flag, cli);
-					if (flagType !== 'boolean') {
+					if (flagType !== "boolean") {
 						// Flag expects a value
 						const value = argv[i + 1];
-						if (value && !value.startsWith('-')) {
+						if (value && !value.startsWith("-")) {
 							try {
 								args.flags[flag] = this.parseValue(value, flagType);
 								i++; // Skip the next argument as it's consumed as a value
@@ -107,9 +107,9 @@ export class Parser {
 	private getFlagType(
 		key: string,
 		cli: CLI,
-	): 'boolean' | 'string' | 'number' | 'array' {
+	): "boolean" | "string" | "number" | "array" {
 		const flagDef = this.findFlagDefinition(key, cli);
-		return flagDef?.type || 'string'; // Default to "string" if not found
+		return flagDef?.type || "string"; // Default to "string" if not found
 	}
 
 	/**
@@ -121,14 +121,14 @@ export class Parser {
 	 */
 	private parseValue(
 		value: string,
-		type: 'boolean' | 'string' | 'number' | 'array',
+		type: "boolean" | "string" | "number" | "array",
 	): FlagValue {
 		switch (type) {
-			case 'boolean': {
+			case "boolean": {
 				const bool = this.parseBoolean(value);
 				// If value is not a recognized boolean string, throw an error
 				if (
-					!['true', 'false', '1', '0', 'yes', 'no', 'y', 'n'].includes(
+					!["true", "false", "1", "0", "yes", "no", "y", "n"].includes(
 						value.toLowerCase(),
 					)
 				) {
@@ -136,17 +136,17 @@ export class Parser {
 				}
 				return bool;
 			}
-			case 'number': {
+			case "number": {
 				const num = Number(value);
 				if (isNaN(num)) {
 					throw new Error(`Expected a number but received '${value}'.`);
 				}
 				return num;
 			}
-			case 'array': {
-				return value.split(','); // Assuming comma-separated values
+			case "array": {
+				return value.split(","); // Assuming comma-separated values
 			}
-			case 'string':
+			case "string":
 			default:
 				return value;
 		}
@@ -159,7 +159,7 @@ export class Parser {
 	 */
 	private parseBoolean(value: string): boolean {
 		const normalized = value.toLowerCase();
-		return ['true', '1', 'yes', 'y'].includes(normalized);
+		return ["true", "1", "yes", "y"].includes(normalized);
 	}
 
 	/**

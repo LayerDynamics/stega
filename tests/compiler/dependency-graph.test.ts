@@ -2,10 +2,10 @@
 import {
 	assertEquals,
 	assertRejects,
-} from 'https://deno.land/std@0.203.0/testing/asserts.ts';
-import { DependencyGraph } from '../../src/compiler/dependency-graph.ts';
-import type { ModuleInfo } from '../../src/compiler/types.ts';
-import * as pathModule from 'https://deno.land/std@0.203.0/path/mod.ts';
+} from "https://deno.land/std@0.203.0/testing/asserts.ts";
+import { DependencyGraph } from "../../src/compiler/dependency-graph.ts";
+import type { ModuleInfo } from "../../src/compiler/types.ts";
+import * as pathModule from "https://deno.land/std@0.203.0/path/mod.ts";
 
 /**
  * Mock ModuleInfo for testing.
@@ -53,13 +53,13 @@ const createMockParseModule = (moduleMap: Map<string, ModuleInfo>) => {
 	};
 };
 
-Deno.test('DependencyGraph - builds graph correctly', async () => {
+Deno.test("DependencyGraph - builds graph correctly", async () => {
 	const graph = new DependencyGraph();
 	const moduleMap = new Map<string, ModuleInfo>();
 
 	// Pre-resolve paths for better performance
-	const entryPath = pathModule.resolve('entry.ts');
-	const fooPath = pathModule.resolve('./foo.ts');
+	const entryPath = pathModule.resolve("entry.ts");
+	const fooPath = pathModule.resolve("./foo.ts");
 
 	const entryModule = mockModule(
 		entryPath,
@@ -78,22 +78,22 @@ Deno.test('DependencyGraph - builds graph correctly', async () => {
 	assertEquals(
 		graph.getModule(entryPath)?.dependencies.length,
 		1,
-		'Entry module should have one dependency',
+		"Entry module should have one dependency",
 	);
 	assertEquals(
 		graph.getModule(fooPath)?.dependencies.length,
 		0,
-		'Foo module should have no dependencies',
+		"Foo module should have no dependencies",
 	);
 });
 
-Deno.test('DependencyGraph - detects cycles', async () => {
+Deno.test("DependencyGraph - detects cycles", async () => {
 	const graph = new DependencyGraph();
 	const moduleMap = new Map<string, ModuleInfo>();
 
 	// Pre-resolve paths for better performance
-	const aPath = pathModule.resolve('./a.ts');
-	const bPath = pathModule.resolve('./b.ts');
+	const aPath = pathModule.resolve("./a.ts");
+	const bPath = pathModule.resolve("./b.ts");
 
 	const moduleA = mockModule(aPath, "import { b } from './b.ts';", [bPath]);
 	const moduleB = mockModule(bPath, "import { a } from './a.ts';", [aPath]);
@@ -108,6 +108,6 @@ Deno.test('DependencyGraph - detects cycles', async () => {
 	assertEquals(
 		graph.hasCycle(),
 		true,
-		'DependencyGraph should detect a cycle between a.ts and b.ts',
+		"DependencyGraph should detect a cycle between a.ts and b.ts",
 	);
 });

@@ -1,30 +1,30 @@
-import { Command } from '../core.ts';
-import { logger } from '../logger.ts';
-import ProgressBar from 'https://deno.land/x/progress@v1.3.8/mod.ts';
+import { Command } from "../core.ts";
+import { logger } from "../logger.ts";
+import ProgressBar from "https://deno.land/x/progress@v1.3.8/mod.ts";
 
 export const downloadCommand: Command = {
-	name: 'download',
-	description: 'Download a file from a URL',
+	name: "download",
+	description: "Download a file from a URL",
 	options: [
 		{
-			name: 'url',
-			alias: 'u',
-			type: 'string',
-			description: 'URL to download from',
+			name: "url",
+			alias: "u",
+			type: "string",
+			description: "URL to download from",
 			required: true,
 		},
 		{
-			name: 'output',
-			alias: 'o',
-			type: 'string',
-			description: 'Output file path',
+			name: "output",
+			alias: "o",
+			type: "string",
+			description: "Output file path",
 			required: false,
 		},
 	],
 	action: async (args) => {
 		const url = args.flags.url as string;
 		const output = args.flags.output as string ||
-			new URL(url).pathname.split('/').pop() || 'download';
+			new URL(url).pathname.split("/").pop() || "download";
 
 		logger.info(`Downloading ${url} to ${output}`);
 
@@ -34,12 +34,12 @@ export const downloadCommand: Command = {
 				throw new Error(`Failed to download: ${response.statusText}`);
 			}
 
-			const total = Number(response.headers.get('content-length')) || 0;
+			const total = Number(response.headers.get("content-length")) || 0;
 			const progress = new ProgressBar({
-				title: 'Downloading',
+				title: "Downloading",
 				total,
-				complete: '=',
-				incomplete: '-',
+				complete: "=",
+				incomplete: "-",
 			});
 
 			const file = await Deno.open(output, { write: true, create: true });

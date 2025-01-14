@@ -1,6 +1,6 @@
 // tests/utils/mock_logger.ts
-import type { LevelName } from 'https://deno.land/std@0.224.0/log/levels.ts';
-import type { ILogger } from '../../src/logger_interface.ts';
+import type { LevelName } from "https://deno.land/std@0.224.0/log/levels.ts";
+import type { ILogger } from "../../src/logger_interface.ts";
 
 export interface LoggerOptions {
 	logLevel?: LevelName;
@@ -20,15 +20,15 @@ export class MockLogger implements ILogger {
 	private errorMessages: string[] = [];
 
 	debug(message: string): void {
-		this.logEntries.push({ level: 'debug', message });
+		this.logEntries.push({ level: "debug", message });
 	}
 
 	info(message: string): void {
-		this.logEntries.push({ level: 'info', message });
+		this.logEntries.push({ level: "info", message });
 	}
 
 	warn(message: string): void {
-		this.logEntries.push({ level: 'warn', message });
+		this.logEntries.push({ level: "warn", message });
 	}
 
 	warning(message: string): void {
@@ -36,12 +36,12 @@ export class MockLogger implements ILogger {
 	}
 
 	error(message: string): void {
-		this.logEntries.push({ level: 'error', message });
+		this.logEntries.push({ level: "error", message });
 		this.errorMessages.push(message);
 	}
 
 	critical(message: string): void {
-		this.logEntries.push({ level: 'critical', message });
+		this.logEntries.push({ level: "critical", message });
 		this.errorMessages.push(message);
 	}
 

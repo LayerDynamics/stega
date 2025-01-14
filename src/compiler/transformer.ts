@@ -5,10 +5,10 @@ import {
 	SourceFile,
 	SyntaxKind,
 	ts,
-} from 'https://deno.land/x/ts_morph@17.0.1/mod.ts';
-import type { CompilerOptions } from './types.ts';
-import { SourceMapGenerator } from 'https://esm.sh/source-map@0.7.4';
-import { logger } from './logger.ts';
+} from "https://deno.land/x/ts_morph@17.0.1/mod.ts";
+import type { CompilerOptions } from "./types.ts";
+import { SourceMapGenerator } from "https://esm.sh/source-map@0.7.4";
+import { logger } from "./logger.ts";
 
 /**
  * Represents the result of a transformation, including the transformed AST and an optional source map.
@@ -76,11 +76,11 @@ export class Transformer {
 	 */
 	private registerDefaultTransforms(): void {
 		// Register built-in transformations
-		this.registerTransform('decorators', this.transformDecorators.bind(this));
-		this.registerTransform('typescript', this.transformTypeScript.bind(this));
-		this.registerTransform('modules', this.transformModules.bind(this));
+		this.registerTransform("decorators", this.transformDecorators.bind(this));
+		this.registerTransform("typescript", this.transformTypeScript.bind(this));
+		this.registerTransform("modules", this.transformModules.bind(this));
 		this.registerTransform(
-			'dynamic-imports',
+			"dynamic-imports",
 			this.transformDynamicImports.bind(this),
 		);
 	}
@@ -178,13 +178,13 @@ export class Transformer {
 			// Ensure import paths are relative
 			let newModuleSpecifier = moduleSpecifier;
 			if (
-				!moduleSpecifier.startsWith('.') && !moduleSpecifier.startsWith('/')
+				!moduleSpecifier.startsWith(".") && !moduleSpecifier.startsWith("/")
 			) {
 				newModuleSpecifier = `./${moduleSpecifier}`;
 			}
 
 			// Remove .ts extension from import paths
-			if (newModuleSpecifier.endsWith('.ts')) {
+			if (newModuleSpecifier.endsWith(".ts")) {
 				newModuleSpecifier = newModuleSpecifier.slice(0, -3);
 			}
 
@@ -229,7 +229,7 @@ export class Transformer {
 				if (expr.getKind() === ts.SyntaxKind.ImportKeyword) {
 					const args = callExpr.getArguments();
 					if (args.length === 1) {
-						const modulePath = args[0].getText().replace(/['"]/g, '');
+						const modulePath = args[0].getText().replace(/['"]/g, "");
 						callExpr.replaceWithText(`__require("${modulePath}")`);
 					}
 				}
@@ -245,7 +245,7 @@ export class Transformer {
 	 */
 	private generateSourceMap(sourceFile: SourceFile, path: string): string {
 		try {
-			const generator = new SourceMapGenerator({ file: 'bundle.js' });
+			const generator = new SourceMapGenerator({ file: "bundle.js" });
 
 			// Map function declarations
 			sourceFile.getFunctions().forEach((func) => {
@@ -287,7 +287,7 @@ export class Transformer {
 			return generator.toString();
 		} catch (error) {
 			logger.error(`Source map generation failed for ${path}:`, error);
-			return '';
+			return "";
 		}
 	}
 }

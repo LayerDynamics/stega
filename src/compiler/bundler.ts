@@ -4,11 +4,11 @@
  * Bundles all modules into a single output file, handling module wrapping based on the target module format.
  */
 
-import { DependencyGraph } from './dependency-graph.ts';
-import type { CompilerOptions, ModuleFormat } from './types.ts';
-import { SourceMapGenerator } from 'https://esm.sh/source-map@0.7.4';
-import { logger } from './logger.ts';
-import { ts } from 'https://deno.land/x/ts_morph@17.0.1/mod.ts';
+import { DependencyGraph } from "./dependency-graph.ts";
+import type { CompilerOptions, ModuleFormat } from "./types.ts";
+import { SourceMapGenerator } from "https://esm.sh/source-map@0.7.4";
+import { logger } from "./logger.ts";
+import { ts } from "https://deno.land/x/ts_morph@17.0.1/mod.ts";
 
 /**
  * Interface representing the result of the bundling process.
@@ -46,7 +46,7 @@ export class Bundler {
 		});
 
 		// Initialize source map generator
-		const sourceMap = new SourceMapGenerator({ file: 'bundle.js' });
+		const sourceMap = new SourceMapGenerator({ file: "bundle.js" });
 
 		// Bundle modules in dependency order
 		for (const modulePath of moduleOrder) {
@@ -61,17 +61,17 @@ export class Bundler {
 
 			// Example source map mapping (to be enhanced based on actual code generation)
 			// This simplistic mapping assumes one line per module
-			const line = code.split('\n').length;
+			const line = code.split("\n").length;
 			sourceMap.addMapping({
 				generated: { line: line, column: 0 },
 				original: { line: 1, column: 0 },
 				source: modulePath,
 			});
-			sourceMap.setSourceContent(modulePath, modules.get(modulePath) || '');
+			sourceMap.setSourceContent(modulePath, modules.get(modulePath) || "");
 		}
 
 		code += this.generatePostamble();
-		logger.info('Bundle process completed successfully');
+		logger.info("Bundle process completed successfully");
 
 		return {
 			code,
@@ -85,11 +85,11 @@ export class Bundler {
 	 */
 	private getModuleFormat(): ModuleFormat {
 		if (this.options.module === ts.ModuleKind.CommonJS) {
-			return 'commonjs';
+			return "commonjs";
 		} else if (this.options.module === ts.ModuleKind.UMD) {
-			return 'umd';
+			return "umd";
 		}
-		return 'es6';
+		return "es6";
 	}
 
 	/**
@@ -109,7 +109,7 @@ export class Bundler {
 		const format = this.getModuleFormat();
 		logger.info(`Wrapping module ${modulePath} using ${format} format`);
 
-		return format === 'commonjs'
+		return format === "commonjs"
 			? this.wrapCommonJS(modulePath, module.code)
 			: this.wrapESModule(modulePath, module.code);
 	}

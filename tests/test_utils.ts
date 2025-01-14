@@ -1,8 +1,8 @@
 // tests/test_utils.ts
-import { CLI } from '../src/core.ts';
-import { ILogger } from '../src/logger_interface.ts';
-import * as path from 'https://deno.land/std@0.203.0/path/mod.ts';
-import { MockLogger } from './utils/mock_logger.ts';
+import { CLI } from "../src/core.ts";
+import { ILogger } from "../src/logger_interface.ts";
+import * as path from "https://deno.land/std@0.203.0/path/mod.ts";
+import { MockLogger } from "./utils/mock_logger.ts";
 
 export interface TestCLI {
 	cli: CLI;
@@ -28,8 +28,8 @@ export async function createTestCLI(): Promise<TestCLI> {
  */
 export async function createTempFile(content: string): Promise<string> {
 	const tmpFile = await Deno.makeTempFile({
-		prefix: 'stega_test_',
-		suffix: '.tmp',
+		prefix: "stega_test_",
+		suffix: ".tmp",
 	});
 	await Deno.writeTextFile(tmpFile, content);
 	return tmpFile;
@@ -61,7 +61,7 @@ export async function cleanupTempFiles(...paths: string[]): Promise<void> {
  */
 export function getProjectRoot(): string {
 	// Assumes test_utils.ts is in the tests directory at project root
-	return path.resolve(path.dirname(path.fromFileUrl(import.meta.url)), '..');
+	return path.resolve(path.dirname(path.fromFileUrl(import.meta.url)), "..");
 }
 
 /**
@@ -102,9 +102,9 @@ export function mockFetchWithAbort(
 			}, delay);
 
 			if (init?.signal) {
-				init.signal.addEventListener('abort', () => {
+				init.signal.addEventListener("abort", () => {
 					clearTimeout(timer);
-					reject(new DOMException('Aborted', 'AbortError'));
+					reject(new DOMException("Aborted", "AbortError"));
 				});
 			}
 		});

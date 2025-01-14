@@ -2,7 +2,7 @@
 import {
 	Confirm,
 	Input,
-} from 'https://deno.land/x/cliffy@v1.0.0-rc.3/prompt/mod.ts';
+} from "https://deno.land/x/cliffy@v1.0.0-rc.3/prompt/mod.ts";
 
 /**
  * Prompts the user for a string input.

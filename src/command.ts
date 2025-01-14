@@ -1,6 +1,6 @@
 // src/command.ts
-import { FlagValue } from './flag.ts'; // Import FlagValue
-import type { Args } from './types.ts'; // Import Args from types.ts
+import { FlagValue } from "./flag.ts"; // Import FlagValue
+import type { Args } from "./types.ts"; // Import Args from types.ts
 
 /**
  * Represents an option for a command.
@@ -9,7 +9,7 @@ export interface Option {
 	name: string;
 	alias?: string;
 	description?: string;
-	type: 'boolean' | 'string' | 'number' | 'array';
+	type: "boolean" | "string" | "number" | "array";
 	default?: FlagValue;
 	required?: boolean;
 }

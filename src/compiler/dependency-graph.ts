@@ -1,7 +1,7 @@
 // /src/compiler/dependency-graph.ts
-import type { ModuleInfo } from './types.ts';
-import * as path from 'https://deno.land/std@0.203.0/path/mod.ts';
-import { ts } from 'https://deno.land/x/ts_morph@17.0.1/mod.ts';
+import type { ModuleInfo } from "./types.ts";
+import * as path from "https://deno.land/std@0.203.0/path/mod.ts";
+import { ts } from "https://deno.land/x/ts_morph@17.0.1/mod.ts";
 
 /**
  * Manages the dependency graph of modules, tracking their dependencies and dependents.
@@ -87,41 +87,41 @@ export class DependencyGraph {
 	 * @returns The resolved absolute file path.
 	 */
 	private resolveModulePath(specifier: string, importerPath: string): string {
-		if (specifier.startsWith('.') || specifier.startsWith('/')) {
+		if (specifier.startsWith(".") || specifier.startsWith("/")) {
 			// Relative or absolute path
 			const importerDir = path.dirname(importerPath);
 			let resolvedPath = path.resolve(importerDir, specifier);
-			if (!resolvedPath.endsWith('.ts') && !resolvedPath.endsWith('.js')) {
+			if (!resolvedPath.endsWith(".ts") && !resolvedPath.endsWith(".js")) {
 				// Attempt to resolve with .ts extension
-				if (Deno.env.get('DENO_BUILD_EXTENSIONS')) {
-					resolvedPath += '.ts';
+				if (Deno.env.get("DENO_BUILD_EXTENSIONS")) {
+					resolvedPath += ".ts";
 				} else {
-					resolvedPath += '.js';
+					resolvedPath += ".js";
 				}
 			}
 			return resolvedPath;
 		} else {
 			// Node modules or aliases
 			// Simplistic node_modules resolution
-			const nodeModulesPath = path.resolve('./node_modules', specifier);
+			const nodeModulesPath = path.resolve("./node_modules", specifier);
 			// Attempt to find index.ts or index.js
 			try {
-				if (Deno.statSync(nodeModulesPath + '.ts').isFile) {
-					return nodeModulesPath + '.ts';
-				} else if (Deno.statSync(nodeModulesPath + '.js').isFile) {
-					return nodeModulesPath + '.js';
+				if (Deno.statSync(nodeModulesPath + ".ts").isFile) {
+					return nodeModulesPath + ".ts";
+				} else if (Deno.statSync(nodeModulesPath + ".js").isFile) {
+					return nodeModulesPath + ".js";
 				}
 			} catch {
 				// File does not exist, proceed to check for index files
 			}
 			try {
 				// Attempt to find index files
-				if (Deno.statSync(path.join(nodeModulesPath, 'index.ts')).isFile) {
-					return path.join(nodeModulesPath, 'index.ts');
+				if (Deno.statSync(path.join(nodeModulesPath, "index.ts")).isFile) {
+					return path.join(nodeModulesPath, "index.ts");
 				} else if (
-					Deno.statSync(path.join(nodeModulesPath, 'index.js')).isFile
+					Deno.statSync(path.join(nodeModulesPath, "index.js")).isFile
 				) {
-					return path.join(nodeModulesPath, 'index.js');
+					return path.join(nodeModulesPath, "index.js");
 				}
 			} catch {
 				// Index files do not exist
@@ -373,7 +373,7 @@ export class DependencyGraph {
 			.map((stmt) =>
 				printer.printNode(ts.EmitHint.Unspecified, stmt, targetFile)
 			)
-			.join('\n');
+			.join("\n");
 
 		// Create merged module
 		const mergedModule: ModuleInfo = {
@@ -564,7 +564,7 @@ export class DependencyGraph {
 
 		// Validate
 		if (graph.hasCycle()) {
-			throw new Error('Restored dependency graph contains cycles');
+			throw new Error("Restored dependency graph contains cycles");
 		}
 
 		// Verify references

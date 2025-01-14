@@ -1,11 +1,11 @@
 // /src/compiler/codegen.ts
 
-import { logger } from '../logger.ts';
+import { logger } from "../logger.ts";
 import {
 	RawSourceMap,
 	SourceMapConsumer,
 	SourceMapGenerator,
-} from 'https://esm.sh/source-map@0.7.4';
+} from "https://esm.sh/source-map@0.7.4";
 import {
 	ClassDeclaration,
 	ConstructorDeclaration,
@@ -24,13 +24,13 @@ import {
 	ts,
 	TypeParameterDeclaration,
 	VariableStatement,
-} from 'https://deno.land/x/ts_morph@17.0.1/mod.ts';
-import { minify as terserMinify } from 'https://esm.sh/terser@5.14.2';
+} from "https://deno.land/x/ts_morph@17.0.1/mod.ts";
+import { minify as terserMinify } from "https://esm.sh/terser@5.14.2";
 
 /**
  * Defines the possible module formats.
  */
-export type ModuleFormat = 'es6' | 'commonjs' | 'umd'; // Added "esm" if needed
+export type ModuleFormat = "es6" | "commonjs" | "umd"; // Added "esm" if needed
 
 /**
  * Options for code generation and bundling output.
@@ -40,7 +40,7 @@ export interface CodeGenOptions {
 	minify: boolean;
 	target: string; // e.g., "es5", "es6", "es2020", etc.
 	format?: ModuleFormat;
-	platform?: 'browser' | 'node' | 'deno';
+	platform?: "browser" | "node" | "deno";
 	externals?: string[];
 }
 
@@ -91,7 +91,7 @@ export class CodeGenerator {
 			sourceMaps: boolean;
 			minify: boolean;
 			plugins: unknown[];
-			platform: 'browser' | 'node' | 'deno';
+			platform: "browser" | "node" | "deno";
 			externals: string[];
 			define: Record<string, string>;
 			treeshake: boolean;
@@ -148,7 +148,7 @@ export class CodeGenerator {
 			// Step 6: Wrap code with the specified module format
 			const finalCode = this.wrapCodeWithFormat(
 				transformedCode,
-				genOptions.format || 'es6',
+				genOptions.format || "es6",
 			);
 
 			return {
@@ -255,8 +255,8 @@ export class CodeGenerator {
 
 	private generateImport(node: ImportDeclaration): string {
 		const importClause = node.getImportClause();
-		if (!importClause) return '';
-		let importStatement = 'import ';
+		if (!importClause) return "";
+		let importStatement = "import ";
 		const namespaceImport = importClause.getNamespaceImport();
 
 		if (namespaceImport) {
@@ -267,15 +267,15 @@ export class CodeGenerator {
 		} else {
 			const namedImports = importClause.getNamedImports();
 			const defaultImport = importClause.getDefaultImport();
-			const defaultImportText = defaultImport?.getText() || '';
+			const defaultImportText = defaultImport?.getText() || "";
 
 			if (defaultImportText && namedImports.length > 0) {
 				const namedList = namedImports.map((spec) => {
 					const name = spec.getName();
 					const aliasNode = spec.getAliasNode();
-					const aliasText = aliasNode ? aliasNode.getText() : '';
+					const aliasText = aliasNode ? aliasNode.getText() : "";
 					return aliasText ? `${name} as ${aliasText}` : name;
-				}).join(', ');
+				}).join(", ");
 				importStatement +=
 					`${defaultImportText}, { ${namedList} } from "${node.getModuleSpecifierValue()}";`;
 			} else if (defaultImportText) {
@@ -285,9 +285,9 @@ export class CodeGenerator {
 				const namedList = namedImports.map((spec) => {
 					const name = spec.getName();
 					const aliasNode = spec.getAliasNode();
-					const aliasText = aliasNode ? aliasNode.getText() : '';
+					const aliasText = aliasNode ? aliasNode.getText() : "";
 					return aliasText ? `${name} as ${aliasText}` : name;
-				}).join(', ');
+				}).join(", ");
 				importStatement +=
 					`{ ${namedList} } from "${node.getModuleSpecifierValue()}";`;
 			}
@@ -306,37 +306,37 @@ export class CodeGenerator {
 				const name = spec.getName();
 				const alias = spec.getAliasNode()?.getText();
 				return alias ? `${name} as ${alias}` : name;
-			}).join(', ');
+			}).join(", ");
 			return `export { ${exportsList} } from "${node.getModuleSpecifierValue()}";`;
 		} else if (namespaceExport) {
 			const namespaceName = namespaceExport.getName();
 			return `export * as ${namespaceName} from "${node.getModuleSpecifierValue()}";`;
 		}
-		return 'export {};';
+		return "export {};";
 	}
 
 	private generateFunction(node: FunctionDeclaration): string {
-		const name = node.getName() ?? '';
+		const name = node.getName() ?? "";
 		const typeParams = this.generateTypeParameters(
 			node.getTypeParameters() || [],
 		);
 		const params = node.getParameters().map((p) => this.generateParameter(p))
-			.join(', ');
+			.join(", ");
 		const returnType = node.getReturnTypeNode()
 			? `: ${node.getReturnTypeNode()!.getText()}`
-			: '';
-		const body = node.getBody() ? node.getBody()!.getText() : '{}';
+			: "";
+		const body = node.getBody() ? node.getBody()!.getText() : "{}";
 		return `function ${name}${typeParams}(${params})${returnType} ${body}`;
 	}
 
 	private generateClass(node: ClassDeclaration): string {
-		const name = node.getName() ?? '';
+		const name = node.getName() ?? "";
 		const typeParams = this.generateTypeParameters(
 			node.getTypeParameters() || [],
 		);
 		const heritage = this.generateHeritage(node);
 		const members = node.getMembers().map((m) => this.generateClassMember(m))
-			.join('\n');
+			.join("\n");
 		return `class ${name}${typeParams}${heritage} {\n${members}\n}`;
 	}
 
@@ -345,54 +345,54 @@ export class CodeGenerator {
 		const declarations = declarationList.getDeclarations().map((decl) => {
 			const variableName = decl.getName();
 			const typeNode = decl.getTypeNode();
-			const typeText = typeNode ? `: ${typeNode.getText()}` : '';
-			const initializer = decl.getInitializer()?.getText() || '';
+			const typeText = typeNode ? `: ${typeNode.getText()}` : "";
+			const initializer = decl.getInitializer()?.getText() || "";
 			return initializer
 				? `${variableName}${typeText} = ${initializer}`
 				: `${variableName}${typeText}`;
 		});
 		const flags = declarationList.getFlags();
-		let keyword = 'var';
-		if (flags & ts.NodeFlags.Const) keyword = 'const';
-		else if (flags & ts.NodeFlags.Let) keyword = 'let';
-		return `${keyword} ${declarations.join(', ')};`;
+		let keyword = "var";
+		if (flags & ts.NodeFlags.Const) keyword = "const";
+		else if (flags & ts.NodeFlags.Let) keyword = "let";
+		return `${keyword} ${declarations.join(", ")};`;
 	}
 
 	private generateTypeParameters(
 		typeParams: TypeParameterDeclaration[],
 	): string {
-		if (!typeParams.length) return '';
+		if (!typeParams.length) return "";
 		const params = typeParams.map((tp) => {
 			const constraint = tp.getConstraint()
 				? ` extends ${tp.getConstraint()!.getText()}`
-				: '';
+				: "";
 			const defaultType = tp.getDefault()
 				? ` = ${tp.getDefault()!.getText()}`
-				: '';
+				: "";
 			return `${tp.getName()}${constraint}${defaultType}`;
-		}).join(', ');
+		}).join(", ");
 		return `<${params}>`;
 	}
 
 	private generateParameter(param: ParameterDeclaration): string {
 		const name = param.getName();
-		const isOptional = param.isOptional() ? '?' : '';
+		const isOptional = param.isOptional() ? "?" : "";
 		const typeNode = param.getTypeNode();
-		const typeText = typeNode ? `: ${typeNode.getText()}` : '';
-		const initializer = param.getInitializer()?.getText() || '';
-		const initText = initializer ? ` = ${initializer}` : '';
+		const typeText = typeNode ? `: ${typeNode.getText()}` : "";
+		const initializer = param.getInitializer()?.getText() || "";
+		const initText = initializer ? ` = ${initializer}` : "";
 		return `${name}${isOptional}${typeText}${initText}`;
 	}
 
 	private generateHeritage(node: ClassDeclaration): string {
-		let extendsText = '';
-		let implementsText = '';
+		let extendsText = "";
+		let implementsText = "";
 		node.getHeritageClauses().forEach((clause) => {
 			if (clause.getToken() === SyntaxKind.ExtendsKeyword) {
-				const types = clause.getTypeNodes().map((t) => t.getText()).join(', ');
+				const types = clause.getTypeNodes().map((t) => t.getText()).join(", ");
 				extendsText = ` extends ${types}`;
 			} else if (clause.getToken() === SyntaxKind.ImplementsKeyword) {
-				const types = clause.getTypeNodes().map((t) => t.getText()).join(', ');
+				const types = clause.getTypeNodes().map((t) => t.getText()).join(", ");
 				implementsText = ` implements ${types}`;
 			}
 		});
@@ -414,39 +414,39 @@ export class CodeGenerator {
 
 	private generateMethod(method: MethodDeclaration): string {
 		const nameNode = method.getNameNode();
-		let methodName = '[anonymous]';
+		let methodName = "[anonymous]";
 
 		if (nameNode && nameNode.getKind() === SyntaxKind.Identifier) {
-			methodName = (nameNode as Node).getText() || '[anonymous]';
+			methodName = (nameNode as Node).getText() || "[anonymous]";
 		} else {
-			methodName = method.getName() || '[anonymous]';
+			methodName = method.getName() || "[anonymous]";
 		}
 
 		const typeParams = this.generateTypeParameters(
 			method.getTypeParameters() || [],
 		);
 		const params = method.getParameters().map((p) => this.generateParameter(p))
-			.join(', ');
+			.join(", ");
 		const returnType = method.getReturnTypeNode()
 			? `: ${method.getReturnTypeNode()!.getText()}`
-			: '';
-		const body = method.getBody() ? method.getBody()!.getText() : '{}';
+			: "";
+		const body = method.getBody() ? method.getBody()!.getText() : "{}";
 		return `${methodName}${typeParams}(${params})${returnType} ${body}`;
 	}
 
 	private generateProperty(prop: PropertyDeclaration): string {
 		const name = prop.getName();
 		const typeNode = prop.getTypeNode();
-		const typeText = typeNode ? `: ${typeNode.getText()}` : '';
-		const initializer = prop.getInitializer()?.getText() || '';
-		const initText = initializer ? ` = ${initializer}` : '';
+		const typeText = typeNode ? `: ${typeNode.getText()}` : "";
+		const initializer = prop.getInitializer()?.getText() || "";
+		const initText = initializer ? ` = ${initializer}` : "";
 		return `${name}${typeText}${initText};`;
 	}
 
 	private generateConstructor(ctor: ConstructorDeclaration): string {
 		const params = ctor.getParameters().map((p) => this.generateParameter(p))
-			.join(', ');
-		const body = ctor.getBody() ? ctor.getBody()!.getText() : '{}';
+			.join(", ");
+		const body = ctor.getBody() ? ctor.getBody()!.getText() : "{}";
 		return `constructor(${params}) ${body}`;
 	}
 
@@ -458,11 +458,11 @@ export class CodeGenerator {
 		return fragments
 			.filter((f) => f.code)
 			.map((f) => f.code)
-			.join('\n');
+			.join("\n");
 	}
 
 	private generateInitialSourceMap(fragments: CodeFragment[]): RawSourceMap {
-		const map = new SourceMapGenerator({ file: 'bundle.js' });
+		const map = new SourceMapGenerator({ file: "bundle.js" });
 
 		let generatedLine = 1;
 		let generatedColumn = 0;
@@ -476,7 +476,7 @@ export class CodeGenerator {
 				});
 			}
 
-			const lines = frag.code.split('\n');
+			const lines = frag.code.split("\n");
 			if (lines.length > 1) {
 				generatedLine += lines.length - 1;
 				generatedColumn = lines[lines.length - 1].length;
@@ -513,11 +513,11 @@ export class CodeGenerator {
 	): Promise<{ code: string; map?: string }> {
 		let tsTarget: ts.ScriptTarget;
 		switch (target.toLowerCase()) {
-			case 'es5':
+			case "es5":
 				tsTarget = ts.ScriptTarget.ES5;
 				break;
-			case 'es6':
-			case 'es2015':
+			case "es6":
+			case "es2015":
 				tsTarget = ts.ScriptTarget.ES2015;
 				break;
 			default:
@@ -534,7 +534,7 @@ export class CodeGenerator {
 			},
 		});
 
-		const filePath = 'in-memory.ts';
+		const filePath = "in-memory.ts";
 		const sourceFile = project.createSourceFile(filePath, code, {
 			overwrite: true,
 		});
@@ -545,9 +545,9 @@ export class CodeGenerator {
 		let transformedMap: string | undefined;
 
 		for (const outFile of outputFiles) {
-			if (outFile.getFilePath().endsWith('.js')) {
+			if (outFile.getFilePath().endsWith(".js")) {
 				transformedCode = outFile.getText();
-			} else if (outFile.getFilePath().endsWith('.js.map')) {
+			} else if (outFile.getFilePath().endsWith(".js.map")) {
 				transformedMap = outFile.getText();
 			}
 		}
@@ -607,20 +607,20 @@ export class CodeGenerator {
 			if (withSourceMap && inputMap) {
 				terserOptions.sourceMap = {
 					content: inputMap,
-					filename: 'bundle.js',
-					url: 'bundle.js.map',
+					filename: "bundle.js",
+					url: "bundle.js.map",
 				};
 			}
 
 			const terserResult = await terserMinify(code, terserOptions);
 			if (!terserResult.code) {
-				throw new Error('Terser failed to generate code.');
+				throw new Error("Terser failed to generate code.");
 			}
 
 			let finalMap: string | undefined;
 			if (withSourceMap && terserResult.map) {
 				// If Terser returns map as an object, convert to string
-				if (typeof terserResult.map === 'string') {
+				if (typeof terserResult.map === "string") {
 					finalMap = terserResult.map;
 				} else {
 					finalMap = JSON.stringify(terserResult.map);
@@ -646,11 +646,11 @@ export class CodeGenerator {
 
 	private wrapCodeWithFormat(code: string, format: ModuleFormat): string {
 		switch (format) {
-			case 'commonjs':
+			case "commonjs":
 				return this.wrapCommonJS(code);
-			case 'umd':
+			case "umd":
 				return this.wrapUMD(code);
-			case 'es6':
+			case "es6":
 			default:
 				return code;
 		}
@@ -674,7 +674,7 @@ if (typeof module.exports.default === 'undefined') {
 	}
 
 	private wrapUMD(code: string): string {
-		const name = this.options.umdName || 'bundle';
+		const name = this.options.umdName || "bundle";
 		return `
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
@@ -706,7 +706,7 @@ if (typeof module.exports.default === 'undefined') {
 
 	private logDiagnostic(diagnostic: Diagnostic): void {
 		const message = diagnostic.getMessageText();
-		const messageText = typeof message === 'string'
+		const messageText = typeof message === "string"
 			? message
 			: message.getMessageText();
 		const sourceFile = diagnostic.getSourceFile();

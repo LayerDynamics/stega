@@ -6,12 +6,12 @@
  */
 export const logger = {
 	info: (...args: unknown[]) => {
-		console.log('[INFO]', ...args);
+		console.log("[INFO]", ...args);
 	},
 	warn: (...args: unknown[]) => {
-		console.warn('[WARN]', ...args);
+		console.warn("[WARN]", ...args);
 	},
 	error: (...args: unknown[]) => {
-		console.error('[ERROR]', ...args);
+		console.error("[ERROR]", ...args);
 	},
 };

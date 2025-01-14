@@ -1,8 +1,8 @@
-import { Command } from '../command.ts';
-import { CLI } from '../core.ts';
-import { FlagValue } from '../flag.ts';
-import { CommandNotFoundError } from '../error.ts';
-import type { Args } from '../types.ts';
+import { Command } from "../command.ts";
+import { CLI } from "../core.ts";
+import { FlagValue } from "../flag.ts";
+import { CommandNotFoundError } from "../error.ts";
+import type { Args } from "../types.ts";
 
 interface CommandExecutionResult {
 	command: string;
@@ -12,21 +12,21 @@ interface CommandExecutionResult {
 
 export function createBatchCommand(cli: CLI): Command {
 	return {
-		name: 'batch',
-		description: 'Execute multiple commands in sequence or parallel',
+		name: "batch",
+		description: "Execute multiple commands in sequence or parallel",
 		options: [
 			{
-				name: 'commands',
-				alias: 'c',
-				type: 'string',
-				description: 'Comma-separated list of commands to execute',
+				name: "commands",
+				alias: "c",
+				type: "string",
+				description: "Comma-separated list of commands to execute",
 				required: true,
 			},
 			{
-				name: 'parallel',
-				alias: 'p',
-				type: 'boolean',
-				description: 'Execute commands in parallel',
+				name: "parallel",
+				alias: "p",
+				type: "boolean",
+				description: "Execute commands in parallel",
 				default: false,
 			},
 		],
@@ -34,17 +34,17 @@ export function createBatchCommand(cli: CLI): Command {
 			const commandsInput = args.flags.commands as string;
 			const isParallel = args.flags.parallel === true;
 			const commandNames = commandsInput
-				.split(',')
+				.split(",")
 				.map((name) => name.trim())
 				.filter(Boolean);
 
 			if (!commandNames.length) {
-				throw new Error('No valid commands provided for batch execution');
+				throw new Error("No valid commands provided for batch execution");
 			}
 
 			cli.logger.info(
 				`Executing ${commandNames.length} command(s) ${
-					isParallel ? 'in parallel' : 'sequentially'
+					isParallel ? "in parallel" : "sequentially"
 				}`,
 			);
 
@@ -101,12 +101,12 @@ export function createBatchCommand(cli: CLI): Command {
 					}
 					throw new Error(
 						`Batch execution failed: ${
-							firstFailure.error?.message || 'Unknown error'
+							firstFailure.error?.message || "Unknown error"
 						}`,
 					);
 				}
 
-				cli.logger.info('Batch execution completed successfully');
+				cli.logger.info("Batch execution completed successfully");
 			} catch (error) {
 				if (error instanceof CommandNotFoundError) {
 					throw error;

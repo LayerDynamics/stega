@@ -1,6 +1,6 @@
 // src/types.ts
-import { FlagValue } from './flag.ts';
-import type { CLI } from './core.ts'; // Add import for CLI type
+import { FlagValue } from "./flag.ts";
+import type { CLI } from "./core.ts"; // Add import for CLI type
 
 /**
  * Represents the arguments passed to a command's action.
@@ -11,8 +11,8 @@ export interface Args {
 	cli: CLI; // Add required CLI property
 }
 
-export type JsTarget = 'es5' | 'es6' | 'es2017' | 'es2020';
-export type ModuleFormat = 'esm' | 'cjs' | 'umd';
+export type JsTarget = "es5" | "es6" | "es2017" | "es2020";
+export type ModuleFormat = "esm" | "cjs" | "umd";
 
 export interface GeneratedOutput {
 	code: string;
@@ -99,12 +99,12 @@ export interface Module {
 // Type guard for Module
 export function isModule(value: unknown): value is Module {
 	return (
-		typeof value === 'object' &&
+		typeof value === "object" &&
 		value !== null &&
-		'path' in value &&
-		'code' in value &&
-		'dependencies' in value &&
-		'ast' in value
+		"path" in value &&
+		"code" in value &&
+		"dependencies" in value &&
+		"ast" in value
 	);
 }
 
@@ -147,14 +147,14 @@ export interface Command {
 // Add Option interface
 export interface Option {
 	name: string;
-	type: 'string' | 'number' | 'boolean' | 'array'; // Make type more specific
+	type: "string" | "number" | "boolean" | "array"; // Make type more specific
 	description?: string;
 	required?: boolean;
 	default?: FlagValue; // Change from unknown to FlagValue
 }
 
 export abstract class BaseCommand implements Command {
-	name: string = ''; // Initialize with empty string
+	name: string = ""; // Initialize with empty string
 	description?: string;
 	options?: Option[];
 	subcommands?: Command[];
@@ -213,7 +213,7 @@ export abstract class BaseCommand implements Command {
 
 			const isValid = await this.validateArgs(args);
 			if (!isValid) {
-				throw new Error('Validation failed');
+				throw new Error("Validation failed");
 			}
 
 			await this.action(args);

@@ -1,8 +1,8 @@
 // tests/integration/workflow.test.ts
-import { TestHarness } from '../utils/test_harness.ts';
-import { assertEquals } from '@std/assert';
+import { TestHarness } from "../utils/test_harness.ts";
+import { assertEquals } from "@std/assert";
 
-Deno.test('Workflow Integration - command chaining', async (t) => {
+Deno.test("Workflow Integration - command chaining", async (t) => {
 	const harness = new TestHarness();
 	const cli = harness.getCLI();
 	const logger = harness.getLogger();
@@ -11,24 +11,24 @@ Deno.test('Workflow Integration - command chaining', async (t) => {
 
 	// Register test commands
 	cli.register({
-		name: 'first',
+		name: "first",
 		action: () => {
-			executed.push('first');
+			executed.push("first");
 		},
 	});
 
 	cli.register({
-		name: 'second',
+		name: "second",
 		action: () => {
-			executed.push('second');
+			executed.push("second");
 		},
 	});
 
-	await t.step('executes commands in sequence', async () => {
-		await cli.runCommand(['first']);
-		await cli.runCommand(['second']);
+	await t.step("executes commands in sequence", async () => {
+		await cli.runCommand(["first"]);
+		await cli.runCommand(["second"]);
 
-		assertEquals(executed, ['first', 'second']);
+		assertEquals(executed, ["first", "second"]);
 		assertEquals(logger.errors.length, 0);
 	});
 

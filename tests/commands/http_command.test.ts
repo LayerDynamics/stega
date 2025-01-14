@@ -2,9 +2,9 @@
 import {
 	assertEquals,
 	assertRejects,
-} from 'https://deno.land/std@0.224.0/testing/asserts.ts';
-import { createHttpCommand } from '../../src/commands/http_command.ts';
-import { createTestCLI, mockFetchWithAbort } from '../test_utils.ts';
+} from "https://deno.land/std@0.224.0/testing/asserts.ts";
+import { createHttpCommand } from "../../src/commands/http_command.ts";
+import { createTestCLI, mockFetchWithAbort } from "../test_utils.ts";
 
 interface MockResponse {
 	success?: boolean;
@@ -13,8 +13,8 @@ interface MockResponse {
 	[key: string]: unknown;
 }
 
-Deno.test('HTTP Command - Basic GET request', async (t) => {
-	await t.step('handles requests', async () => {
+Deno.test("HTTP Command - Basic GET request", async (t) => {
+	await t.step("handles requests", async () => {
 		const { cli } = await createTestCLI();
 		const command = createHttpCommand({});
 		cli.register(command);
@@ -31,16 +31,16 @@ Deno.test('HTTP Command - Basic GET request', async (t) => {
 
 		try {
 			await cli.runCommand([
-				'http',
-				'--method=GET',
-				'--url=https://api.example.com/test',
-				'--headers=Accept:application/json',
+				"http",
+				"--method=GET",
+				"--url=https://api.example.com/test",
+				"--headers=Accept:application/json",
 			]);
 
-			assertEquals(capturedRequest?.method, 'GET');
+			assertEquals(capturedRequest?.method, "GET");
 			assertEquals(
-				(capturedRequest?.headers as Record<string, string>)['Accept'],
-				'application/json',
+				(capturedRequest?.headers as Record<string, string>)["Accept"],
+				"application/json",
 			);
 		} finally {
 			globalThis.fetch = originalFetch;
@@ -48,8 +48,8 @@ Deno.test('HTTP Command - Basic GET request', async (t) => {
 	});
 });
 
-Deno.test('HTTP Command - POST request with data', async (t) => {
-	await t.step('handles requests', async () => {
+Deno.test("HTTP Command - POST request with data", async (t) => {
+	await t.step("handles requests", async () => {
 		const { cli } = await createTestCLI();
 		const command = createHttpCommand({});
 		cli.register(command);
@@ -78,20 +78,20 @@ Deno.test('HTTP Command - POST request with data', async (t) => {
 		};
 
 		try {
-			const testData = { test: 'value' };
+			const testData = { test: "value" };
 			await cli.runCommand([
-				'http',
-				'--method=POST',
-				'--url=https://api.example.com/test',
+				"http",
+				"--method=POST",
+				"--url=https://api.example.com/test",
 				`--data=${JSON.stringify(testData)}`,
-				'--headers=Content-Type:application/json',
+				"--headers=Content-Type:application/json",
 			]);
 
-			assertEquals(capturedRequest.method, 'POST');
-			assertEquals(JSON.parse(capturedRequest.body || '{}'), testData);
+			assertEquals(capturedRequest.method, "POST");
+			assertEquals(JSON.parse(capturedRequest.body || "{}"), testData);
 			assertEquals(
-				capturedRequest.headers?.['Content-Type'],
-				'application/json',
+				capturedRequest.headers?.["Content-Type"],
+				"application/json",
 			);
 		} finally {
 			globalThis.fetch = originalFetch;
@@ -99,27 +99,27 @@ Deno.test('HTTP Command - POST request with data', async (t) => {
 	});
 });
 
-Deno.test('HTTP Command - Handles network errors', async (t) => {
-	await t.step('handles requests', async () => {
+Deno.test("HTTP Command - Handles network errors", async (t) => {
+	await t.step("handles requests", async () => {
 		const { cli } = await createTestCLI();
 		const command = createHttpCommand({});
 		cli.register(command);
 
 		const originalFetch = globalThis.fetch;
 		globalThis.fetch = () => {
-			throw new TypeError('Failed to fetch');
+			throw new TypeError("Failed to fetch");
 		};
 
 		try {
 			await assertRejects(
 				() =>
 					cli.runCommand([
-						'http',
-						'--method=GET',
-						'--url=https://api.example.com/test',
+						"http",
+						"--method=GET",
+						"--url=https://api.example.com/test",
 					]),
 				Error,
-				'Network error',
+				"Network error",
 			);
 		} finally {
 			globalThis.fetch = originalFetch;
@@ -127,8 +127,8 @@ Deno.test('HTTP Command - Handles network errors', async (t) => {
 	});
 });
 
-Deno.test('HTTP Command - Handles timeout', async (t) => {
-	await t.step('handles requests', async () => {
+Deno.test("HTTP Command - Handles timeout", async (t) => {
+	await t.step("handles requests", async () => {
 		const { cli } = await createTestCLI();
 		const command = createHttpCommand({
 			httpOptions: {
@@ -144,12 +144,12 @@ Deno.test('HTTP Command - Handles timeout', async (t) => {
 			await assertRejects(
 				() =>
 					cli.runCommand([
-						'http',
-						'--method=GET',
-						'--url=https://api.example.com/test',
+						"http",
+						"--method=GET",
+						"--url=https://api.example.com/test",
 					]),
 				Error,
-				'Network error: Request timeout',
+				"Network error: Request timeout",
 			);
 		} finally {
 			globalThis.fetch = originalFetch;
@@ -157,8 +157,8 @@ Deno.test('HTTP Command - Handles timeout', async (t) => {
 	});
 });
 
-Deno.test('HTTP Command - Handles retry logic', async (t) => {
-	await t.step('handles requests', async () => {
+Deno.test("HTTP Command - Handles retry logic", async (t) => {
+	await t.step("handles requests", async () => {
 		const { cli } = await createTestCLI();
 		let attempts = 0;
 
@@ -177,12 +177,12 @@ Deno.test('HTTP Command - Handles retry logic', async (t) => {
 			if (attempts < 3) {
 				return new Promise<Response>((_, reject) => {
 					const timer = setTimeout(() => {
-						reject(new Error('Temporary failure'));
+						reject(new Error("Temporary failure"));
 					}, 100);
 					if (init?.signal) {
-						init.signal.addEventListener('abort', () => {
+						init.signal.addEventListener("abort", () => {
 							clearTimeout(timer);
-							reject(new DOMException('Aborted', 'AbortError'));
+							reject(new DOMException("Aborted", "AbortError"));
 						});
 					}
 				});
@@ -192,20 +192,20 @@ Deno.test('HTTP Command - Handles retry logic', async (t) => {
 
 		try {
 			await cli.runCommand([
-				'http',
-				'--method=GET',
-				'--url=https://api.example.com/test',
+				"http",
+				"--method=GET",
+				"--url=https://api.example.com/test",
 			]);
 
-			assertEquals(attempts, 3, 'Should have attempted 3 times');
+			assertEquals(attempts, 3, "Should have attempted 3 times");
 		} finally {
 			globalThis.fetch = originalFetch;
 		}
 	});
 });
 
-Deno.test('HTTP Command - Handles HTTP errors', async (t) => {
-	await t.step('handles requests', async () => {
+Deno.test("HTTP Command - Handles HTTP errors", async (t) => {
+	await t.step("handles requests", async () => {
 		const { cli } = await createTestCLI();
 		const command = createHttpCommand({
 			httpOptions: {
@@ -217,19 +217,19 @@ Deno.test('HTTP Command - Handles HTTP errors', async (t) => {
 		const originalFetch = globalThis.fetch;
 		globalThis.fetch = mockFetchWithAbort(404, {
 			success: false,
-			message: 'Not found',
+			message: "Not found",
 		});
 
 		try {
 			await assertRejects(
 				() =>
 					cli.runCommand([
-						'http',
-						'--method=GET',
-						'--url=https://api.example.com/test',
+						"http",
+						"--method=GET",
+						"--url=https://api.example.com/test",
 					]),
 				Error,
-				'HTTP error 404',
+				"HTTP error 404",
 			);
 		} finally {
 			globalThis.fetch = originalFetch;

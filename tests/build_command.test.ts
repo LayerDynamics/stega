@@ -1,8 +1,8 @@
 // tests/build_command.test.ts
-import { assertEquals, assertRejects } from '@std/assert';
-import { createBuildCommand } from '../src/commands/build.ts';
-import { createTestCLI } from './test_utils.ts';
-import type { BuildOptions, Plugin } from '../src/plugin.ts';
+import { assertEquals, assertRejects } from "@std/assert";
+import { createBuildCommand } from "../src/commands/build.ts";
+import { createTestCLI } from "./test_utils.ts";
+import type { BuildOptions, Plugin } from "../src/plugin.ts";
 
 // Mock Process class with correct interface implementation
 class MockProcess implements Deno.ChildProcess {
@@ -28,7 +28,7 @@ class MockProcess implements Deno.ChildProcess {
 
 	get status(): Promise<Deno.CommandStatus> {
 		if (this._killed) {
-			return Promise.resolve({ success: false, code: 1, signal: 'SIGTERM' });
+			return Promise.resolve({ success: false, code: 1, signal: "SIGTERM" });
 		}
 		return this.#status;
 	}
@@ -51,7 +51,7 @@ class MockProcess implements Deno.ChildProcess {
 
 	kill(signo?: Deno.Signal): void {
 		this._killed = true;
-		if (signo && !['SIGTERM', 'SIGKILL'].includes(signo)) {
+		if (signo && !["SIGTERM", "SIGKILL"].includes(signo)) {
 			throw new Error(`Unsupported signal: ${signo}`);
 		}
 		this.#stdout.cancel();
@@ -62,7 +62,7 @@ class MockProcess implements Deno.ChildProcess {
 
 	async [Symbol.asyncDispose](): Promise<void> {
 		if (!this._killed) {
-			this.kill('SIGTERM');
+			this.kill("SIGTERM");
 		}
 	}
 }
@@ -86,7 +86,7 @@ class MockCommand {
 
 // Each test has its own permissions and is split into a separate Deno.test
 Deno.test({
-	name: 'Basic build command execution',
+	name: "Basic build command execution",
 	permissions: {
 		read: true,
 		write: true,
@@ -109,20 +109,20 @@ Deno.test({
 
 			cli.register(buildCommand);
 			await cli.runCommand([
-				'build',
-				'--output',
-				'test-bin',
-				'--target',
-				'linux',
-				'--entry',
+				"build",
+				"--output",
+				"test-bin",
+				"--target",
+				"linux",
+				"--entry",
 				testFile,
 			]);
 
 			// Verify command
-			assertEquals(MockCommand.lastArgs[0], 'deno');
-			assertEquals(MockCommand.lastArgs[1], 'compile');
+			assertEquals(MockCommand.lastArgs[0], "deno");
+			assertEquals(MockCommand.lastArgs[1], "compile");
 			assertEquals(
-				MockCommand.lastArgs.includes('--output=test-bin'),
+				MockCommand.lastArgs.includes("--output=test-bin"),
 				true,
 			);
 
@@ -136,7 +136,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: 'Plugin hooks execution',
+	name: "Plugin hooks execution",
 	permissions: {
 		read: true,
 		write: true,
@@ -152,8 +152,8 @@ Deno.test({
 
 		const mockPlugin: Plugin = {
 			metadata: {
-				name: 'test',
-				version: '1.0.0',
+				name: "test",
+				version: "1.0.0",
 			},
 			init: () => {},
 			beforeBuild: async (_options: BuildOptions) => {
@@ -184,12 +184,12 @@ Deno.test({
 			const buildCommand = createBuildCommand(cli);
 			cli.register(buildCommand);
 			await cli.runCommand([
-				'build',
-				'--output',
-				'test-bin',
-				'--target',
-				'linux',
-				'--entry',
+				"build",
+				"--output",
+				"test-bin",
+				"--target",
+				"linux",
+				"--entry",
 				testFile,
 			]);
 
@@ -197,13 +197,13 @@ Deno.test({
 			assertEquals(
 				hooksCalled.before,
 				true,
-				'beforeBuild hook should be called',
+				"beforeBuild hook should be called",
 			);
-			assertEquals(hooksCalled.after, true, 'afterBuild hook should be called');
+			assertEquals(hooksCalled.after, true, "afterBuild hook should be called");
 			assertEquals(
 				hooksCalled.afterWithSuccess,
 				true,
-				'afterBuild should indicate success',
+				"afterBuild should indicate success",
 			);
 
 			// Cleanup
@@ -217,7 +217,7 @@ Deno.test({
 });
 
 Deno.test({
-	name: 'Plugin build cancellation',
+	name: "Plugin build cancellation",
 	permissions: {
 		read: true,
 		write: true,
@@ -229,17 +229,17 @@ Deno.test({
 
 		const mockPlugin: Plugin = {
 			metadata: {
-				name: 'test',
-				version: '1.0.0',
+				name: "test",
+				version: "1.0.0",
 			},
 			init: () => {},
 			beforeBuild: async (_options: BuildOptions) => {
 				buildAttempted = true;
-				throw new Error('Build cancelled by plugin');
+				throw new Error("Build cancelled by plugin");
 			},
 			afterBuild: () => {
 				throw new Error(
-					'afterBuild should not be called when build is cancelled',
+					"afterBuild should not be called when build is cancelled",
 				);
 			},
 		};
@@ -264,22 +264,22 @@ Deno.test({
 			await assertRejects(
 				() =>
 					cli.runCommand([
-						'build',
-						'--output',
-						'test-bin',
-						'--target',
-						'linux',
-						'--entry',
+						"build",
+						"--output",
+						"test-bin",
+						"--target",
+						"linux",
+						"--entry",
 						testFile,
 					]),
 				Error,
-				'Build cancelled by plugin',
+				"Build cancelled by plugin",
 			);
 
 			assertEquals(
 				buildAttempted,
 				true,
-				'Plugin should attempt to cancel build',
+				"Plugin should attempt to cancel build",
 			);
 
 			// Cleanup

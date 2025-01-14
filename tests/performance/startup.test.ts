@@ -1,11 +1,11 @@
 // tests/performance/startup.test.ts
-import { TestHarness } from '../utils/test_harness.ts';
-import { assert, assertEquals } from '@std/assert';
+import { TestHarness } from "../utils/test_harness.ts";
+import { assert, assertEquals } from "@std/assert";
 
-Deno.test('Performance - CLI Startup', async (t) => {
+Deno.test("Performance - CLI Startup", async (t) => {
 	const harness = new TestHarness();
 
-	await t.step('measures startup time', async () => {
+	await t.step("measures startup time", async () => {
 		const start = performance.now();
 		const cli = harness.getCLI();
 		const end = performance.now();
@@ -17,7 +17,7 @@ Deno.test('Performance - CLI Startup', async (t) => {
 		);
 	});
 
-	await t.step('measures command registration overhead', async () => {
+	await t.step("measures command registration overhead", async () => {
 		const cli = harness.getCLI();
 		const start = performance.now();
 

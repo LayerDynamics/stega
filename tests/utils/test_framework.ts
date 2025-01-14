@@ -1,8 +1,8 @@
 // tests/utils/test_framework.ts
-import { CLI } from '../../src/core.ts';
-import { Command, CommandRegistry } from '../../src/command.ts';
-import { ILogger } from '../../src/logger_interface.ts';
-import { assertEquals, assertExists } from '@std/assert';
+import { CLI } from "../../src/core.ts";
+import { Command, CommandRegistry } from "../../src/command.ts";
+import { ILogger } from "../../src/logger_interface.ts";
+import { assertEquals, assertExists } from "@std/assert";
 
 /**
  * Comprehensive test framework for Stega CLI testing
@@ -34,7 +34,7 @@ export class TestFramework {
 	 */
 	public async createTempFile(
 		content: string,
-		extension = '.txt',
+		extension = ".txt",
 	): Promise<string> {
 		const filePath = await Deno.makeTempFile({ suffix: extension });
 		await Deno.writeTextFile(filePath, content);
@@ -66,14 +66,14 @@ export class TestFramework {
 	public hasCommand(name: string): boolean {
 		const cli = this.getCLI();
 		// @ts-ignore - Accessing private registry for testing
-		const registry: CommandRegistry = cli['registry'];
+		const registry: CommandRegistry = cli["registry"];
 		const exists = registry.findCommand(name) !== undefined;
 		this.logger.debug(
-			`Command "${name}" ${exists ? 'exists' : 'not found'} in registry`,
+			`Command "${name}" ${exists ? "exists" : "not found"} in registry`,
 		);
 		if (!exists) {
 			const commands = registry.getCommands().map((cmd) => cmd.name);
-			this.logger.debug(`Available commands: ${commands.join(', ')}`);
+			this.logger.debug(`Available commands: ${commands.join(", ")}`);
 		}
 		return exists;
 	}
@@ -84,9 +84,9 @@ export class TestFramework {
 	public getRegisteredCommands(): string[] {
 		const cli = this.getCLI();
 		// @ts-ignore - Accessing private registry for testing
-		const registry: CommandRegistry = cli['registry'];
+		const registry: CommandRegistry = cli["registry"];
 		const commands = registry.getCommands().map((cmd) => cmd.name);
-		this.logger.debug(`Registered commands: ${commands.join(', ')}`);
+		this.logger.debug(`Registered commands: ${commands.join(", ")}`);
 		return commands;
 	}
 
@@ -107,10 +107,10 @@ export class TestFramework {
 		const startTime = performance.now();
 		let error: Error | undefined;
 
-		this.logger.debug(`Executing command: ${args.join(' ')}`);
+		this.logger.debug(`Executing command: ${args.join(" ")}`);
 		const preCommands = this.getRegisteredCommands();
 		this.logger.debug(
-			`Available commands before execution: ${preCommands.join(', ')}`,
+			`Available commands before execution: ${preCommands.join(", ")}`,
 		);
 
 		try {
@@ -123,7 +123,7 @@ export class TestFramework {
 		const endTime = performance.now();
 		const postCommands = this.getRegisteredCommands();
 		this.logger.debug(
-			`Available commands after execution: ${postCommands.join(', ')}`,
+			`Available commands after execution: ${postCommands.join(", ")}`,
 		);
 
 		const result = {
@@ -227,7 +227,7 @@ export class TestEnvironment {
 		content: string,
 	): Promise<string> {
 		const fullPath = `${this.baseDir}/${relativePath}`;
-		await Deno.mkdir(new URL('.', 'file://' + fullPath).pathname, {
+		await Deno.mkdir(new URL(".", "file://" + fullPath).pathname, {
 			recursive: true,
 		});
 		await Deno.writeTextFile(fullPath, content);
@@ -262,12 +262,12 @@ export class TestEnvironment {
 		name: string,
 		content: string,
 	): Promise<string> {
-		const corePath = this.resolveSrcPath('core.ts');
-		const pluginPath = this.resolveSrcPath('plugin.ts');
+		const corePath = this.resolveSrcPath("core.ts");
+		const pluginPath = this.resolveSrcPath("plugin.ts");
 
 		const pluginContent = content
-			.replace('../../src/core.ts', corePath)
-			.replace('../../src/plugin.ts', pluginPath);
+			.replace("../../src/core.ts", corePath)
+			.replace("../../src/plugin.ts", pluginPath);
 
 		return await this.createFile(name, pluginContent);
 	}

@@ -4,9 +4,9 @@ import {
 	Project,
 	SourceFile,
 	ts,
-} from 'https://deno.land/x/ts_morph@17.0.1/mod.ts';
-import type { CompilerOptions } from './types.ts';
-import { logger } from './logger.ts';
+} from "https://deno.land/x/ts_morph@17.0.1/mod.ts";
+import type { CompilerOptions } from "./types.ts";
+import { logger } from "./logger.ts";
 
 /**
  * Represents the result of parsing a module, including its AST, dependencies, and any errors.
@@ -103,7 +103,7 @@ export class Parser {
 	private logDiagnostic(diagnostic: ts.Diagnostic): void {
 		const message = ts.flattenDiagnosticMessageText(
 			diagnostic.messageText,
-			'\n',
+			"\n",
 		);
 		const sourceFile = diagnostic.file;
 		const pos = diagnostic.start;

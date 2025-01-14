@@ -1,20 +1,20 @@
 // tests/integration/plugin_lifecycle.test.ts
-import { TestFramework } from '../utils/test_framework.ts';
-import { assertEquals } from '@std/assert';
+import { TestFramework } from "../utils/test_framework.ts";
+import { assertEquals } from "@std/assert";
 
-Deno.test('Plugin Lifecycle Integration Tests', async (t) => {
+Deno.test("Plugin Lifecycle Integration Tests", async (t) => {
 	const framework = new TestFramework();
 
-	await t.step('plugin load and unload cycle', async () => {
+	await t.step("plugin load and unload cycle", async () => {
 		const env = await framework.createTestEnvironment();
 		framework.getLogger().clear();
 
 		// Create plugin with corrected error handling
 		const pluginPath = await env.createPluginFile(
-			'lifecycle-plugin.ts',
+			"lifecycle-plugin.ts",
 			`
-            import type { CLI } from "${env.resolveSrcPath('core.ts')}";
-            import type { Plugin } from "${env.resolveSrcPath('plugin.ts')}";
+            import type { CLI } from "${env.resolveSrcPath("core.ts")}";
+            import type { Plugin } from "${env.resolveSrcPath("plugin.ts")}";
 
             const plugin: Plugin = {
                 metadata: {
@@ -59,11 +59,11 @@ Deno.test('Plugin Lifecycle Integration Tests', async (t) => {
 
 			// Load plugin with debug logging
 			const loadResult = await framework.executeCommand([
-				'plugin',
-				'load',
-				'--path',
+				"plugin",
+				"load",
+				"--path",
 				pluginPath,
-				'--debug',
+				"--debug",
 			]);
 
 			assertEquals(
@@ -78,42 +78,42 @@ Deno.test('Plugin Lifecycle Integration Tests', async (t) => {
 
 			// Debug available commands
 			const commands = framework.getRegisteredCommands();
-			framework.getLogger().debug(`Available commands: ${commands.join(', ')}`);
+			framework.getLogger().debug(`Available commands: ${commands.join(", ")}`);
 
 			// Check command registration
-			const execResult = await framework.executeCommand(['test-command']);
+			const execResult = await framework.executeCommand(["test-command"]);
 			assertEquals(
 				execResult.success,
 				true,
-				`Plugin command should be available. Commands: ${commands.join(', ')}`,
+				`Plugin command should be available. Commands: ${commands.join(", ")}`,
 			);
 
 			// Unload plugin
 			const unloadResult = await framework.executeCommand([
-				'plugin',
-				'unload',
-				'--name',
-				'lifecycle-test-plugin',
+				"plugin",
+				"unload",
+				"--name",
+				"lifecycle-test-plugin",
 			]);
 			assertEquals(
 				unloadResult.success,
 				true,
-				'Plugin should unload successfully',
+				"Plugin should unload successfully",
 			);
 
 			// Verify command is no longer available
-			const postUnloadResult = await framework.executeCommand(['test-command']);
+			const postUnloadResult = await framework.executeCommand(["test-command"]);
 			assertEquals(
 				postUnloadResult.success,
 				false,
-				'Command should not be available after unload',
+				"Command should not be available after unload",
 			);
 		} catch (error) {
-			console.error('Test failed:', error);
-			console.log('Debug state:', {
+			console.error("Test failed:", error);
+			console.log("Debug state:", {
 				baseDir: env.getBaseDir(),
 				pluginPath,
-				srcPath: env.resolveSrcPath('core.ts'),
+				srcPath: env.resolveSrcPath("core.ts"),
 				commands: framework.getRegisteredCommands(),
 				logs: framework.getLogger().getLogs(),
 				debugLogs: framework.getLogger().getDebugs(),
@@ -126,7 +126,7 @@ Deno.test('Plugin Lifecycle Integration Tests', async (t) => {
 	});
 
 	// Clean up framework after all tests
-	await t.step('cleanup', async () => {
+	await t.step("cleanup", async () => {
 		await framework.cleanup();
 	});
 });

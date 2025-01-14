@@ -1,6 +1,6 @@
 // src/flag.ts
 
-export type FlagType = 'boolean' | 'string' | 'number' | 'array';
+export type FlagType = "boolean" | "string" | "number" | "array";
 export type FlagValue = string | number | boolean | string[];
 
 /**
@@ -11,20 +11,20 @@ export type FlagValue = string | number | boolean | string[];
  */
 export function convertFlagValue(value: string, type: FlagType): FlagValue {
 	switch (type) {
-		case 'boolean': {
-			return value === 'true' || value === '1';
+		case "boolean": {
+			return value === "true" || value === "1";
 		}
-		case 'number': {
+		case "number": {
 			const num = Number(value);
 			if (isNaN(num)) {
 				throw new Error(`Invalid number value: ${value}`);
 			}
 			return num;
 		}
-		case 'array': {
-			return value.split(',');
+		case "array": {
+			return value.split(",");
 		}
-		case 'string':
+		case "string":
 		default: {
 			return value;
 		}

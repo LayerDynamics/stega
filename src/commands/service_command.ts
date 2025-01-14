@@ -1,9 +1,9 @@
 // src/commands/service_command.ts
 
-import { BaseCommand } from '../types.ts';
-import { Args, Command } from '../types.ts';
-import { logger } from '../logger.ts';
-import { CLI } from '../core.ts';
+import { BaseCommand } from "../types.ts";
+import { Args, Command } from "../types.ts";
+import { logger } from "../logger.ts";
+import { CLI } from "../core.ts";
 
 interface ServiceConfig {
 	name: string;
@@ -21,13 +21,13 @@ interface ServiceConfig {
 
 interface ServiceStatus {
 	name: string;
-	status: 'running' | 'stopped' | 'error';
+	status: "running" | "stopped" | "error";
 	pid?: number;
 	uptime?: number;
 	memory?: number;
 	cpu?: number;
 	lastError?: string;
-	healthStatus?: 'healthy' | 'unhealthy';
+	healthStatus?: "healthy" | "unhealthy";
 }
 
 export class ServiceCommand extends BaseCommand {
@@ -40,100 +40,100 @@ export class ServiceCommand extends BaseCommand {
 
 	constructor(cli: CLI) {
 		super({
-			name: 'service',
-			description: 'Manage system services',
-			category: 'service',
-			permissions: ['run', 'read', 'write', 'net'],
+			name: "service",
+			description: "Manage system services",
+			category: "service",
+			permissions: ["run", "read", "write", "net"],
 			subcommands: [
 				{
-					name: 'start',
-					description: 'Start a service',
+					name: "start",
+					description: "Start a service",
 					options: [
 						{
-							name: 'name',
-							type: 'string',
+							name: "name",
+							type: "string",
 							required: true,
-							description: 'Service name',
+							description: "Service name",
 						},
 						{
-							name: 'config',
-							type: 'string',
-							description: 'Path to service configuration file',
+							name: "config",
+							type: "string",
+							description: "Path to service configuration file",
 							required: true,
 						},
 					],
 					action: (args: Args) => this.handleStart(args),
 				},
 				{
-					name: 'stop',
-					description: 'Stop a service',
+					name: "stop",
+					description: "Stop a service",
 					options: [
 						{
-							name: 'name',
-							type: 'string',
+							name: "name",
+							type: "string",
 							required: true,
-							description: 'Service name',
+							description: "Service name",
 						},
 						{
-							name: 'force',
-							type: 'boolean',
-							description: 'Force stop the service',
+							name: "force",
+							type: "boolean",
+							description: "Force stop the service",
 							required: true,
 						},
 					],
 					action: (args: Args) => this.handleStop(args),
 				},
 				{
-					name: 'restart',
-					description: 'Restart a service',
+					name: "restart",
+					description: "Restart a service",
 					options: [
 						{
-							name: 'name',
-							type: 'string',
+							name: "name",
+							type: "string",
 							required: true,
-							description: 'Service name',
+							description: "Service name",
 						},
 					],
 					action: (args: Args) => this.handleRestart(args),
 				},
 				{
-					name: 'status',
-					description: 'Get service status',
+					name: "status",
+					description: "Get service status",
 					options: [
 						{
-							name: 'name',
-							type: 'string',
-							description: 'Service name (optional)',
+							name: "name",
+							type: "string",
+							description: "Service name (optional)",
 						},
 						{
-							name: 'format',
-							type: 'string',
-							description: 'Output format (json|table)',
-							default: 'table',
+							name: "format",
+							type: "string",
+							description: "Output format (json|table)",
+							default: "table",
 						},
 					],
 					action: (args: Args) => this.handleStatus(args),
 				},
 				{
-					name: 'logs',
-					description: 'View service logs',
+					name: "logs",
+					description: "View service logs",
 					options: [
 						{
-							name: 'name',
-							type: 'string',
+							name: "name",
+							type: "string",
 							required: true,
-							description: 'Service name',
+							description: "Service name",
 						},
 						{
-							name: 'lines',
-							type: 'number',
-							description: 'Number of lines to show',
+							name: "lines",
+							type: "number",
+							description: "Number of lines to show",
 							default: 50,
 						},
 						{
-							name: 'follow',
-							type: 'boolean',
-							description: 'Follow log output',
+							name: "follow",
+							type: "boolean",
+							description: "Follow log output",
 							default: false,
 						},
 					],
@@ -170,13 +170,13 @@ export class ServiceCommand extends BaseCommand {
 	private async startProcess(
 		config: ServiceConfig,
 	): Promise<Deno.ChildProcess> {
-		const cmd = config.command.split(' ');
+		const cmd = config.command.split(" ");
 		const command = new Deno.Command(cmd[0], {
 			args: cmd.slice(1),
 			cwd: config.workingDirectory,
 			env: config.environment,
-			stdout: 'piped',
-			stderr: 'piped',
+			stdout: "piped",
+			stderr: "piped",
 		});
 
 		const process = command.spawn();
@@ -294,19 +294,19 @@ export class ServiceCommand extends BaseCommand {
 		const subcommand = args.command[1];
 
 		switch (subcommand) {
-			case 'start':
+			case "start":
 				await this.handleStart(args);
 				break;
-			case 'stop':
+			case "stop":
 				await this.handleStop(args);
 				break;
-			case 'restart':
+			case "restart":
 				await this.handleRestart(args);
 				break;
-			case 'status':
+			case "status":
 				await this.handleStatus(args);
 				break;
-			case 'logs':
+			case "logs":
 				await this.handleLogs(args);
 				break;
 			default:
@@ -350,16 +350,16 @@ export class ServiceCommand extends BaseCommand {
 
 		try {
 			if (force) {
-				Deno.kill(process.pid, 'SIGKILL');
+				Deno.kill(process.pid, "SIGKILL");
 			} else {
-				Deno.kill(process.pid, 'SIGTERM');
+				Deno.kill(process.pid, "SIGTERM");
 				// Wait for graceful shutdown
 				await Promise.race([
 					process.status,
 					new Promise((resolve) => setTimeout(resolve, 5000)),
 				]);
 				if (this.services.has(name)) {
-					Deno.kill(process.pid, 'SIGKILL');
+					Deno.kill(process.pid, "SIGKILL");
 				}
 			}
 		} catch (error: unknown) {
@@ -396,10 +396,10 @@ export class ServiceCommand extends BaseCommand {
 
 			return {
 				name: serviceName,
-				status: 'running',
+				status: "running",
 				pid: process.pid,
 				uptime,
-				healthStatus: health ? 'healthy' : 'unhealthy',
+				healthStatus: health ? "healthy" : "unhealthy",
 			};
 		};
 
@@ -422,14 +422,14 @@ export class ServiceCommand extends BaseCommand {
 	}
 
 	private displayStatus(statuses: ServiceStatus[], format: string): void {
-		if (format === 'json') {
+		if (format === "json") {
 			console.log(JSON.stringify(statuses, null, 2));
 			return;
 		}
 
 		// Display as table
-		console.log('\nService Status:');
-		console.log('==============');
+		console.log("\nService Status:");
+		console.log("==============");
 		for (const status of statuses) {
 			console.log(`\nName: ${status.name}`);
 			console.log(`Status: ${status.status}`);
@@ -465,19 +465,19 @@ export class ServiceCommand extends BaseCommand {
 			// Show last N lines
 			for await (const chunk of process.stdout) {
 				const text = decoder.decode(chunk);
-				logBuffer.push(...text.split('\n'));
+				logBuffer.push(...text.split("\n"));
 				if (logBuffer.length > lines) {
 					logBuffer.splice(0, logBuffer.length - lines);
 				}
 			}
-			console.log(logBuffer.join('\n'));
+			console.log(logBuffer.join("\n"));
 		}
 	}
 
 	private async stopAllServices(): Promise<void> {
 		for (const [name] of this.services) {
 			await this.handleStop({
-				command: ['service', 'stop'],
+				command: ["service", "stop"],
 				flags: { name, force: true },
 				cli: this.cli,
 			});

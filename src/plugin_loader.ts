@@ -1,7 +1,7 @@
 // src/plugin_loader.ts
-import { CLI } from './core.ts'; // Import CLI
-import { logger } from './logger.ts'; // Import logger
-import { Plugin, PluginMetadata } from './plugin.ts'; // Import Plugin interface
+import { CLI } from "./core.ts"; // Import CLI
+import { logger } from "./logger.ts"; // Import logger
+import { Plugin, PluginMetadata } from "./plugin.ts"; // Import Plugin interface
 
 export class PluginLoader {
 	private loadedPlugins: Map<string, Plugin> = new Map();
