@@ -3,3 +3,4 @@ coverage
 .history
 
 test-bin
+gh-check.sh
