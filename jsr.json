@@ -3,7 +3,7 @@
   "version": "1.0.0-beta.1",
   "exports": "./src/mod.ts",
   "publish": {
-    "exclude": [],
+    "exclude": ["dist/", "cov/", "tests/", "test-bin"] ,
     "include": [
       "**/*"
     ]
