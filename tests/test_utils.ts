@@ -11,8 +11,8 @@ export interface TestCLI {
 }
 
 export interface TestFixture {
-  name: string;
-  path: string;
+	name: string;
+	path: string;
 }
 
 /**
@@ -85,12 +85,12 @@ export function resolveProjectPath(relativePath: string): string {
  * @returns The imported module
  */
 export async function importSourceFile(relativePath: string): Promise<unknown> {
-  const fullPath = resolveProjectPath(relativePath);
-  // Use a more direct import approach
-  if (relativePath.startsWith("src/")) {
-    return import(`../src/${relativePath.slice(4)}`);
-  }
-  throw new Error(`Invalid import path: ${relativePath}`);
+	const fullPath = resolveProjectPath(relativePath);
+	// Use a more direct import approach
+	if (relativePath.startsWith("src/")) {
+		return import(`../src/${relativePath.slice(4)}`);
+	}
+	throw new Error(`Invalid import path: ${relativePath}`);
 }
 
 /**
@@ -126,19 +126,24 @@ export function mockFetchWithAbort(
  * @param fixtureName The name of the fixture to load
  * @returns The loaded test fixture
  */
-export async function loadTestFixture(fixtureName: string): Promise<TestFixture> {
-  const fixturesDir = "./tests/fixtures";
-  const fullPath = path.join(fixturesDir, fixtureName);
-  
-  // Use static path resolution
-  try {
-    const fixture = {
-      name: fixtureName,
-      path: fullPath,
-    };
-    assert(await Deno.stat(fullPath), "Fixture must exist");
-    return fixture;
-  } catch (error) {
-    throw new Error(`Failed to load test fixture ${fixtureName}: ${error.message}`);
-  }
+export async function loadTestFixture(
+	fixtureName: string,
+): Promise<TestFixture> {
+	const fixturesDir = "./tests/fixtures";
+	const fullPath = path.join(fixturesDir, fixtureName);
+
+	// Use static path resolution
+	try {
+		const fixture = {
+			name: fixtureName,
+			path: fullPath,
+		};
+		assert(await Deno.stat(fullPath), "Fixture must exist");
+		return fixture;
+	} catch (error: unknown) {
+		const e = error as Error;
+		throw new Error(
+			`Failed to load test fixture ${fixtureName}: ${e.message}`,
+		);
+	}
 }
