@@ -3,15 +3,9 @@
   "version": "1.0.0-beta.1",
   "exports": "./src/mod.ts",
   "publish": {
-    "exclude": ["*"],
+    "exclude": [],
     "include": [
-      "LICENSE",
-      "README.md",
-      "src/mod.ts",
-      "src/core/types.ts",
-      "src/types/mod.ts",
-      "src/types/symbols.d.ts",
-      "src/core/*.ts"
+      "**/*"
     ]
   },
   "dependencies": {
