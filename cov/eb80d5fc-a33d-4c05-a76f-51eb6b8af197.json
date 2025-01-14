@@ -1,0 +1,52 @@
+{
+  "scriptId": "319",
+  "url": "file:///Users/ryanoboyle/stega/tests/compiler/dependency-graph.test.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 2798, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "mockModule",
+      "ranges": [{ "startOffset": 335, "endOffset": 420, "count": 4 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "createMockParseModule",
+      "ranges": [{ "startOffset": 607, "endOffset": 1251, "count": 2 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [
+        { "startOffset": 658, "endOffset": 1248, "count": 2 },
+        { "startOffset": 711, "endOffset": 754, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [
+        { "startOffset": 782, "endOffset": 1172, "count": 2 },
+        { "startOffset": 1073, "endOffset": 1145, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 855, "endOffset": 999, "count": 2 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 1307, "endOffset": 2099, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 2148, "endOffset": 2795, "count": 1 }],
+      "isBlockCoverage": true
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "scriptId": "320",
+  "url": "file:///Users/ryanoboyle/stega/src/i18n.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 1469, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "<instance_members_initializer>",
+      "ranges": [{ "startOffset": 37, "endOffset": 72, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "I18n",
+      "ranges": [
+        { "startOffset": 76, "endOffset": 259, "count": 1 },
+        { "startOffset": 214, "endOffset": 221, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "load",
+      "ranges": [
+        { "startOffset": 262, "endOffset": 763, "count": 1 },
+        { "startOffset": 417, "endOffset": 759, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "loadLocale",
+      "ranges": [{ "startOffset": 766, "endOffset": 1192, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "t",
+      "ranges": [
+        { "startOffset": 1195, "endOffset": 1466, "count": 2 },
+        { "startOffset": 1255, "endOffset": 1261, "count": 0 },
+        { "startOffset": 1285, "endOffset": 1442, "count": 1 }
+      ],
+      "isBlockCoverage": true
+    }
+  ]
+}

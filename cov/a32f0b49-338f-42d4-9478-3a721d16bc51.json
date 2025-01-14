@@ -1,0 +1,60 @@
+{
+  "scriptId": "319",
+  "url": "file:///Users/ryanoboyle/stega/tests/commands/template_command.test.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 7373, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "fn",
+      "ranges": [{ "startOffset": 386, "endOffset": 1949, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [
+        { "startOffset": 1323, "endOffset": 1626, "count": 1 },
+        { "startOffset": 1618, "endOffset": 1625, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "fn",
+      "ranges": [{ "startOffset": 2035, "endOffset": 3468, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "fn",
+      "ranges": [{ "startOffset": 3532, "endOffset": 5187, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "fn",
+      "ranges": [{ "startOffset": 5273, "endOffset": 5875, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [
+        { "startOffset": 5478, "endOffset": 5676, "count": 1 },
+        { "startOffset": 5670, "endOffset": 5675, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "fn",
+      "ranges": [{ "startOffset": 5958, "endOffset": 7368, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [
+        { "startOffset": 6736, "endOffset": 6911, "count": 1 },
+        { "startOffset": 6903, "endOffset": 6910, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    }
+  ]
+}

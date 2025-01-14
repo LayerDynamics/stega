@@ -1,0 +1,51 @@
+{
+  "scriptId": "322",
+  "url": "file:///Users/ryanoboyle/stega/src/help.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 2051, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "<instance_members_initializer>",
+      "ranges": [{ "startOffset": 37, "endOffset": 53, "count": 3 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "Help",
+      "ranges": [{ "startOffset": 57, "endOffset": 141, "count": 3 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "generateHelp",
+      "ranges": [
+        { "startOffset": 348, "endOffset": 1638, "count": 3 },
+        { "startOffset": 413, "endOffset": 659, "count": 1 },
+        { "startOffset": 583, "endOffset": 588, "count": 0 },
+        { "startOffset": 659, "endOffset": 1613, "count": 2 },
+        { "startOffset": 778, "endOffset": 783, "count": 0 },
+        { "startOffset": 817, "endOffset": 846, "count": 1 },
+        { "startOffset": 848, "endOffset": 1278, "count": 1 },
+        { "startOffset": 1011, "endOffset": 1015, "count": 0 },
+        { "startOffset": 1129, "endOffset": 1133, "count": 0 },
+        { "startOffset": 1209, "endOffset": 1214, "count": 0 },
+        { "startOffset": 1309, "endOffset": 1342, "count": 1 },
+        { "startOffset": 1344, "endOffset": 1542, "count": 1 },
+        { "startOffset": 1488, "endOffset": 1493, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "getUsage",
+      "ranges": [
+        { "startOffset": 1782, "endOffset": 2048, "count": 2 },
+        { "startOffset": 1860, "endOffset": 1893, "count": 1 },
+        { "startOffset": 1895, "endOffset": 1934, "count": 1 },
+        { "startOffset": 1959, "endOffset": 1988, "count": 1 },
+        { "startOffset": 1990, "endOffset": 2026, "count": 1 }
+      ],
+      "isBlockCoverage": true
+    }
+  ]
+}

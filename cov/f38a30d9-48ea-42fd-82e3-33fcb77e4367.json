@@ -1,0 +1,51 @@
+{
+  "scriptId": "319",
+  "url": "file:///Users/ryanoboyle/stega/tests/logger.test.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 1547, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "stripAnsi",
+      "ranges": [{ "startOffset": 266, "endOffset": 303, "count": 3 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "_stripEscapes",
+      "ranges": [{ "startOffset": 327, "endOffset": 428, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 557, "endOffset": 1544, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "console.log",
+      "ranges": [{ "startOffset": 752, "endOffset": 773, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "console.info",
+      "ranges": [{ "startOffset": 792, "endOffset": 813, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "console.warn",
+      "ranges": [{ "startOffset": 832, "endOffset": 853, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "console.error",
+      "ranges": [{ "startOffset": 873, "endOffset": 894, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 1177, "endOffset": 1355, "count": 3 }],
+      "isBlockCoverage": true
+    }
+  ]
+}

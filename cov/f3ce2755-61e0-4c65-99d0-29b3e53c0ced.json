@@ -1,0 +1,21 @@
+{
+  "scriptId": "386",
+  "url": "data:text/javascript;base64,CiAgICAgICAgZXhwb3J0IGRlZmF1bHQgewogICAgICAgICAgICBtZXRhZGF0YTogewogICAgICAgICAgICAgICAgbmFtZTogIkJhc2VQbHVnaW4iLAogICAgICAgICAgICAgICAgdmVyc2lvbjogIjEuMC4wIgogICAgICAgICAgICB9LAogICAgICAgICAgICBpbml0OiAoY2xpKSA9PiB7CiAgICAgICAgICAgICAgICBjbGkucmVnaXN0ZXIoewogICAgICAgICAgICAgICAgICAgIG5hbWU6ICJiYXNlIiwKICAgICAgICAgICAgICAgICAgICBkZXNjcmlwdGlvbjogIkJhc2UgY29tbWFuZCIsCiAgICAgICAgICAgICAgICAgICAgYWN0aW9uOiAoKSA9PiB7fQogICAgICAgICAgICAgICAgfSk7CiAgICAgICAgICAgIH0KICAgICAgICB9OwogICAg",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 363, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "init",
+      "ranges": [{ "startOffset": 152, "endOffset": 347, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "action",
+      "ranges": [{ "startOffset": 305, "endOffset": 313, "count": 0 }],
+      "isBlockCoverage": false
+    }
+  ]
+}

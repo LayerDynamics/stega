@@ -1,0 +1,36 @@
+{
+  "scriptId": "372",
+  "url": "file:///Users/ryanoboyle/stega/src/help.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 2051, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "<instance_members_initializer>",
+      "ranges": [{ "startOffset": 37, "endOffset": 53, "count": 3 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "Help",
+      "ranges": [{ "startOffset": 57, "endOffset": 141, "count": 3 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "generateHelp",
+      "ranges": [
+        { "startOffset": 348, "endOffset": 1638, "count": 3 },
+        { "startOffset": 527, "endOffset": 601, "count": 6 },
+        { "startOffset": 583, "endOffset": 588, "count": 0 },
+        { "startOffset": 659, "endOffset": 1613, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "getUsage",
+      "ranges": [{ "startOffset": 1782, "endOffset": 2048, "count": 0 }],
+      "isBlockCoverage": false
+    }
+  ]
+}

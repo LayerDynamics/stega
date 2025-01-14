@@ -1,0 +1,64 @@
+{
+  "scriptId": "321",
+  "url": "file:///Users/ryanoboyle/stega/src/commands/build.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 5131, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "runPluginHooks",
+      "ranges": [
+        { "startOffset": 508, "endOffset": 1221, "count": 6 },
+        { "startOffset": 613, "endOffset": 1204, "count": 4 },
+        { "startOffset": 662, "endOffset": 683, "count": 2 },
+        { "startOffset": 685, "endOffset": 900, "count": 2 },
+        { "startOffset": 749, "endOffset": 780, "count": 1 },
+        { "startOffset": 780, "endOffset": 892, "count": 0 },
+        { "startOffset": 900, "endOffset": 1032, "count": 2 },
+        { "startOffset": 1014, "endOffset": 1022, "count": 0 },
+        { "startOffset": 1024, "endOffset": 1032, "count": 1 },
+        { "startOffset": 1039, "endOffset": 1200, "count": 2 },
+        { "startOffset": 1181, "endOffset": 1194, "count": 1 },
+        { "startOffset": 1204, "endOffset": 1220, "count": 5 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "createBuildCommand",
+      "ranges": [{ "startOffset": 1380, "endOffset": 4502, "count": 3 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "action",
+      "ranges": [
+        { "startOffset": 2291, "endOffset": 4495, "count": 3 },
+        { "startOffset": 2491, "endOffset": 2661, "count": 0 },
+        { "startOffset": 2681, "endOffset": 3085, "count": 0 },
+        { "startOffset": 3265, "endOffset": 3387, "count": 0 },
+        { "startOffset": 3430, "endOffset": 3564, "count": 0 },
+        { "startOffset": 3722, "endOffset": 3727, "count": 0 },
+        { "startOffset": 3898, "endOffset": 3965, "count": 1 },
+        { "startOffset": 3965, "endOffset": 4158, "count": 2 },
+        { "startOffset": 4158, "endOffset": 4212, "count": 0 },
+        { "startOffset": 4221, "endOffset": 4489, "count": 1 },
+        { "startOffset": 4314, "endOffset": 4329, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "executeBuild",
+      "ranges": [
+        { "startOffset": 4503, "endOffset": 5130, "count": 2 },
+        { "startOffset": 5058, "endOffset": 5103, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 4617, "endOffset": 4636, "count": 0 }],
+      "isBlockCoverage": false
+    }
+  ]
+}

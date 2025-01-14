@@ -1,0 +1,65 @@
+{
+  "scriptId": "358",
+  "url": "file:///Users/ryanoboyle/stega/src/parser.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 5904, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "parse",
+      "ranges": [
+        { "startOffset": 466, "endOffset": 2966, "count": 12 },
+        { "startOffset": 603, "endOffset": 2945, "count": 21 },
+        { "startOffset": 664, "endOffset": 1853, "count": 15 },
+        { "startOffset": 1029, "endOffset": 1136, "count": 0 },
+        { "startOffset": 1146, "endOffset": 1845, "count": 0 },
+        { "startOffset": 1853, "endOffset": 2928, "count": 6 },
+        { "startOffset": 1883, "endOffset": 1897, "count": 0 },
+        { "startOffset": 1899, "endOffset": 2826, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "getFlagType",
+      "ranges": [
+        { "startOffset": 3253, "endOffset": 3409, "count": 15 },
+        { "startOffset": 3357, "endOffset": 3368, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "parseValue",
+      "ranges": [
+        { "startOffset": 3674, "endOffset": 4583, "count": 15 },
+        { "startOffset": 3724, "endOffset": 4190, "count": 0 },
+        { "startOffset": 4197, "endOffset": 4405, "count": 0 },
+        { "startOffset": 4412, "endOffset": 4515, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "parseBoolean",
+      "ranges": [{ "startOffset": 4710, "endOffset": 4868, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "findFlagDefinition",
+      "ranges": [
+        { "startOffset": 5148, "endOffset": 5901, "count": 15 },
+        { "startOffset": 5323, "endOffset": 5875, "count": 45 },
+        { "startOffset": 5427, "endOffset": 5529, "count": 44 },
+        { "startOffset": 5460, "endOffset": 5480, "count": 29 },
+        { "startOffset": 5482, "endOffset": 5519, "count": 15 },
+        { "startOffset": 5529, "endOffset": 5595, "count": 30 },
+        { "startOffset": 5595, "endOffset": 5869, "count": 15 },
+        { "startOffset": 5642, "endOffset": 5861, "count": 45 },
+        { "startOffset": 5674, "endOffset": 5851, "count": 30 },
+        { "startOffset": 5780, "endOffset": 5825, "count": 0 },
+        { "startOffset": 5875, "endOffset": 5900, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    }
+  ]
+}

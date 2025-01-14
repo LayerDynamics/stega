@@ -1,0 +1,166 @@
+{
+  "scriptId": "321",
+  "url": "file:///Users/ryanoboyle/stega/src/compiler/dependency-graph.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 15137, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "<instance_members_initializer>",
+      "ranges": [{ "startOffset": 298, "endOffset": 400, "count": 2 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "get size",
+      "ranges": [{ "startOffset": 463, "endOffset": 509, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "build",
+      "ranges": [{ "startOffset": 724, "endOffset": 811, "count": 2 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "getModule",
+      "ranges": [{ "startOffset": 959, "endOffset": 1015, "count": 2 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "getAllModules",
+      "ranges": [{ "startOffset": 1108, "endOffset": 1175, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "updateModule",
+      "ranges": [{ "startOffset": 1325, "endOffset": 1446, "count": 4 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "setDependencies",
+      "ranges": [
+        { "startOffset": 1614, "endOffset": 2166, "count": 4 },
+        { "startOffset": 1843, "endOffset": 2162, "count": 3 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "resolveModulePath",
+      "ranges": [
+        { "startOffset": 2394, "endOffset": 3992, "count": 6 },
+        { "startOffset": 2697, "endOffset": 2729, "count": 0 },
+        { "startOffset": 2731, "endOffset": 2935, "count": 0 },
+        { "startOffset": 2968, "endOffset": 3988, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "getTopologicalOrder",
+      "ranges": [{ "startOffset": 4123, "endOffset": 4511, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "addModule",
+      "ranges": [
+        { "startOffset": 4702, "endOffset": 5098, "count": 4 },
+        { "startOffset": 4851, "endOffset": 5094, "count": 3 },
+        { "startOffset": 4963, "endOffset": 5088, "count": 2 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "getDependencies",
+      "ranges": [{ "startOffset": 5243, "endOffset": 5323, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "getDependents",
+      "ranges": [{ "startOffset": 5465, "endOffset": 5550, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "hasCycle",
+      "ranges": [
+        { "startOffset": 5677, "endOffset": 6370, "count": 1 },
+        { "startOffset": 6348, "endOffset": 6369, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "hasCycleUtil",
+      "ranges": [
+        { "startOffset": 5784, "endOffset": 6241, "count": 2 },
+        { "startOffset": 5921, "endOffset": 5933, "count": 0 },
+        { "startOffset": 6001, "endOffset": 6165, "count": 1 },
+        { "startOffset": 6175, "endOffset": 6240, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "getConnectedComponents",
+      "ranges": [{ "startOffset": 6522, "endOffset": 7233, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "optimizeGraph",
+      "ranges": [{ "startOffset": 7343, "endOffset": 7544, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "removeUnusedModules",
+      "ranges": [{ "startOffset": 7622, "endOffset": 8258, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "findMergeCandidates",
+      "ranges": [{ "startOffset": 8440, "endOffset": 8866, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "mergeModulePair",
+      "ranges": [{ "startOffset": 9081, "endOffset": 10241, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "getModuleStatements",
+      "ranges": [{ "startOffset": 10301, "endOffset": 10384, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "mergeModules",
+      "ranges": [{ "startOffset": 10435, "endOffset": 10604, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "optimizeModuleOrder",
+      "ranges": [{ "startOffset": 10703, "endOffset": 11699, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "calculateModuleWeight",
+      "ranges": [{ "startOffset": 11893, "endOffset": 12338, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "calculateCriticalPathDepth",
+      "ranges": [{ "startOffset": 12597, "endOffset": 13009, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "removeModule",
+      "ranges": [{ "startOffset": 13121, "endOffset": 13434, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "toJSON",
+      "ranges": [{ "startOffset": 13546, "endOffset": 13910, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "fromJSON",
+      "ranges": [{ "startOffset": 14129, "endOffset": 15134, "count": 0 }],
+      "isBlockCoverage": false
+    }
+  ]
+}

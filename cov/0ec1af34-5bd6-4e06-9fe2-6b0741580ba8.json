@@ -1,0 +1,21 @@
+{
+  "scriptId": "319",
+  "url": "file:///Users/ryanoboyle/stega/tests/integration/cli_workflow.test.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 5563, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "setupCliWorkflowTest",
+      "ranges": [{ "startOffset": 135, "endOffset": 2739, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "setupPluginLifecycleTest",
+      "ranges": [{ "startOffset": 2747, "endOffset": 5562, "count": 0 }],
+      "isBlockCoverage": false
+    }
+  ]
+}

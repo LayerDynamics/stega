@@ -1,0 +1,51 @@
+{
+  "scriptId": "319",
+  "url": "file:///Users/ryanoboyle/stega/tests/help.test.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 2524, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "_captureOutput",
+      "ranges": [{ "startOffset": 228, "endOffset": 506, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 755, "endOffset": 1185, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "action",
+      "ranges": [{ "startOffset": 933, "endOffset": 939, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 1240, "endOffset": 1880, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "action",
+      "ranges": [{ "startOffset": 1582, "endOffset": 1588, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 1929, "endOffset": 2521, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "action",
+      "ranges": [{ "startOffset": 2201, "endOffset": 2207, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "action",
+      "ranges": [{ "startOffset": 2235, "endOffset": 2241, "count": 0 }],
+      "isBlockCoverage": false
+    }
+  ]
+}

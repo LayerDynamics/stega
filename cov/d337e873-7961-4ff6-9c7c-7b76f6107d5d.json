@@ -1,0 +1,168 @@
+{
+  "scriptId": "326",
+  "url": "file:///Users/ryanoboyle/stega/src/core.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 12300, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "<instance_members_initializer>",
+      "ranges": [{ "startOffset": 560, "endOffset": 750, "count": 5 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "CLI",
+      "ranges": [
+        { "startOffset": 754, "endOffset": 1523, "count": 5 },
+        { "startOffset": 955, "endOffset": 985, "count": 0 },
+        { "startOffset": 1307, "endOffset": 1316, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "registerCoreCommands",
+      "ranges": [{ "startOffset": 1567, "endOffset": 2275, "count": 5 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "action",
+      "ranges": [{ "startOffset": 1868, "endOffset": 2263, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "register",
+      "ranges": [{ "startOffset": 2373, "endOffset": 2495, "count": 15 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "use",
+      "ranges": [{ "startOffset": 2603, "endOffset": 2669, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "formatOutput",
+      "ranges": [{ "startOffset": 2798, "endOffset": 3116, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "loadPlugins",
+      "ranges": [{ "startOffset": 3235, "endOffset": 3368, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "getCommandRegistry",
+      "ranges": [{ "startOffset": 3459, "endOffset": 3511, "count": 32 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "run",
+      "ranges": [
+        { "startOffset": 3612, "endOffset": 6457, "count": 5 },
+        { "startOffset": 3722, "endOffset": 3935, "count": 0 },
+        { "startOffset": 4128, "endOffset": 4222, "count": 0 },
+        { "startOffset": 4302, "endOffset": 4785, "count": 0 },
+        { "startOffset": 4829, "endOffset": 5152, "count": 0 },
+        { "startOffset": 5240, "endOffset": 5628, "count": 0 },
+        { "startOffset": 5630, "endOffset": 6020, "count": 0 },
+        { "startOffset": 6027, "endOffset": 6453, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "runCommand",
+      "ranges": [
+        { "startOffset": 6570, "endOffset": 7702, "count": 10 },
+        { "startOffset": 6746, "endOffset": 6771, "count": 0 },
+        { "startOffset": 6906, "endOffset": 6964, "count": 0 },
+        { "startOffset": 7186, "endOffset": 7261, "count": 0 },
+        { "startOffset": 7371, "endOffset": 7379, "count": 7 },
+        { "startOffset": 7379, "endOffset": 7498, "count": 0 },
+        { "startOffset": 7505, "endOffset": 7698, "count": 3 },
+        { "startOffset": 7587, "endOffset": 7602, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "processOptions",
+      "ranges": [
+        { "startOffset": 7896, "endOffset": 9286, "count": 10 },
+        { "startOffset": 7993, "endOffset": 8000, "count": 0 },
+        { "startOffset": 8073, "endOffset": 8779, "count": 35 },
+        { "startOffset": 8242, "endOffset": 8280, "count": 32 },
+        { "startOffset": 8280, "endOffset": 8498, "count": 3 },
+        { "startOffset": 8296, "endOffset": 8325, "count": 0 },
+        { "startOffset": 8327, "endOffset": 8366, "count": 0 },
+        { "startOffset": 8409, "endOffset": 8453, "count": 0 },
+        { "startOffset": 8530, "endOffset": 8654, "count": 33 },
+        { "startOffset": 8654, "endOffset": 8773, "count": 2 },
+        { "startOffset": 8674, "endOffset": 8773, "count": 0 },
+        { "startOffset": 8885, "endOffset": 8916, "count": 0 },
+        { "startOffset": 8918, "endOffset": 9142, "count": 0 },
+        { "startOffset": 9249, "endOffset": 9282, "count": 33 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "showHelp",
+      "ranges": [{ "startOffset": 9341, "endOffset": 9400, "count": 5 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "t",
+      "ranges": [{ "startOffset": 9596, "endOffset": 9665, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "isTestMode",
+      "ranges": [{ "startOffset": 9778, "endOffset": 9822, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "getLoadedPlugins",
+      "ranges": [{ "startOffset": 9909, "endOffset": 9982, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "findCommand",
+      "ranges": [{ "startOffset": 10117, "endOffset": 10184, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "registerPluginCommands",
+      "ranges": [{ "startOffset": 10238, "endOffset": 11959, "count": 5 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "action",
+      "ranges": [{ "startOffset": 10708, "endOffset": 10837, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "action",
+      "ranges": [{ "startOffset": 11162, "endOffset": 11293, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "action",
+      "ranges": [{ "startOffset": 11403, "endOffset": 11801, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "action",
+      "ranges": [{ "startOffset": 11835, "endOffset": 11947, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "markAsReady",
+      "ranges": [{ "startOffset": 12044, "endOffset": 12170, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "waitForReady",
+      "ranges": [{ "startOffset": 12173, "endOffset": 12297, "count": 0 }],
+      "isBlockCoverage": false
+    }
+  ]
+}

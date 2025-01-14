@@ -1,0 +1,135 @@
+{
+  "scriptId": "321",
+  "url": "file:///Users/ryanoboyle/stega/src/core.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 12300, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "<instance_members_initializer>",
+      "ranges": [{ "startOffset": 560, "endOffset": 750, "count": 3 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "CLI",
+      "ranges": [
+        { "startOffset": 754, "endOffset": 1523, "count": 3 },
+        { "startOffset": 943, "endOffset": 954, "count": 1 },
+        { "startOffset": 955, "endOffset": 985, "count": 2 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "registerCoreCommands",
+      "ranges": [{ "startOffset": 1567, "endOffset": 2275, "count": 3 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "action",
+      "ranges": [{ "startOffset": 1868, "endOffset": 2263, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "register",
+      "ranges": [{ "startOffset": 2373, "endOffset": 2495, "count": 11 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "use",
+      "ranges": [{ "startOffset": 2603, "endOffset": 2669, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "formatOutput",
+      "ranges": [{ "startOffset": 2798, "endOffset": 3116, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "loadPlugins",
+      "ranges": [{ "startOffset": 3235, "endOffset": 3368, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "getCommandRegistry",
+      "ranges": [{ "startOffset": 3459, "endOffset": 3511, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "run",
+      "ranges": [{ "startOffset": 3612, "endOffset": 6457, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "runCommand",
+      "ranges": [{ "startOffset": 6570, "endOffset": 7702, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "processOptions",
+      "ranges": [{ "startOffset": 7896, "endOffset": 9286, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "showHelp",
+      "ranges": [{ "startOffset": 9341, "endOffset": 9400, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "t",
+      "ranges": [{ "startOffset": 9596, "endOffset": 9665, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "isTestMode",
+      "ranges": [{ "startOffset": 9778, "endOffset": 9822, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "getLoadedPlugins",
+      "ranges": [{ "startOffset": 9909, "endOffset": 9982, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "findCommand",
+      "ranges": [{ "startOffset": 10117, "endOffset": 10184, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "registerPluginCommands",
+      "ranges": [{ "startOffset": 10238, "endOffset": 11959, "count": 3 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "action",
+      "ranges": [{ "startOffset": 10708, "endOffset": 10837, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "action",
+      "ranges": [{ "startOffset": 11162, "endOffset": 11293, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "action",
+      "ranges": [{ "startOffset": 11403, "endOffset": 11801, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "action",
+      "ranges": [{ "startOffset": 11835, "endOffset": 11947, "count": 0 }],
+      "isBlockCoverage": false
+    },
+    {
+      "functionName": "markAsReady",
+      "ranges": [{ "startOffset": 12044, "endOffset": 12170, "count": 5 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "waitForReady",
+      "ranges": [{ "startOffset": 12173, "endOffset": 12297, "count": 0 }],
+      "isBlockCoverage": false
+    }
+  ]
+}

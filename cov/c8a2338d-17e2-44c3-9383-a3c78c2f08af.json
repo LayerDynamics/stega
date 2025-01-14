@@ -1,0 +1,74 @@
+{
+  "scriptId": "350",
+  "url": "file:///Users/ryanoboyle/stega/src/command.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 1864, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "<instance_members_initializer>",
+      "ranges": [{ "startOffset": 51, "endOffset": 64, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "register",
+      "ranges": [
+        { "startOffset": 150, "endOffset": 393, "count": 3 },
+        { "startOffset": 275, "endOffset": 356, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "remove",
+      "ranges": [
+        { "startOffset": 548, "endOffset": 740, "count": 1 },
+        { "startOffset": 718, "endOffset": 739, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 605, "endOffset": 629, "count": 3 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "getCommands",
+      "ranges": [{ "startOffset": 837, "endOffset": 882, "count": 12 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "findCommand",
+      "ranges": [{ "startOffset": 1027, "endOffset": 1152, "count": 7 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [
+        { "startOffset": 1077, "endOffset": 1146, "count": 12 },
+        { "startOffset": 1102, "endOffset": 1146, "count": 9 },
+        { "startOffset": 1117, "endOffset": 1146, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "findSubcommand",
+      "ranges": [
+        { "startOffset": 1402, "endOffset": 1861, "count": 2 },
+        { "startOffset": 1560, "endOffset": 1595, "count": 0 },
+        { "startOffset": 1754, "endOffset": 1789, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [
+        { "startOffset": 1653, "endOffset": 1728, "count": 3 },
+        { "startOffset": 1681, "endOffset": 1728, "count": 1 },
+        { "startOffset": 1696, "endOffset": 1728, "count": 0 }
+      ],
+      "isBlockCoverage": true
+    }
+  ]
+}

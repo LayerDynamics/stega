@@ -1,0 +1,21 @@
+{
+  "scriptId": "321",
+  "url": "file:///Users/ryanoboyle/stega/tests/utils/test_helpers.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 333, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "createTempFile",
+      "ranges": [{ "startOffset": 95, "endOffset": 237, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "createTestCLI",
+      "ranges": [{ "startOffset": 245, "endOffset": 332, "count": 1 }],
+      "isBlockCoverage": true
+    }
+  ]
+}

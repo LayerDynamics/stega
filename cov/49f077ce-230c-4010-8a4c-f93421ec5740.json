@@ -1,0 +1,45 @@
+{
+  "scriptId": "321",
+  "url": "file:///Users/ryanoboyle/stega/src/compiler/cache.ts",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 1780, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "<instance_members_initializer>",
+      "ranges": [{ "startOffset": 284, "endOffset": 301, "count": 2 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "computeHash",
+      "ranges": [{ "startOffset": 464, "endOffset": 788, "count": 3 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 731, "endOffset": 773, "count": 96 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "get",
+      "ranges": [
+        { "startOffset": 1057, "endOffset": 1289, "count": 2 },
+        { "startOffset": 1197, "endOffset": 1227, "count": 1 },
+        { "startOffset": 1229, "endOffset": 1288, "count": 1 }
+      ],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "set",
+      "ranges": [{ "startOffset": 1543, "endOffset": 1689, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "clear",
+      "ranges": [{ "startOffset": 1740, "endOffset": 1777, "count": 0 }],
+      "isBlockCoverage": false
+    }
+  ]
+}

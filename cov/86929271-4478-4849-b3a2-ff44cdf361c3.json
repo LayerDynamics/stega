@@ -1,0 +1,21 @@
+{
+  "scriptId": "388",
+  "url": "data:text/javascript;base64,CiAgICAgICAgZXhwb3J0IGRlZmF1bHQgewogICAgICAgICAgICBtZXRhZGF0YTogewogICAgICAgICAgICAgICAgbmFtZTogIkRlcGVuZGVudFBsdWdpbiIsCiAgICAgICAgICAgICAgICB2ZXJzaW9uOiAiMS4wLjAiLAogICAgICAgICAgICAgICAgZGVzY3JpcHRpb246ICJBIHBsdWdpbiB0aGF0IGRlcGVuZHMgb24gVGVzdFBsdWdpbiIsCiAgICAgICAgICAgICAgICBkZXBlbmRlbmNpZXM6IFsiVGVzdFBsdWdpbiJdCiAgICAgICAgICAgIH0sCiAgICAgICAgICAgIGluaXQ6IChjbGkpID0+IHsKICAgICAgICAgICAgICAgIGNsaS5yZWdpc3Rlcih7CiAgICAgICAgICAgICAgICAgICAgbmFtZTogImRlcGVuZGVudCIsCiAgICAgICAgICAgICAgICAgICAgZGVzY3JpcHRpb246ICJEZXBlbmRlbnQgY29tbWFuZCIsCiAgICAgICAgICAgICAgICAgICAgYWN0aW9uOiAoKSA9PiB7fQogICAgICAgICAgICAgICAgfSk7CiAgICAgICAgICAgIH0KICAgICAgICB9OwogICAg",
+  "functions": [
+    {
+      "functionName": "",
+      "ranges": [{ "startOffset": 0, "endOffset": 492, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "init",
+      "ranges": [{ "startOffset": 271, "endOffset": 476, "count": 1 }],
+      "isBlockCoverage": true
+    },
+    {
+      "functionName": "action",
+      "ranges": [{ "startOffset": 434, "endOffset": 442, "count": 0 }],
+      "isBlockCoverage": false
+    }
+  ]
+}
