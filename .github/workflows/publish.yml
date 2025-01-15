@@ -21,6 +21,31 @@ jobs:
         with:
           deno-version: v1.x
 
+      - name: Initialize Dependencies and Generate Lockfile
+        run: |
+          # Remove existing lockfile
+          rm -f deno.lock
+
+          # Initialize cache and create new lockfile
+          echo "Initializing cache..."
+          deno cache mod.ts
+
+          echo "Creating lockfile..."
+          deno cache --lock=deno.lock --lock-write mod.ts
+
+          echo "Verifying dependencies..."
+          deno cache --reload --lock=deno.lock mod.ts
+
+          # Verify lockfile
+          if [ ! -s deno.lock ]; then
+              echo "Error: Lockfile generation failed"
+              exit 1
+          fi
+
+          # Cache all source files
+          echo "Caching source files..."
+          find src -name "*.ts" -type f -exec deno cache {} +
+
       - name: Setup Test Environment
         run: |
           # Create test directories
@@ -33,21 +58,8 @@ jobs:
           sudo chown -R $USER:$USER /tmp/test_tmp /tmp/deno_dir
 
           # Initialize test data
-          deno task test:init
-
-      - name: Initialize Dependencies
-        run: |
-          # Clean and initialize cache directories
-          sudo rm -rf ~/.cache/deno
-          sudo mkdir -p ~/.cache/deno
-          sudo chmod -R 777 ~/.cache/deno
-
-          # Cache dependencies with lockfile
-          deno cache --reload mod.ts
-          deno cache --lock=deno.lock --lock-write mod.ts
-
-          # Cache test files
-          find tests -name "*.ts" -type f -exec deno cache {} +
+          echo "Initializing test environment..."
+          deno task test:init || true
 
       - name: Run Tests with Coverage
         env:
@@ -58,16 +70,24 @@ jobs:
           DEBUG: true
           PRESERVE_TEST_FILES: "1"
         run: |
+          # Clean and prepare cache directory
+          sudo rm -rf ~/.cache/deno
+          sudo mkdir -p ~/.cache/deno
+          sudo chmod -R 777 ~/.cache/deno
+
           # Run tests first to generate all test files
+          echo "Running initial test pass..."
           deno test --allow-all || exit 1
 
           # Wait for file system
           sleep 2
 
           # Cache any generated test files
+          echo "Caching test files..."
           sudo find tests/fixtures -name "*.ts" -type f -exec deno cache {} + || true
 
           # Run tests again with coverage
+          echo "Running tests with coverage..."
           deno test --allow-all --coverage=coverage --parallel
 
           # Ensure proper permissions
@@ -75,6 +95,7 @@ jobs:
           sudo chmod -R 777 coverage
 
           # Generate coverage report
+          echo "Generating coverage report..."
           deno coverage coverage --lcov > coverage.lcov
 
       - name: Build Binaries
