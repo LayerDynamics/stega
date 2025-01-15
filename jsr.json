@@ -2,9 +2,20 @@
 	"name": "@layerdynamics/stega",
 	"version": "1.0.0-beta.1",
 	"description": "A comprehensive CLI framework for Deno featuring advanced command management, workflow automation, and plugin architecture",
+	"runtime": {
+		"deno": ">=1.37",
+		"node": ">=18.0.0",
+		"bun": ">=1.0.0"
+	},
 	"exports": {
-		".": "./mod.ts",
-		"./cli": "./src/core.ts",
+		".": {
+			"types": "./mod.ts",
+			"import": "./mod.ts"
+		},
+		"./cli": {
+			"types": "./src/core.ts",
+			"import": "./src/core.ts"
+		},
 		"./commands": "./src/commands/mod.ts",
 		"./plugins": "./src/plugin.ts",
 		"./workflow": "./src/commands/workflow_command.ts",

@@ -1,3 +1,29 @@
+/**
+ * Stega - A comprehensive CLI framework for Deno
+ * 
+ * Features:
+ * - Advanced command management with subcommands
+ * - Plugin system for extensibility
+ * - Internationalization support
+ * - Workflow automation capabilities
+ * - Template engine for code generation
+ * - Rich logging system
+ * - Middleware support
+ * 
+ * @module
+ * 
+ * @example
+ * ```ts
+ * import { Command } from "@layerdynamics/stega";
+ * 
+ * const cli = new Command("mycli")
+ *   .description("My CLI app")
+ *   .version("1.0.0");
+ * 
+ * await cli.parse();
+ * ```
+ */
+
 // mod.ts - Main entry point for Stega CLI Framework
 
 // Core exports
