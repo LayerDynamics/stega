@@ -25,8 +25,7 @@ Deno.test("E2E - Plugin and Workflow Integration", async (t) => {
                         name: "test-command",
                         description: "Test command",
                         action: () => {
-                            console.log("Plugin command executed");
-                            return true;
+                            cli.logger.info("Plugin command executed");
                         }
                     });
                 }
@@ -44,10 +43,14 @@ Deno.test("E2E - Plugin and Workflow Integration", async (t) => {
 
 			// Load and execute
 			await cli.loadPlugins([pluginPath]);
-			const result = await cli.runCommand(["test-command"]);
+			await cli.runCommand(["test-command"]);
 
-			assertEquals(result, true, "Command should execute successfully");
 			assertEquals(logger.getErrorCount(), 0, "Should have no errors");
+			assertEquals(
+				logger.getLastMessage()?.includes("Plugin command executed"),
+				true,
+				"Should log command execution",
+			);
 		} finally {
 			// Cleanup
 			await Deno.remove(pluginPath).catch(() => {});

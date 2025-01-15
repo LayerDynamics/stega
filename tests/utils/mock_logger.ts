@@ -86,6 +86,20 @@ export class MockLogger implements ILogger {
 		this.errorMessages = [];
 		this.warningMessages = [];
 	}
+
+	getLastMessage(): string | undefined {
+		return [
+			...this.debugMessages,
+			...this.logEntries,
+			...this.errorMessages,
+			...this.warningMessages,
+		][
+			this.debugMessages.length +
+			this.logEntries.length +
+			this.errorMessages.length +
+			this.warningMessages.length - 1
+		]?.message;
+	}
 }
 
 export const createMockLogger = (): MockLogger => new MockLogger();
