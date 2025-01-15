@@ -1,6 +1,6 @@
 // tests/logger.test.ts
 import { assertEquals } from "https://deno.land/std@0.203.0/testing/asserts.ts";
-import { logger } from "../src/logger.ts";
+import { logger } from "../src/logger/logger.ts";
 import { LogLevels as _LogLevels } from "https://deno.land/std@0.224.0/log/mod.ts";
 
 /* eslint-disable no-control-regex */

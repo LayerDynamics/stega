@@ -1,56 +1,29 @@
-name: Release
+name: Publish
 
 on:
   push:
-    tags:
-      - 'v*.*.*'
+    branches: [main]
+    tags: ["v*"]
 
 jobs:
-  release:
+  publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Set up Deno
+      - name: Setup Deno
         uses: denoland/setup-deno@v1
         with:
-          deno-version: v1.34.0
+          deno-version: v1.x
 
-      - name: Cache Deno Dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/deno
-          key: ${{ runner.os }}-deno-${{ hashFiles('**/deno.json') }}
-          restore-keys: |
-            ${{ runner.os }}-deno-
+      - name: Verify Package
+        run: deno task prepublish
 
-      - name: Build CLI
-        run: |
-          mkdir -p dist
-          deno run --allow-all src/index.ts build
-          tar -czf dist/stega-${{ github.ref_name }}.tar.gz -C dist .
-
-      - name: Check Build Output
-        run: test -f ./dist/stega-${{ github.ref_name }}.tar.gz || { echo "Build output not found"; exit 1; }
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
-          draft: false
-          prerelease: false
-
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./dist/stega-${{ github.ref_name }}.tar.gz
-          asset_name: stega-${{ github.ref_name }}.tar.gz
-          asset_content_type: application/gzip
+      - name: Publish to JSR
+        run: deno publish

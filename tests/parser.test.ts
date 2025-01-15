@@ -5,9 +5,9 @@ import {
 	assertEquals,
 	assertThrows,
 } from "https://deno.land/std@0.203.0/testing/asserts.ts";
-import { CLI } from "../src/core.ts";
+import { CLI } from "../src/core/core.ts";
 import { InvalidFlagValueError, MissingFlagError } from "../src/error.ts";
-import { ILogger } from "../src/logger_interface.ts";
+import { ILogger } from "../src/logger/logger_interface.ts";
 
 // Mock logger for CLI instance
 const mockLogger: ILogger = {

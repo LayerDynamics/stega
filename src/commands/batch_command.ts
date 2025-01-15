@@ -1,8 +1,8 @@
 import { Command } from "../command.ts";
-import { CLI } from "../core.ts";
+import { CLI } from "../core/core.ts";
 import { FlagValue } from "../flag.ts";
 import { CommandNotFoundError } from "../error.ts";
-import type { Args } from "../types.ts";
+import type { Args } from "../types/types.ts";
 
 interface CommandExecutionResult {
 	command: string;

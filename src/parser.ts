@@ -1,7 +1,7 @@
 // src/parser.ts
 
-import type { Args } from "./types.ts"; // Import Args type
-import type { CLI } from "./core.ts"; // Import CLI
+import type { Args } from "./types/types.ts"; // Import Args type
+import type { CLI } from "./core/core.ts"; // Import CLI
 import type { Option } from "./command.ts"; // Import Option interface
 import { InvalidFlagValueError, MissingFlagError } from "./error.ts"; // Import specific error types
 

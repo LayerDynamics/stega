@@ -1,5 +1,5 @@
 // examples/sample-cli.ts
-import { CLI, Command } from "../src/core.ts";
+import { CLI, Command } from "../src/core/core.ts";
 
 const cli = new CLI();
 

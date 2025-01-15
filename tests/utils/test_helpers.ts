@@ -1,4 +1,4 @@
-import { CLI } from "../../src/core.ts";
+import { CLI } from "../../src/core/core.ts";
 import { MockLogger } from "./mock_logger.ts";
 
 export async function createTempFile(content: string): Promise<string> {

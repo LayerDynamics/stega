@@ -1,8 +1,8 @@
 // File: HttpCommand.ts
 
-import { BaseCommand } from "../types.ts";
-import { Args, Command } from "../types.ts";
-import { logger } from "../logger.ts";
+import { BaseCommand } from "../types/types.ts";
+import { Args, Command } from "../types/types.ts";
+import { logger } from "../logger/logger.ts";
 
 interface HttpCommandOptions {
 	headers?: Record<string, string>;

@@ -1,7 +1,7 @@
-import type { Command } from "../core.ts";
-import { logger } from "../logger.ts";
+import type { Command } from "../core/core.ts";
+import { logger } from "../logger/logger.ts";
 import ProgressBar from "npm:progress@2.0.3";
-import type { Args } from "../types.ts";
+import type { Args } from "../types/types.ts";
 
 export const downloadCommand: Command = {
 	name: "download",

@@ -1,6 +1,6 @@
 // /src/compiler/codegen.ts
 
-import { logger } from "../logger.ts";
+import { logger } from "../logger/logger.ts";
 import {
 	RawSourceMap,
 	SourceMapConsumer,

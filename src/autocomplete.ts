@@ -1,5 +1,5 @@
 // src/autocomplete.ts
-import { Command } from "./core.ts";
+import { Command } from "./core/core.ts";
 
 export const autocompleteCommand: Command = {
 	name: "autocomplete",

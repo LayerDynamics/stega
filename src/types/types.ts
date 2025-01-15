@@ -1,6 +1,5 @@
 // src/types.ts
-import { FlagValue } from "./flag.ts";
-import type { CLI } from "./core.ts"; // Add import for CLI type
+import type { CLI } from "../core/core.ts"; // Add import for CLI type
 
 /**
  * Represents the arguments passed to a command's action.
@@ -266,3 +265,7 @@ export interface DatePromptOptions extends BasePromptOptions {
 	max?: Date;
 	format?: string;
 }
+
+// Export FlagType and FlagValue directly
+export type FlagType = "string" | "number" | "boolean" | "array";
+export type FlagValue = string | number | boolean | Array<string>;

@@ -1,6 +1,6 @@
 // src/prompts.ts
 import { readLines } from "./io.ts";
-import type { BasePromptOptions, DatePromptOptions } from "./types.ts";
+import type { BasePromptOptions, DatePromptOptions } from "./types/types.ts";
 export { ProgressBar, Spinner } from "./progress.ts";
 
 type SelectOption = {

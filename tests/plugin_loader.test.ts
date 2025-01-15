@@ -1,6 +1,6 @@
 // tests/plugin_loader.test.ts
 import { PluginLoader } from "../src/plugin_loader.ts";
-import { CLI } from "../src/core.ts";
+import { CLI } from "../src/core/core.ts";
 import { assertEquals } from "jsr:@std/assert@0.224.0";
 import type { Plugin } from "../src/plugin.ts";
 import { createTempFile } from "./test_utils.ts";

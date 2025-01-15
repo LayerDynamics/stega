@@ -1,21 +1,34 @@
-// Export core types
-export * from "../core/mod.ts";
+// src/types/mod.ts
+// Export process types with namespace to avoid conflicts
+export * as ProcessTypes from "./process.ts";
 
-// Plugin system types
-export interface PluginMetadata {
-	name: string;
-	version: string;
-	description?: string;
+// Re-export core types explicitly
+import type { Command as CoreCommand } from "../core/mod.ts";
+import type {
+  Args,
+  BuildOptions,
+  ValidationRules,
+  CommandLifecycle,
+  FlagType,
+  FlagValue,
+} from "./types.ts";
+
+export interface PluginRegistry {
+    name: string;
+    version: string;
+    url: string;
+    integrity?: string;
 }
 
-export interface StegaPlugin {
-	metadata: PluginMetadata;
-	encode(
-		data: Uint8Array,
-		options: Record<string, unknown>,
-	): Promise<Uint8Array>;
-	decode(
-		data: Uint8Array,
-		options: Record<string, unknown>,
-	): Promise<Uint8Array>;
-}
+export type {
+  CoreCommand as Command,
+  Args,
+  BuildOptions,
+  ValidationRules,
+  CommandLifecycle,
+  FlagType,
+  FlagValue,
+};
+
+// Also export other types from types.ts
+export * from "./types.ts";

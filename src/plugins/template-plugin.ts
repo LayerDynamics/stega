@@ -1,5 +1,5 @@
-import { Plugin } from "../src/plugin.ts";
-import { Command, CLI } from "../src/core.ts";
+import { Plugin } from "../plugin.ts";
+import { Command, CLI } from "../core/core.ts";
 
 const templateCommand: Command = {
     name: "template",

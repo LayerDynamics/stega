@@ -1,12 +1,12 @@
 // src/commands/build.ts
 import { Command } from "../command.ts";
-import { CLI } from "../core.ts";
+import { CLI } from "../core/core.ts";
 import { convertFlagValue, FlagValue } from "../flag.ts";
 import { CommandNotFoundError } from "../error.ts";
-import type { Args, BuildOptions } from "../types.ts"; // Correct import
-import { logger } from "../logger.ts";
+import type { Args, BuildOptions } from "../types/types.ts"; // Correct import
+import { logger } from "../logger/logger.ts";
 import { promptSelect } from "../prompts.ts";
-import type { Plugin } from "../plugin.ts";
+import type { Plugin } from "../plugins/plugin.ts"; // Updated import path
 
 const supportedTargets = [
 	"x86_64-unknown-linux-gnu",

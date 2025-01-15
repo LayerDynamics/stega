@@ -1,5 +1,5 @@
 // cli_workflow.test.ts
-import { CLI } from "../../src/core.ts";
+import { CLI } from "../../src/core/core.ts";
 import { Plugin } from "../../src/plugin.ts";
 import { type CommandResult, TestFramework } from "../utils/test_framework.ts";
 import { assertEquals } from "@std/assert";

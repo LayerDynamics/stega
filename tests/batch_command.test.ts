@@ -3,7 +3,7 @@ import {
 	assertEquals,
 	assertRejects,
 } from "https://deno.land/std@0.203.0/testing/asserts.ts";
-import { CLI } from "../src/core.ts";
+import { CLI } from "../src/core/core.ts";
 import { createBatchCommand } from "../src/commands/batch_command.ts"; // Import factory function
 import { CommandNotFoundError } from "../src/error.ts"; // Ensure this path is correct
 

@@ -4,6 +4,8 @@
 		"@std/": "jsr:@std/",
 		"@src/": "./src/",
 		"@test/": "./tests/",
-		"@std/path/": "jsr:@std/path@^0.224.0"
+		"@std/path/": "jsr:@std/path@^0.224.0",
+		"@stega/plugins/": "./plugins/",
+		"@plugins/": "./plugins/"
 	}
 }

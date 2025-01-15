@@ -1,9 +1,9 @@
 // src/commands/service_command.ts
 
-import { BaseCommand } from "../types.ts";
-import { Args, Command } from "../types.ts";
-import { logger } from "../logger.ts";
-import { CLI } from "../core.ts";
+import { BaseCommand } from "../types/types.ts";
+import { Args, Command } from "../types/types.ts";
+import { logger } from "../logger/logger.ts";
+import { CLI } from "../core/core.ts";
 
 interface ServiceConfig {
 	name: string;

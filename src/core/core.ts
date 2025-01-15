@@ -1,22 +1,22 @@
 // src/core.ts
-import { Command, CommandRegistry } from "./command.ts";
-import { FlagValue, Parser } from "./parser.ts"; // Imported FlagValue
-import { Help } from "./help.ts";
-import { ConfigLoader } from "./config.ts";
+import { Command, CommandRegistry } from "../command.ts";
+import { FlagValue, Parser } from "../parser.ts"; // Imported FlagValue
+import { Help } from "../help.ts";
+import { ConfigLoader } from "../config.ts";
 import {
 	CommandNotFoundError,
 	MissingFlagError,
 	StegaError,
 	SubcommandNotFoundError,
-} from "./error.ts"; // Removed InvalidFlagValueError as it's unused
-import { MiddlewareFunction, MiddlewareRegistry } from "./middleware.ts";
-import { logger, setup } from "./logger.ts";
-import { I18n } from "./i18n.ts";
-import { PluginLoader } from "./plugin_loader.ts";
-import { Plugin } from "./plugin.ts";
+} from "../error.ts"; // Removed InvalidFlagValueError as it's unused
+import { MiddlewareFunction, MiddlewareRegistry } from "../middleware/middleware.ts";
+import { logger, setup } from "../logger/logger.ts";
+import { I18n } from "../i18n.ts";
+import { PluginLoader } from "../plugins/mod.ts"; // Updated import path
+import { Plugin } from "../plugins/plugin.ts"; // Updated path
 import type { LevelName } from "jsr:@std/log@0.224.0/levels"; // Changed from /levels.ts to /levels
-import type { ILogger } from "./logger_interface.ts";
-import type { Args } from "./types.ts";
+import type { ILogger } from "../logger/logger_interface.ts";
+import type { Args } from "../types/types.ts";
 
 export type { Command };
 

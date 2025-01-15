@@ -1,6 +1,6 @@
 // src/command.ts
 import { FlagValue } from "./flag.ts"; // Import FlagValue
-import type { Args } from "./types.ts"; // Import Args from types.ts
+import type { Args } from "./types/types.ts"; // Import Args from types.ts
 
 /**
  * Represents an option for a command.

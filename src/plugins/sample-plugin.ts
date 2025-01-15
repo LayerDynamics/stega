@@ -1,6 +1,6 @@
 // plugins/sample-plugin.ts
-import {Plugin} from "../src/plugin.ts";
-import {Command} from "../src/core.ts";
+import {Plugin} from "../plugin.ts";
+import {Command} from "../core/core.ts";
 
 const samplePlugin: Plugin={
   init: (cli) => {

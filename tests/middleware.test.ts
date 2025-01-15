@@ -1,5 +1,5 @@
 // tests/middleware.test.ts
-import { CLI } from "../src/core.ts";
+import { CLI } from "../src/core/core.ts";
 import { assertEquals } from "https://deno.land/std@0.203.0/testing/asserts.ts";
 
 Deno.test("Middleware should execute before command action", async () => {

@@ -1,5 +1,5 @@
 // tests/core.test.ts
-import { CLI } from "../src/core.ts";
+import { CLI } from "../src/core/core.ts";
 import { assert, assertEquals, assertRejects } from "@std/assert";
 import {
 	CommandNotFoundError,

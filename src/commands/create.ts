@@ -1,7 +1,7 @@
 // src/commands/create.ts
 import { Command } from "../command.ts";
-import { CLI } from "../core.ts";
-import { Args } from "../types.ts";
+import { CLI } from "../core/core.ts";
+import { Args } from "../types/types.ts";
 import { promptConfirm, promptString } from "../prompts.ts";
 
 export const createCommand: Command = {

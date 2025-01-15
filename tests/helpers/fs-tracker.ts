@@ -1,6 +1,6 @@
 // tests/helpers/fs-tracker.ts
 
-import { logger } from "../../src/logger.ts";
+import { logger } from "../../src/logger/logger.ts";
 import * as path from "https://deno.land/std@0.224.0/path/mod.ts";
 
 export class FileSystemTracker {

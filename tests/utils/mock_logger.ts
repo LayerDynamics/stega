@@ -1,6 +1,6 @@
 // tests/utils/mock_logger.ts
 import type { LevelName } from "https://deno.land/std@0.224.0/log/levels.ts";
-import type { ILogger } from "../../src/logger_interface.ts";
+import type { ILogger } from "../../src/logger/logger_interface.ts";
 
 export interface LoggerOptions {
 	logLevel?: LevelName;

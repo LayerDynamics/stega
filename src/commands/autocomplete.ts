@@ -1,6 +1,6 @@
 import { Command } from "../command.ts";
-import { CLI } from "../core.ts";
-import { Args } from "../types.ts";
+import { CLI } from "../core/core.ts";
+import { Args } from "../types/types.ts";
 
 export const autocompleteCommand: Command = {
 	name: "autocomplete",

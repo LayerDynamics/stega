@@ -1,14 +1,14 @@
 // src/index.ts
 
 // Core functionality
-export { CLI } from "./core.ts";
+export { CLI } from "./core/core.ts";
 export { CommandRegistry } from "./command.ts";
 export { Parser } from "./parser.ts";
 export { Help } from "./help.ts";
 export { ConfigLoader } from "./config.ts";
-export { logger, setup as setupLogger } from "./logger.ts";
+export { logger, setup as setupLogger } from "./logger/logger.ts";
 export { PluginLoader } from "./plugin_loader.ts";
-export { MiddlewareRegistry } from "./middleware.ts";
+export { MiddlewareRegistry } from "./middleware/middleware.ts";
 
 // Command Exports
 export * from "./commands/mod.ts";
@@ -24,12 +24,12 @@ export {
 
 // Types
 export type { Command, Option } from "./command.ts";
-export type { Args } from "./types.ts";
+export type { Args } from "./types/types.ts";
 export type { Config } from "./config.ts";
 export type { Plugin, PluginMetadata } from "./plugin.ts";
 export type { FlagType, FlagValue } from "./flag.ts";
-export type { MiddlewareFunction } from "./middleware.ts";
-export type { ILogger } from "./logger_interface.ts";
+export type { MiddlewareFunction } from "./middleware/middleware.ts";
+export type { ILogger } from "./logger/logger_interface.ts";
 
 // Utilities
 export { convertFlagValue } from "./flag.ts";

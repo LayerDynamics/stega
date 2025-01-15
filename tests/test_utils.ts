@@ -1,10 +1,10 @@
 // tests/test_utils.ts
-import { CLI } from "../src/core.ts";
-import { ILogger } from "../src/logger_interface.ts";
+import { CLI } from "../src/core/core.ts";
+import { ILogger } from "../src/logger/logger_interface.ts";
 import * as path from "@std/path/mod.ts";
 import { MockLogger } from "./utils/mock_logger.ts";
 import { assert } from "@std/assert";
-import { ConsoleLogger } from "../src/logger.ts";
+import { ConsoleLogger } from "../src/logger/logger.ts";
 
 export interface TestCLI {
 	cli: CLI;

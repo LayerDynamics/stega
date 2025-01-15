@@ -1,4 +1,4 @@
-import type { ProgressBarOptions, SpinnerOptions } from "./types.ts";
+import type { ProgressBarOptions, SpinnerOptions } from "./types/types.ts";
 
 export class ProgressBar {
 	private current = 0;

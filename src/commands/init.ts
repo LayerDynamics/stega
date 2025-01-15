@@ -1,7 +1,7 @@
 // src/commands/init.ts
 import { Command } from "../command.ts";
-import { Args } from "../types.ts";
-import { type LevelName, logger, setup } from "../logger.ts";
+import { Args } from "../types/types.ts";
+import { type LevelName, logger, setup } from "../logger/logger.ts";
 import { ConfigLoader } from "../config.ts";
 import { I18n } from "../i18n.ts";
 

@@ -1,7 +1,7 @@
 // tests/cli.test.ts
-import { CLI } from "../src/core.ts"; // Import CLI from core.ts
+import { CLI } from "../src/core/core.ts"; // Import CLI from core.ts
 import { Command } from "../src/command.ts"; // Import Command from command.ts
-import { Args } from "../src/types.ts"; // Import Args from types.ts
+import { Args } from "../src/types/types.ts"; // Import Args from types.ts
 import {
 	assert,
 	assertEquals,

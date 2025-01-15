@@ -1,7 +1,7 @@
 // tests/utils/test_harness.ts
-import { CLI } from "../../src/core.ts";
+import { CLI } from "../../src/core/core.ts";
 import { Command } from "../../src/command.ts";
-import { ILogger } from "../../src/logger_interface.ts";
+import { ILogger } from "../../src/logger/logger_interface.ts";
 import { MockLogger } from "./mock_logger.ts";
 
 interface TestContext {

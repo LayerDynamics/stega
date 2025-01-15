@@ -1,5 +1,5 @@
 // src/main.ts
-import { CLI } from "./core.ts";
+import { CLI } from "./core/core.ts";
 import { createCommand } from "./commands/create.ts";
 import { loggingMiddleware } from "./middleware/logger.ts";
 import { initCommand } from "./commands/init.ts";

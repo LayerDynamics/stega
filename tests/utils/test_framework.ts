@@ -1,7 +1,7 @@
 // tests/utils/test_framework.ts
-import { CLI } from "../../src/core.ts";
+import { CLI } from "../../src/core/core.ts";
 import { Command, CommandRegistry } from "../../src/command.ts";
-import { ILogger } from "../../src/logger_interface.ts";
+import { ILogger } from "../../src/logger/logger_interface.ts";
 import { assertEquals, assertExists } from "@std/assert";
 
 /**
