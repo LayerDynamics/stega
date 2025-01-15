@@ -88,10 +88,19 @@ jobs:
           sudo chmod -R 777 $TMPDIR
           sudo chown -R $USER:$USER $TMPDIR
           
-          # Run tests with all required permissions
-          deno test --allow-all --coverage=coverage --parallel || exit 1
+          # Create coverage directory
+          mkdir -p coverage
           
-          # Generate coverage
+          # Run tests and generate coverage in one step
+          deno test --allow-all --coverage=coverage --parallel
+          
+          # Wait for file system to sync
+          sleep 1
+          
+          # Ensure coverage directory is accessible
+          sudo chown -R $USER:$USER coverage
+          
+          # Generate coverage report
           deno coverage coverage --lcov > coverage.lcov
 
       - name: Post-Test Format
