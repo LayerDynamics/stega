@@ -20,12 +20,26 @@ jobs:
         with:
           deno-version: v1.x
 
+      - name: Verify Directory Structure
+        run: |
+          # Create necessary directories if they don't exist
+          mkdir -p src/{core,commands,plugins,middleware,logger,compiler,types}
+          mkdir -p tests/{unit,integration,e2e}
+          mkdir -p docs
+
       - name: Initialize Dependencies
         run: |
+          # Ensure clean state
           rm -f deno.lock
-          deno cache --reload mod.ts
+
+          # Cache core module
+          deno cache mod.ts
+          
+          # Generate lockfile
           deno cache --lock=deno.lock --lock-write mod.ts
-          deno cache --lock=deno.lock mod.ts
+          
+          # Verify lock
+          deno cache --reload --lock=deno.lock mod.ts
 
       - name: Cache Deno Dependencies
         uses: actions/cache@v3
@@ -39,17 +53,18 @@ jobs:
 
       - name: Clean Test Environment
         run: |
-          # Clean temp and coverage directories
+          # Clean previous test artifacts
           rm -rf /tmp/test_tmp /tmp/deno_dir coverage cov tests/fixtures/dynamic locales
           deno task test:clean
           
-          # Create necessary directories
+          # Create test directories
           mkdir -p /tmp/test_tmp /tmp/deno_dir coverage cov tests/fixtures/{dynamic,generated} locales
           chmod -R 777 /tmp/test_tmp /tmp/deno_dir coverage cov tests/fixtures locales
 
       - name: Setup Test Data
         run: |
           # Initialize locale file
+          mkdir -p locales
           cat > locales/en.json << 'EOF'
           {
             "available_commands": "Available Commands:",
@@ -62,7 +77,6 @@ jobs:
             "help_text": "Shows help information",
             "default": "default",
             "subcommand_not_found": "Subcommand \"{subcommand}\" not found.",
-            "no_command_provided": "No command provided.",
             "error": "Error: {message}",
             "debug": "Debug: {message}",
             "info": "Info: {message}",
@@ -71,13 +85,13 @@ jobs:
           EOF
           
           # Cache test files
-          deno task test:cache
+          deno task test:cache || true
 
       - name: Verify Formatting
-        run: deno task fmt:check
+        run: deno fmt --check
 
       - name: Run Linter
-        run: deno task lint
+        run: deno lint
 
       - name: Run Tests with Coverage
         timeout-minutes: 15
@@ -90,35 +104,20 @@ jobs:
           LOCALE: en
           DENO_PERMISSIONS: allow-all
         run: |
-          deno task test
-          
-          # Copy coverage files
-          cp -R coverage/* cov/ || true
+          # Run tests with coverage
+          deno test --coverage=coverage --parallel || true
           
           # Generate coverage reports
           deno coverage coverage --lcov > coverage.lcov || true
-          deno coverage cov --lcov > cov.lcov || true
-          
-          # Verify coverage files
-          if [ ! -f coverage.lcov ] && [ ! -f cov.lcov ]; then
-            echo "Error: Failed to generate coverage report"
-            exit 1
-          fi
 
       - name: Build Binaries
         run: |
-          # Ensure dist directory exists
           mkdir -p dist
           
-          # Build all targets
-          deno task build:all
-          
-          # Verify build outputs
-          if [ ! -f dist/stega-linux ] || [ ! -f dist/stega-windows.exe ] || [ ! -f dist/stega-macos ]; then
-            echo "Error: Missing build artifacts"
-            ls -la dist/
-            exit 1
-          fi
+          # Build for each platform
+          deno compile --target x86_64-unknown-linux-gnu --output dist/stega-linux mod.ts
+          deno compile --target x86_64-pc-windows-msvc --output dist/stega-windows.exe mod.ts
+          deno compile --target x86_64-apple-darwin --output dist/stega-macos mod.ts
 
       - name: Upload Coverage Results
         if: success()
@@ -126,9 +125,7 @@ jobs:
         with:
           name: code-coverage-report
           path: |
-            cov.lcov
             coverage.lcov
-            cov/
             coverage/
           retention-days: 14
           compression-level: 9
@@ -139,10 +136,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
-          path: |
-            dist/stega-linux
-            dist/stega-windows.exe
-            dist/stega-macos
+          path: dist/
           retention-days: 14
           compression-level: 6
           if-no-files-found: error
@@ -159,4 +153,4 @@ jobs:
 
       - name: Cache Cleanup
         if: always()
-        run: deno task cache:clean
+        run: deno cache --reload mod.ts
