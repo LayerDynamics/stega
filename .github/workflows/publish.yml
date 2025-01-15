@@ -22,11 +22,20 @@ jobs:
         with:
           deno-version: v1.x
 
-      - name: Verify Package
+      - name: Initialize Dependencies
         run: |
-          deno fmt --check
-          deno lint
-          deno test -A
+          # Remove existing lockfile
+          rm -f deno.lock
+          
+          # Cache and create fresh lockfile
+          deno cache --lock=deno.lock --lock-write mod.ts
+          
+          # Verify dependencies
+          deno cache --reload --lock=deno.lock mod.ts
+
+      - name: Run Verification
+        run: deno task verify
 
       - name: Publish to JSR
+        if: success()
         run: deno publish
