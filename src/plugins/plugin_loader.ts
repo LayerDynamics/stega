@@ -208,7 +208,9 @@ export class PluginLoader {
 		if (resolvedPath.includes("tests/plugins/")) {
 			try {
 				let cleanPath = resolvedPath.replace(/^file:\/\//, "");
-				if (!cleanPath.startsWith("/") && !cleanPath.match(/^([A-Za-z]:\\|\\\\)/)) {
+				if (
+					!cleanPath.startsWith("/") && !cleanPath.match(/^([A-Za-z]:\\|\\\\)/)
+				) {
 					cleanPath = Deno.cwd() + "/" + cleanPath;
 				}
 				// Use static import path for analysis

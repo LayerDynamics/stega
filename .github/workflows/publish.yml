@@ -40,8 +40,13 @@ jobs:
         run: |
           deno task test:cache || true
 
-      - name: Verify Formatting
-        run: deno fmt --check
+      - name: Format and Verify
+        run: |
+          # First run formatter
+          deno fmt
+          
+          # Then check if everything is formatted
+          deno fmt --check
 
       - name: Run Linter
         run: deno lint
