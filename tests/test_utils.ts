@@ -226,3 +226,19 @@ export async function loadTestFixture(
 		);
 	}
 }
+
+export async function createTestPluginFile(
+	content: string,
+	useTimestamp = true,
+): Promise<string> {
+	const pluginsDir = join(Deno.cwd(), "tests", "plugins");
+	await ensureDir(pluginsDir);
+
+	const filename = useTimestamp
+		? `test-plugin-${Date.now()}.ts`
+		: "test-plugin.ts";
+
+	const path = join(pluginsDir, filename);
+	await Deno.writeTextFile(path, content);
+	return path;
+}
