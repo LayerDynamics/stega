@@ -1,6 +1,6 @@
 // tests/e2e/scenarios/plugin_workflow.test.ts
 import { assertEquals } from "@std/assert";
-import { createTestCLI } from "../../test_utils.ts";
+import { createTestCLI, createTestPluginFile } from "../../test_utils.ts";
 import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
 import { ensureDir } from "https://deno.land/std@0.224.0/fs/mod.ts";
 
@@ -8,12 +8,8 @@ Deno.test("E2E - Plugin and Workflow Integration", async (t) => {
 	await t.step("loads plugin and executes workflow", async () => {
 		const { cli, logger } = await createTestCLI();
 
-		// Create plugin directory in tests folder
-		const pluginsDir = join(Deno.cwd(), "tests", "plugins");
-		await ensureDir(pluginsDir);
-
 		const pluginContent = `
-            import type { CLI } from "../../../src/plugins/mod.ts";
+            import type { CLI } from "../../../../src/plugins/mod.ts";
             
             const plugin = {
                 metadata: {
@@ -34,14 +30,9 @@ Deno.test("E2E - Plugin and Workflow Integration", async (t) => {
             export default plugin;
         `;
 
-		// Use a deterministic plugin path
-		const pluginName = `test-plugin-${Date.now()}.ts`;
-		const pluginPath = join(pluginsDir, pluginName);
+		const pluginPath = await createTestPluginFile(pluginContent);
 
 		try {
-			await Deno.writeTextFile(pluginPath, pluginContent);
-
-			// Load and execute
 			await cli.loadPlugins([pluginPath]);
 			await cli.runCommand(["test-command"]);
 
@@ -52,7 +43,6 @@ Deno.test("E2E - Plugin and Workflow Integration", async (t) => {
 				"Should log command execution",
 			);
 		} finally {
-			// Cleanup
 			await Deno.remove(pluginPath).catch(() => {});
 		}
 	});
