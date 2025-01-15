@@ -7,7 +7,7 @@ Deno.test("E2E - Plugin and Workflow Integration", async (t) => {
 		const { cli, logger } = await createTestCLI();
 
 		const pluginContent = `
-            import type { CLI } from "./src/plugins/mod.ts";
+            import type { CLI } from "../../src/plugins/mod.ts";
             
             const plugin = {
                 metadata: {
