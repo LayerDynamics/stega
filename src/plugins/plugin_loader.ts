@@ -122,7 +122,8 @@ export class PluginLoader {
 						"Local plugins must be in plugins/ or tests/plugins/ directory",
 					);
 				}
-				return new URL(source.path, import.meta.url).href;
+				// Return the path directly without URL conversion
+				return source.path;
 			}
 		}
 	}
@@ -203,6 +204,28 @@ export class PluginLoader {
 	}
 
 	private async loadPluginModule(resolvedPath: string): Promise<Plugin> {
+		// Handle test environment paths
+		if (resolvedPath.includes("tests/plugins/")) {
+			try {
+				// Only remove file:// if present
+				let cleanPath = resolvedPath.replace(/^file:\/\//, "");
+				// Convert to absolute if not already
+				if (
+					!cleanPath.startsWith("/") && !cleanPath.match(/^([A-Za-z]:\\|\\\\)/)
+				) {
+					cleanPath = Deno.cwd() + "/" + cleanPath;
+				}
+				const importPath = `file://${cleanPath}`;
+				const module = await import(importPath);
+				if (!this.validatePlugin(module.default)) {
+					throw new Error("Invalid plugin format");
+				}
+				return module.default;
+			} catch (error) {
+				throw new Error(`Unable to load plugin: ${error}`);
+			}
+		}
+
 		if (resolvedPath.startsWith("https://jsr.io/")) {
 			const moduleName = resolvedPath.replace("https://jsr.io/", "");
 			if (this.isValidPluginKey(moduleName)) {
@@ -225,7 +248,7 @@ export class PluginLoader {
 
 			if (normalizedPath.includes("/tests/plugins/")) {
 				const localPath = normalizedPath
-					.split("/tests/plugins/")[1]
+					.split("tests/plugins/")[1]
 					?.replace(/\.(ts|js)$/, "");
 				try {
 					const module = await import(`../../tests/plugins/${localPath}.ts`);
