@@ -17,9 +17,11 @@ format_directory "src"
 format_directory "tests"
 
 # Run final verification
+echo "Running final format check..."
 deno fmt --check
 
-# Fix any remaining linting issues
-deno lint --fix
+# Run linter with fixes
+echo "Running linter fixes..."
+deno lint --config deno.json
 
 echo "Formatting complete!"

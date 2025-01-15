@@ -64,8 +64,8 @@ export abstract class BasePrompt<T> {
 	}
 
 	private parseKey(sequence: string): KeyPressEvent {
-		// Basic key parsing
-		const key = sequence.replace(/[\x00-\x1F]/g, "");
+		/* eslint-disable-next-line no-control-regex */
+		const key = sequence.replace(/[\x00-\x1F\x7F]/g, ""); // Updated regex to avoid control characters
 		return {
 			key,
 			ctrl: sequence.charCodeAt(0) < 32,

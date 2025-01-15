@@ -1,6 +1,6 @@
 import type { Command } from "../core/core.ts";
 import { logger } from "../logger/logger.ts";
-import ProgressBar from "npm:progress@2.0.3";
+import { ProgressBar } from "../progress.ts";
 import type { Args } from "../types/types.ts";
 
 export const downloadCommand: Command = {
@@ -37,10 +37,11 @@ export const downloadCommand: Command = {
 
 			const total = Number(response.headers.get("content-length")) || 0;
 			const progress = new ProgressBar({
-				title: "Downloading",
 				total,
+				width: 40,
 				complete: "=",
 				incomplete: "-",
+				format: "[:bar] :percent% :text",
 			});
 
 			const file = await Deno.open(output, { write: true, create: true });
@@ -55,7 +56,7 @@ export const downloadCommand: Command = {
 
 				await writer.write(value);
 				downloaded += value.length;
-				progress.render(downloaded);
+				progress.update(downloaded, "Downloading...");
 			}
 
 			await writer.close();

@@ -1,16 +1,18 @@
-// tests/logger.test.ts
-import { assertEquals } from "https://deno.land/std@0.203.0/testing/asserts.ts";
+import { assertEquals } from "@std/assert";
 import { logger } from "../src/logger/logger.ts";
-import { LogLevels as _LogLevels } from "https://deno.land/std@0.224.0/log/mod.ts";
 
+/**
+ * Helper functions to strip ANSI color codes and control characters.
+ * Control characters are intentional in these regex patterns and
+ * necessary for proper terminal output handling.
+ */
 /* eslint-disable no-control-regex */
-// Control characters are intentional in these regex patterns
-const stripAnsi = (str: string) => str.replace(/\x1B\[\d+m/g, "");
-const _stripEscapes = (str: string) =>
+const stripAnsi = (str: string): string => str.replace(/\x1B\[[0-9;]*m/g, "");
+const stripEscapes = (str: string): string =>
 	str.replace(
 		/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
 		"",
-	); // Prefixed with underscore
+	);
 /* eslint-enable no-control-regex */
 
 Deno.test("Logger should log messages at appropriate levels", () => {
@@ -32,25 +34,19 @@ Deno.test("Logger should log messages at appropriate levels", () => {
 		// Clear any existing logs
 		logs.length = 0;
 
-		// Only log INFO and above
+		// Log messages at different levels
 		logger.info("Info message");
 		logger.warn("Warn message");
 		logger.error("Error message");
 
-		// Strip ANSI color codes and normalize whitespace
-		const strippedLogs = logs.map((log) =>
-			/* eslint-disable no-control-regex */
-			stripAnsi(log)
-				.replace(
-					/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
-					"",
-				)
+		// Process logs: strip control characters and normalize whitespace
+		const normalizedLogs = logs.map((log) =>
+			stripAnsi(stripEscapes(log))
 				.replace(/\s+/g, " ")
 				.trim()
-			/* eslint-enable no-control-regex */
 		);
 
-		assertEquals(strippedLogs, [
+		assertEquals(normalizedLogs, [
 			"INFO Info message",
 			"WARN Warn message",
 			"ERROR Error message",

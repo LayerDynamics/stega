@@ -1,9 +1,9 @@
 // tests/test_utils.ts
 import { CLI } from "../src/core/core.ts";
 import { ILogger } from "../src/logger/logger_interface.ts";
-import * as path from "@std/path/mod.ts";
+import * as path from "https://deno.land/std@0.224.0/path/mod.ts"; // Updated import statement
 import { MockLogger } from "./utils/mock_logger.ts";
-import { assert } from "@std/assert";
+import { assert } from "https://deno.land/std@0.224.0/assert/mod.ts"; // Ensure assert is also imported correctly
 import { ConsoleLogger } from "../src/logger/logger.ts";
 
 export interface TestCLI {
@@ -99,13 +99,12 @@ export function getProjectRoot(): string {
  */
 export function resolveProjectPath(relativePath: string): string {
 	return path.resolve(getProjectRoot(), relativePath);
-}
-
-/**
+} /**
  * Helper to import a source file relative to project root
  * @param relativePath The relative path to the source file
  * @returns The imported module
  */
+
 export async function importSourceFile(relativePath: string): Promise<unknown> {
 	const fullPath = resolveProjectPath(relativePath);
 	// Use a more direct import approach

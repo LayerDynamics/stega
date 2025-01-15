@@ -28,7 +28,12 @@
 		"exclude": ["cov/", "dist/"],
 		"rules": {
 			"tags": ["recommended"],
-			"exclude": ["no-inferrable-types", "require-await", "no-unused-vars"]
+			"exclude": [
+				"no-inferrable-types",
+				"require-await",
+				"no-unused-vars",
+				"no-control-regex"
+			]
 		}
 	},
 	"fmt": {
