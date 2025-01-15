@@ -73,6 +73,13 @@ jobs:
       - name: Run Linter
         run: deno lint
 
+      - name: Pre-Coverage Cache
+        run: |
+          # Cache any plugin test files before coverage
+          if [ -d "tests/plugins" ] && [ -n "$(ls -A tests/plugins)" ]; then
+            deno cache tests/plugins/*.ts
+          fi
+
       - name: Run Tests with Coverage
         env:
           DENO_DIR: /tmp/deno_dir
