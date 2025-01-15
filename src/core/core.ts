@@ -9,7 +9,10 @@ import {
 	StegaError,
 	SubcommandNotFoundError,
 } from "../error.ts"; // Removed InvalidFlagValueError as it's unused
-import { MiddlewareFunction, MiddlewareRegistry } from "../middleware/middleware.ts";
+import {
+	MiddlewareFunction,
+	MiddlewareRegistry,
+} from "../middleware/middleware.ts";
 import { logger, setup } from "../logger/logger.ts";
 import { I18n } from "../i18n.ts";
 import { PluginLoader } from "../plugins/mod.ts"; // Updated import path

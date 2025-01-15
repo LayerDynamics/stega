@@ -13,20 +13,20 @@ export class ValidationError extends Error {
 }
 
 interface PluginSource {
-	type: 'local' | 'remote' | 'jsr';
+	type: "local" | "remote" | "jsr";
 	path: string;
 }
 
 interface RemotePluginSource {
-    type: 'github' | 'jsdelivr';
-    owner: string;
-    repo: string;
-    path: string;
-    ref?: string;
+	type: "github" | "jsdelivr";
+	owner: string;
+	repo: string;
+	path: string;
+	ref?: string;
 }
 
 interface PluginModule {
-    default: Plugin;
+	default: Plugin;
 }
 
 export class PluginLoader {
@@ -68,117 +68,141 @@ export class PluginLoader {
 	}
 
 	private parsePluginSource(path: string): PluginSource {
-		if (path.startsWith('https://') || path.startsWith('http://')) {
-			return { type: 'remote', path };
+		if (path.startsWith("https://") || path.startsWith("http://")) {
+			return { type: "remote", path };
 		}
-		if (path.startsWith('jsr:')) {
-			return { type: 'jsr', path: path.replace('jsr:', '') };
+		if (path.startsWith("jsr:")) {
+			return { type: "jsr", path: path.replace("jsr:", "") };
 		}
-		return { type: 'local', path };
+		return { type: "local", path };
 	}
 
 	private async resolvePluginSource(path: string): Promise<string> {
 		const source = this.parsePluginSource(path);
-		
+
 		switch (source.type) {
-			case 'remote':
+			case "remote": {
 				return source.path;
-			case 'jsr':
+			}
+			case "jsr": {
 				return `https://jsr.io/${source.path}`;
-			case 'local':
+			}
+			case "local": {
 				// Only allow specific directories for local plugins
-				const allowedDirs = ['plugins/', 'tests/plugins/'];
-				const isAllowed = allowedDirs.some(dir => source.path.includes(dir));
+				const allowedDirs = ["plugins/", "tests/plugins/"];
+				const isAllowed = allowedDirs.some((dir) => source.path.includes(dir));
 				if (!isAllowed) {
-					throw new Error('Local plugins must be in plugins/ or tests/plugins/ directory');
+					throw new Error(
+						"Local plugins must be in plugins/ or tests/plugins/ directory",
+					);
 				}
 				return new URL(source.path, import.meta.url).href;
+			}
 		}
 	}
 
 	private parseRemoteUrl(url: URL): RemotePluginSource | null {
-        if (url.hostname === 'github.com' || url.hostname === 'raw.githubusercontent.com') {
-            const [_, owner, repo, ...pathParts] = url.pathname.split('/').filter(Boolean);
-            return {
-                type: 'github',
-                owner,
-                repo,
-                path: pathParts.join('/'),
-                ref: pathParts[0] === 'blob' ? pathParts[1] : undefined
-            };
-        }
-        if (url.hostname === 'cdn.jsdelivr.net') {
-            const [service, owner, repo, ...pathParts] = url.pathname.split('/').filter(Boolean);
-            if (service === 'gh') {
-                return {
-                    type: 'jsdelivr',
-                    owner,
-                    repo,
-                    path: pathParts.join('/')
-                };
-            }
-        }
-        return null;
-    }
+		if (
+			url.hostname === "github.com" ||
+			url.hostname === "raw.githubusercontent.com"
+		) {
+			const [_, owner, repo, ...pathParts] = url.pathname.split("/").filter(
+				Boolean,
+			);
+			return {
+				type: "github",
+				owner,
+				repo,
+				path: pathParts.join("/"),
+				ref: pathParts[0] === "blob" ? pathParts[1] : undefined,
+			};
+		}
+		if (url.hostname === "cdn.jsdelivr.net") {
+			const [service, owner, repo, ...pathParts] = url.pathname.split("/")
+				.filter(Boolean);
+			if (service === "gh") {
+				return {
+					type: "jsdelivr",
+					owner,
+					repo,
+					path: pathParts.join("/"),
+				};
+			}
+		}
+		return null;
+	}
 
-    private async loadRemotePlugin(source: RemotePluginSource): Promise<Plugin> {
-        const cdnUrl = source.type === 'github'
-            ? `https://cdn.jsdelivr.net/gh/${source.owner}/${source.repo}/${source.path}`
-            : `https://cdn.jsdelivr.net/${source.type}/${source.owner}/${source.repo}/${source.path}`;
+	private async loadRemotePlugin(source: RemotePluginSource): Promise<Plugin> {
+		const cdnUrl = source.type === "github"
+			? `https://cdn.jsdelivr.net/gh/${source.owner}/${source.repo}/${source.path}`
+			: `https://cdn.jsdelivr.net/${source.type}/${source.owner}/${source.repo}/${source.path}`;
 
-        const response = await fetch(cdnUrl);
-        if (!response.ok) {
-            throw new Error(`Failed to fetch plugin from ${cdnUrl}: ${response.statusText}`);
-        }
+		const response = await fetch(cdnUrl);
+		if (!response.ok) {
+			throw new Error(
+				`Failed to fetch plugin from ${cdnUrl}: ${response.statusText}`,
+			);
+		}
 
-        const code = await response.text();
-        // Create typed moduleExports object
-        const moduleExports = {} as PluginModule;
-        
-        try {
-            const moduleFactory = new Function(
-                'exports', 
-                'require', 
-                'module',
-                `${code}\n if (typeof exports.default !== 'object') throw new Error('No default export found');`
-            );
-            moduleFactory(moduleExports, undefined, { exports: moduleExports });
-        } catch (error) {
-            throw new Error(`Failed to load plugin: ${error instanceof Error ? error.message : String(error)}`);
-        }
+		const code = await response.text();
+		// Create typed moduleExports object
+		const moduleExports = {} as PluginModule;
 
-        if (!moduleExports.default || typeof moduleExports.default !== 'object') {
-            throw new Error('Remote plugin must have a default export');
-        }
+		try {
+			const moduleFactory = new Function(
+				"exports",
+				"require",
+				"module",
+				`${code}\n if (typeof exports.default !== 'object') throw new Error('No default export found');`,
+			);
+			moduleFactory(moduleExports, undefined, { exports: moduleExports });
+		} catch (error) {
+			throw new Error(
+				`Failed to load plugin: ${
+					error instanceof Error ? error.message : String(error)
+				}`,
+			);
+		}
 
-        return moduleExports.default;
-    }
+		if (!moduleExports.default || typeof moduleExports.default !== "object") {
+			throw new Error("Remote plugin must have a default export");
+		}
+
+		return moduleExports.default;
+	}
 
 	private async loadPluginModule(resolvedPath: string): Promise<Plugin> {
 		let pluginModule;
 
-		if (resolvedPath.startsWith('https://jsr.io/')) {
+		if (resolvedPath.startsWith("https://jsr.io/")) {
 			// Handle JSR modules
-			const moduleName = resolvedPath.replace('https://jsr.io/', '');
+			const moduleName = resolvedPath.replace("https://jsr.io/", "");
 			if (this.isValidPluginKey(moduleName)) {
 				pluginModule = await PLUGIN_REGISTRY[moduleName].import();
-				return pluginModule.default;
+				// Extract the first export that matches the Plugin interface
+				const pluginExport = Object.values(pluginModule)[0] as Plugin;
+				if (!pluginExport || !pluginExport.metadata) {
+					throw new Error("No valid plugin export found");
+				}
+				return pluginExport;
 			}
 			throw new Error(`Unknown JSR module: ${moduleName}`);
 		}
 
 		// Handle local modules
-		if (resolvedPath.startsWith('file://') || resolvedPath.includes('/plugins/')) {
+		if (
+			resolvedPath.startsWith("file://") || resolvedPath.includes("/plugins/")
+		) {
 			const localPath = resolvedPath
-				.replace('file://', '')
-				.split('/plugins/')[1]
-				?.replace(/\.(ts|js)$/, '');
-				
+				.replace("file://", "")
+				.split("/plugins/")[1]
+				?.replace(/\.(ts|js)$/, "");
+
 			if (localPath) {
 				try {
 					pluginModule = await import(`./plugins/${localPath}.ts`);
 				} catch {
-					if (resolvedPath.includes('tests/plugins/')) {
+					if (resolvedPath.includes("tests/plugins/")) {
 						pluginModule = await import(`../../tests/plugins/${localPath}.ts`);
 					} else {
 						throw new Error(`Unable to load plugin: ${localPath}`);
@@ -210,7 +234,7 @@ export class PluginLoader {
 		try {
 			const resolvedPath = await this.resolvePluginSource(path);
 			cli.logger.debug(`Loading plugin from URL: ${resolvedPath}`);
-			
+
 			return await this.loadPluginModule(resolvedPath);
 		} catch (error: unknown) {
 			const e = error instanceof Error ? error.message : String(error);

@@ -1,11 +1,10 @@
-// src/logger.ts
 import {
 	ConsoleHandler,
 	LogRecord,
 	setup as logSetup,
 } from "jsr:@std/log@0.224.0";
 import type { LevelName } from "jsr:@std/log@0.224.0/levels";
-import { ILogger } from "./logger_interface.ts";
+import type { ILogger } from "./logger_interface.ts";
 
 export interface LogConfig {
 	loggers?: {
@@ -16,6 +15,7 @@ export interface LogConfig {
 	};
 }
 
+// Export ConsoleLogger implementation
 export class ConsoleLogger implements ILogger {
 	protected logLevel: LevelName;
 
@@ -48,9 +48,11 @@ export class ConsoleLogger implements ILogger {
 	}
 }
 
-export const logger = new ConsoleLogger();
+// Export logger instance with explicit type
+export const logger: ILogger = new ConsoleLogger();
 
-export const setup = async (options?: LogConfig) => {
+// Export setup function with explicit return type
+export const setup = async (options?: LogConfig): Promise<void> => {
 	const defaultConfig = {
 		handlers: {
 			console: new ConsoleHandler("DEBUG" as LevelName, {
@@ -70,14 +72,16 @@ export const setup = async (options?: LogConfig) => {
 	await logSetup(options ?? defaultConfig);
 };
 
+// Export middleware with explicit types
 export const loggingMiddleware = (
 	args: Record<string, unknown>,
 	command: { name: string },
-) => {
+): void => {
 	logger.info(`Executing command: ${command.name}`);
 	if (Object.keys(args).length > 0) {
 		logger.debug(`Command arguments: ${JSON.stringify(args)}`);
 	}
 };
 
+// Re-export types
 export type { LevelName };
