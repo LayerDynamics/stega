@@ -13,16 +13,23 @@
 	"tasks": {
 		"dev": "deno run --watch mod.ts",
 		"test": "deno test --allow-all --unstable-kv --unstable-fs --import-map=import_map.json",
-		"test:init": "mkdir -p tests/fixtures/templates tests/fixtures/plugins tests/fixtures/locales tests/fixtures/tmp && cp -n ./tests/fixtures/locales/en.json.template ./tests/fixtures/locales/en.json 2>/dev/null || echo '{\"available_commands\":\"Available Commands:\"}' > ./tests/fixtures/locales/en.json",
-		"test:cache": "deno cache --reload 'tests/**/*.ts' 'src/**/*.ts' --import-map=import_map.json",
-		"test:clean": "mkdir -p tests/fixtures/templates tests/fixtures/plugins tests/fixtures/locales tests/fixtures/tmp && rm -rf coverage coverage.lcov cov cov.lcov tmp .deno && find tests/fixtures -mindepth 2 -delete || true",
+		"test:setup": "mkdir -p tests/fixtures/{templates,plugins,locales,tmp,dynamic,generated} && chmod -R 777 tests/fixtures",
+		"test:init": "deno task test:setup && cp -n ./tests/fixtures/locales/en.json.template ./tests/fixtures/locales/en.json 2>/dev/null || echo '{\"available_commands\":\"Available Commands:\"}' > ./tests/fixtures/locales/en.json",
+		"test:cache": "rm -rf .deno && deno cache --reload mod.ts && deno cache --reload 'tests/**/*.ts' 'src/**/*.ts' --import-map=import_map.json && mkdir -p tests/fixtures/dynamic",
+		"test:clean": "deno task test:setup && rm -rf coverage coverage.lcov cov cov.lcov tmp .deno && find tests/fixtures -mindepth 2 -type f -delete || true",
+		"test:coverage": "mkdir -p coverage && deno test --allow-all --coverage=coverage --parallel && sleep 2 && deno coverage coverage --lcov > coverage.lcov",
+		"test:ci": "deno task test:clean && deno task test:init && deno task test:cache && deno task test:coverage",
 		"build": "deno compile --allow-run --allow-read --allow-write --allow-env --import-map=import_map.json mod.ts",
+		"build:linux": "deno compile --target x86_64-unknown-linux-gnu --output dist/stega-linux mod.ts",
+		"build:windows": "deno compile --target x86_64-pc-windows-msvc --output dist/stega-windows.exe mod.ts",
+		"build:macos": "deno compile --target x86_64-apple-darwin --output dist/stega-macos mod.ts",
 		"build:all": "mkdir -p dist && deno task build:linux && deno task build:windows && deno task build:macos",
 		"lint": "deno lint",
 		"fmt": "deno fmt",
+		"fmt:check": "deno fmt --check",
 		"check": "deno check --import-map=import_map.json src/mod.ts",
-		"check:all": "deno fmt --check && deno lint && deno test -A",
-		"verify": "deno cache --reload mod.ts && deno fmt --check && deno lint && deno test -A",
+		"check:all": "deno task fmt:check && deno lint && deno test -A",
+		"verify": "deno cache --reload mod.ts && deno task fmt:check && deno lint && deno test -A",
 		"publish:check": "deno task check:all && deno publish --dry-run",
 		"format": "scripts/format-fix.sh --fix",
 		"format:verify": "scripts/format-fix.sh --check",
@@ -55,12 +62,7 @@
 		"exclude": ["tests/fixtures/dynamic/", "tests/fixtures/generated/"]
 	},
 	"publish": {
-		"include": [
-			"src/**/*.ts",
-			"mod.ts",
-			"LICENSE",
-			"README.md"
-		],
+		"include": ["src/**/*.ts", "mod.ts", "LICENSE", "README.md"],
 		"exclude": [
 			"**/*.test.ts",
 			"**/*.spec.ts",
@@ -75,3 +77,4 @@
 		]
 	}
 }
+

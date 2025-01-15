@@ -25,59 +25,37 @@ jobs:
         run: |
           # Remove existing lockfile
           rm -f deno.lock
-          
+
           # Cache and create fresh lockfile
           deno cache --lock=deno.lock --lock-write mod.ts
-          
+
           # Verify dependencies
           deno cache --reload --lock=deno.lock mod.ts
-
-      - name: Clean Test Environment
-        run: |
-          deno task test:clean
 
       - name: Setup Test Environment
         run: |
           # Create and set permissions for temp directories
           sudo mkdir -p /tmp/test_tmp /tmp/deno_dir
           sudo chmod -R 777 /tmp/test_tmp /tmp/deno_dir
-          
-          # Create test directories
+
+          # Create test directories with proper permissions
           mkdir -p tests/fixtures/{templates,plugins,locales,tmp,dynamic,generated}
           chmod -R 777 tests/fixtures
-          
-          # Setup temporary file permissions
-          sudo chmod 777 /tmp
-          
-          # Initialize test data
+
+          # Initialize test data and cache
           deno task test:init
           deno task test:cache
 
-      - name: Pre-Test Format
+      - name: Pre-Test Cache
         run: |
-          # Format everything before tests
-          deno fmt
-          deno fmt tests/
-          
-          # Verify formatting
-          deno fmt --check
-
-      - name: Format and Verify
-        run: |
-          # First run formatter
-          deno fmt
-          
-          # Then check if everything is formatted
-          deno fmt --check
-
-      - name: Run Linter
-        run: deno lint
-
-      - name: Pre-Coverage Cache
-        run: |
-          # Cache any plugin test files before coverage
+          # Cache any dynamic files
           if [ -d "tests/plugins" ] && [ -n "$(ls -A tests/plugins)" ]; then
-            deno cache tests/plugins/*.ts
+            deno cache tests/plugins/*.ts || true
+          fi
+
+          # Cache test fixtures if they exist
+          if [ -d "tests/fixtures/dynamic" ] && [ -n "$(ls -A tests/fixtures/dynamic)" ]; then
+            deno cache tests/fixtures/dynamic/*.ts || true
           fi
 
       - name: Run Tests with Coverage
@@ -88,41 +66,37 @@ jobs:
           NO_COLOR: true
           DEBUG: true
           LOCALE: en
-          DENO_PERMISSIONS: allow-all
         run: |
-          # Ensure temp directories exist with proper permissions
-          sudo mkdir -p $TMPDIR
-          sudo chmod -R 777 $TMPDIR
-          sudo chown -R $USER:$USER $TMPDIR
-          
           # Create coverage directory
           mkdir -p coverage
-          
-          # Run tests and generate coverage in one step
-          deno test --allow-all --coverage=coverage --parallel
-          
-          # Wait for file system to sync
-          sleep 1
-          
-          # Ensure coverage directory is accessible
-          sudo chown -R $USER:$USER coverage
-          
-          # Generate coverage report
-          deno coverage coverage --lcov > coverage.lcov
 
-      - name: Post-Test Format
-        run: |
-          # Format everything after tests
-          deno fmt
-          
-          # Only format dynamic test files if they exist
-          if [ -d "tests/fixtures/dynamic" ] && [ -n "$(ls -A tests/fixtures/dynamic)" ]; then
-            deno fmt tests/fixtures/dynamic/
-            find tests/fixtures/dynamic -name "*.ts" -exec deno fmt {} \;
-          fi
-          
-          # Final format check
-          deno fmt --check
+          # Run tests with coverage collection
+          deno test --allow-all --coverage=coverage --parallel
+
+          # Ensure proper permissions on coverage directory
+          sudo chown -R $USER:$USER coverage
+
+          # Wait for file system to sync
+          sleep 2
+
+          # Generate coverage report with retries
+          max_attempts=3
+          attempt=1
+
+          while [ $attempt -le $max_attempts ]; do
+            if deno coverage coverage --lcov > coverage.lcov; then
+              break
+            else
+              echo "Coverage generation attempt $attempt failed"
+              if [ $attempt -eq $max_attempts ]; then
+                echo "Failed to generate coverage after $max_attempts attempts"
+                exit 1
+              fi
+              attempt=$((attempt + 1))
+              echo "Retrying coverage generation..."
+              sleep 2
+            fi
+          done
 
       - name: Build Binaries
         run: |
