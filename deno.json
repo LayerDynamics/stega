@@ -21,8 +21,10 @@
 		"lint": "deno lint",
 		"fmt": "deno fmt",
 		"check": "deno check --import-map=import_map.json src/mod.ts",
-		"check:all": "deno fmt --check && deno lint && deno test -A",
-		"publish:check": "deno task check:all && deno publish --dry-run"
+		"check:all": "deno task format && deno lint && deno test -A",
+		"publish:check": "deno task check:all && deno publish --dry-run",
+		"format": "scripts/format-fix.sh --fix",
+		"format:verify": "scripts/format-fix.sh --check"
 	},
 	"lint": {
 		"include": ["src/", "tests/"],
