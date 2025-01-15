@@ -150,6 +150,10 @@ Deno.test("Template Command Tests", async (t) => {
 		command["templates"].set(template.name, template);
 
 		const output = `${outputDir}/existing.txt`;
+		
+		// Create the file first to ensure it exists
+		await Deno.writeTextFile(output, "existing content");
+		
 		await assertRejects(
 			() =>
 				command.testGenerate({

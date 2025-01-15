@@ -14,9 +14,7 @@ Deno.test("E2E - Plugin and Workflow Integration", async (t) => {
 		await ensureDir(pluginsDir);
 
 		const pluginContent = `
-            import { CLI } from "${
-			import.meta.resolve("../../../src/core.ts")
-		}";
+            import { CLI } from "../../../src/core/core.ts";
             
             const plugin = {
                 metadata: {
