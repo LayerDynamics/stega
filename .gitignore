@@ -32,3 +32,9 @@ tmp/
 
 # Project specific
 gh-check.sh
+
+# Test generated files
+tests/fixtures/dynamic/
+tests/fixtures/generated/
+tests/fixtures/tmp/
+*.test.ts.formatted
