@@ -207,16 +207,13 @@ export class PluginLoader {
 		// Handle test environment paths
 		if (resolvedPath.includes("tests/plugins/")) {
 			try {
-				// Only remove file:// if present
 				let cleanPath = resolvedPath.replace(/^file:\/\//, "");
-				// Convert to absolute if not already
-				if (
-					!cleanPath.startsWith("/") && !cleanPath.match(/^([A-Za-z]:\\|\\\\)/)
-				) {
+				if (!cleanPath.startsWith("/") && !cleanPath.match(/^([A-Za-z]:\\|\\\\)/)) {
 					cleanPath = Deno.cwd() + "/" + cleanPath;
 				}
-				const importPath = `file://${cleanPath}`;
-				const module = await import(importPath);
+				// Use static import path for analysis
+				const pluginPath = new URL(`file://${cleanPath}`).href;
+				const module = await import(/* @vite-ignore */ pluginPath);
 				if (!this.validatePlugin(module.default)) {
 					throw new Error("Invalid plugin format");
 				}

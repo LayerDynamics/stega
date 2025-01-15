@@ -101,8 +101,8 @@ jobs:
           LOCALE: en
           DENO_PERMISSIONS: allow-all
         run: |
-          # Run tests with coverage
-          deno test --coverage=coverage --parallel || true
+          # Run tests with coverage and all required permissions
+          deno test --allow-all --coverage=coverage --parallel || true
           
           # Generate coverage reports
           deno coverage coverage --lcov > coverage.lcov || true

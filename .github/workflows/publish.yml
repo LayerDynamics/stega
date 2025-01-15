@@ -2,7 +2,6 @@ name: Publish
 
 on:
   push:
-    branches: [main]
     tags: ["v*"]
 
 jobs:
@@ -48,8 +47,17 @@ jobs:
         run: deno lint
 
       - name: Run Tests with Coverage
+        env:
+          DENO_DIR: /tmp/deno_dir
+          TMPDIR: /tmp/test_tmp
+          TEST_MODE: ci
+          NO_COLOR: true
+          DEBUG: true
+          LOCALE: en
+          DENO_PERMISSIONS: allow-all
         run: |
-          deno test --coverage=coverage --parallel || true
+          # Run tests with all required permissions
+          deno test --allow-all --coverage=coverage --parallel || true
           deno coverage coverage --lcov > coverage.lcov || true
 
       - name: Build Binaries
@@ -62,6 +70,9 @@ jobs:
       - name: Run Verification
         run: deno task verify
 
+      - name: Verify Package
+        run: deno publish --dry-run
+
       - name: Publish to JSR
-        if: success()
-        run: deno publish --allow-dirty
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: deno publish
