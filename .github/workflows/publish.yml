@@ -91,9 +91,6 @@ jobs:
           # Run tests with all required permissions
           deno test --allow-all --coverage=coverage --parallel || exit 1
           
-          # Format any generated test files
-          deno fmt tests/fixtures/dynamic/
-          
           # Generate coverage
           deno coverage coverage --lcov > coverage.lcov
 
@@ -101,8 +98,12 @@ jobs:
         run: |
           # Format everything after tests
           deno fmt
-          deno fmt tests/
-          find tests/fixtures/dynamic -name "*.ts" -exec deno fmt {} \;
+          
+          # Only format dynamic test files if they exist
+          if [ -d "tests/fixtures/dynamic" ] && [ -n "$(ls -A tests/fixtures/dynamic)" ]; then
+            deno fmt tests/fixtures/dynamic/
+            find tests/fixtures/dynamic -name "*.ts" -exec deno fmt {} \;
+          fi
           
           # Final format check
           deno fmt --check
