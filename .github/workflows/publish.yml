@@ -83,15 +83,14 @@ jobs:
           LOCALE: en
           DENO_PERMISSIONS: allow-all
         run: |
-          # Ensure temp directories exist with proper permissions
+          # Create temp directories without changing permissions
           mkdir -p $TMPDIR
-          chmod -R 777 $TMPDIR
           
           # Run tests with all required permissions
           deno test --allow-all --coverage=coverage --parallel || exit 1
           
           # Format any generated test files
-          deno fmt tests/fixtures/dynamic/
+          deno fmt tests/fixtures/dynamic/ || true
           
           # Generate coverage
           deno coverage coverage --lcov > coverage.lcov

@@ -1,6 +1,6 @@
 {
 	"name": "@layerdynamics/stega",
-	"version": "1.0.0-beta.4",
+	"version": "1.0.0-beta.5",
 	"description": "A comprehensive CLI framework for Deno featuring advanced command management, workflow automation, and plugin architecture",
 	"runtime": {
 		"deno": ">=1.37",
