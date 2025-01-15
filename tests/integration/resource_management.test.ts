@@ -21,7 +21,7 @@ Deno.test("Resource Management Integration Tests", async (t) => {
 			});
 
 			await cli.runCommand(["read-file"]);
-			assertEquals(logger.errors.length, 0);
+			assertEquals(logger.getErrorCount(), 0);
 		});
 	} finally {
 		await Deno.remove(tempPath!);

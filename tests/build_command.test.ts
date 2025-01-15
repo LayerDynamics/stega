@@ -2,7 +2,7 @@
 import { assertEquals, assertRejects } from "@std/assert";
 import { createBuildCommand } from "../src/commands/build.ts";
 import { createTestCLI } from "./test_utils.ts";
-import type { BuildOptions, Plugin } from "../src/plugin.ts";
+import type { BuildOptions, Plugin } from "../src/plugins/plugin.ts";
 
 // Mock Process class with correct interface implementation
 class MockProcess implements Deno.ChildProcess {

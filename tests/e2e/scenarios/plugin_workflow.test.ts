@@ -2,8 +2,8 @@
 import { assertEquals } from "@std/assert";
 import { createTestCLI } from "../../test_utils.ts";
 import type { CLI } from "../../../src/core/core.ts";
-import { join } from "https://deno.land/std/path/mod.ts"; // or similar import
-import { ensureDir } from "https://deno.land/std/fs/mod.ts";
+import { join } from "https://deno.land/std@0.224.0/path/mod.ts"; // or similar import
+import { ensureDir } from "https://deno.land/std@0.224.0/fs/mod.ts";
 
 Deno.test("E2E - Plugin and Workflow Integration", async (t) => {
 	await t.step("loads plugin and executes workflow", async () => {
@@ -45,7 +45,7 @@ Deno.test("E2E - Plugin and Workflow Integration", async (t) => {
 			await Deno.writeTextFile(pluginPath, pluginContent);
 			await cli.loadPlugins([pluginPath]);
 			await cli.runCommand(["test-command"]);
-			assertEquals(logger.errors.length, 0, "Should have no errors");
+			assertEquals(logger.getErrorCount(), 0, "Should have no errors");
 		} finally {
 			// Cleanup
 			await Deno.remove(pluginPath).catch(() => {});

@@ -1,4 +1,4 @@
-import { Plugin } from "../plugin.ts";
+import { Plugin } from "./plugin.ts";
 import { CLI, Command } from "../core/core.ts";
 
 const templateCommand: Command = {

@@ -5,6 +5,58 @@ import * as path from "https://deno.land/std@0.224.0/path/mod.ts"; // Updated im
 import { MockLogger } from "./utils/mock_logger.ts";
 import { assert } from "https://deno.land/std@0.224.0/assert/mod.ts"; // Ensure assert is also imported correctly
 import { ConsoleLogger } from "../src/logger/logger.ts";
+import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
+import { ensureDir } from "https://deno.land/std@0.224.0/fs/mod.ts";
+
+export { MockLogger };
+
+export interface TestContext {
+	cli: CLI;
+	logger: MockLogger;
+	cleanup: () => Promise<void>;
+}
+
+export async function createTestContext(): Promise<TestContext> {
+	const logger = new MockLogger();
+	const cli = new CLI(undefined, true, true, logger);
+
+	// Initialize core components
+	await cli.waitForReady();
+
+	return {
+		cli,
+		logger,
+		cleanup: async () => {
+			logger.clear();
+		},
+	};
+}
+
+export async function mockDenoEnv(
+	envVars: Record<string, string>,
+): Promise<() => void> {
+	const originalEnv = { ...Deno.env.toObject() };
+	Object.entries(envVars).forEach(([key, value]) => {
+		Deno.env.set(key, value);
+	});
+
+	return () => {
+		// Restore original environment
+		Object.keys(Deno.env.toObject()).forEach((key) => {
+			if (key in originalEnv) {
+				Deno.env.set(key, originalEnv[key]);
+			} else {
+				Deno.env.delete(key);
+			}
+		});
+	};
+}
+
+export async function mockDenoArgs(args: string[]): Promise<() => void> {
+	const originalArgs = Deno.args;
+	Object.defineProperty(Deno, "args", { value: args });
+	return () => Object.defineProperty(Deno, "args", { value: originalArgs });
+}
 
 export interface TestCLI {
 	cli: CLI;
@@ -40,18 +92,24 @@ export async function createMockCLI(): Promise<CLI> {
  * Helper function to create temporary files in the test fixtures directory
  */
 export async function createTempFile(
-	prefixOrContent: string = "test",
-	isContent = false,
+	content: string,
+	isPlugin = false,
 ): Promise<string> {
-	const tempDir = "./tests/fixtures/tmp";
-	await Deno.mkdir(tempDir, { recursive: true });
+	const filename = crypto.randomUUID() + ".ts";
+	let filepath;
 
-	// Use UUID for filename to avoid length issues
-	const filename = `${crypto.randomUUID()}.tmp`;
-	const filePath = `${tempDir}/${filename}`;
+	if (isPlugin) {
+		const pluginsDir = join("tests", "plugins");
+		await ensureDir(pluginsDir);
+		filepath = join(pluginsDir, filename);
+	} else {
+		const tmpDir = join("tests", "fixtures", "tmp");
+		await ensureDir(tmpDir);
+		filepath = join(tmpDir, filename);
+	}
 
-	await Deno.writeTextFile(filePath, isContent ? prefixOrContent : "");
-	return filePath;
+	await Deno.writeTextFile(filepath, content);
+	return filepath;
 }
 
 export async function createTempDir(prefix = "test"): Promise<string> {

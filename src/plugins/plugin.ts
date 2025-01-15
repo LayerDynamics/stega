@@ -1,5 +1,6 @@
-// src/plugin.ts
-import { CLI } from "../core/core.ts";
+// src/plugins/plugin.ts
+
+import type { CLI } from "../core/core.ts";
 
 export interface PluginMetadata {
 	name: string;

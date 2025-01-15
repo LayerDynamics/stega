@@ -1,6 +1,6 @@
 // cli_workflow.test.ts
 import { CLI } from "../../src/core/core.ts";
-import { Plugin } from "../../src/plugin.ts";
+import { Plugin } from "../../src/plugins/plugin.ts";
 import { type CommandResult, TestFramework } from "../utils/test_framework.ts";
 import { assertEquals } from "@std/assert";
 
@@ -16,7 +16,7 @@ export async function setupCliWorkflowTest(t: Deno.TestContext) {
 			"plugin.ts",
 			`
             import type { CLI } from "../../src/core.ts";
-            import type { Plugin } from "../../src/plugin.ts";
+            import type { Plugin } from "../../src/plugins/plugin.ts";
 
             const plugin: Plugin = {
                 metadata: {
@@ -113,7 +113,7 @@ export async function setupPluginLifecycleTest(t: Deno.TestContext) {
 			"lifecycle-plugin.ts",
 			`
             import type { CLI } from "../../src/core.ts";
-            import type { Plugin } from "../../src/plugin.ts";
+            import type { Plugin } from "../../src/plugins/plugin.ts";
 
             const plugin: Plugin = {
                 metadata: {
@@ -173,9 +173,6 @@ export async function setupPluginLifecycleTest(t: Deno.TestContext) {
 					commands.join(", ")
 				}`,
 			);
-
-			// Rest of the test remains the same...
-			// ...existing code...
 		} catch (error) {
 			console.error("Test failed:", error);
 			console.log("Debug state:", {

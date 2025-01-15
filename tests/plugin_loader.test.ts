@@ -1,8 +1,8 @@
 // tests/plugin_loader.test.ts
-import { PluginLoader } from "../src/plugin_loader.ts";
+import { PluginLoader } from "../src/plugins/plugin_loader.ts";
 import { CLI } from "../src/core/core.ts";
 import { assertEquals } from "jsr:@std/assert@0.224.0";
-import type { Plugin } from "../src/plugin.ts";
+import type { Plugin } from "../src/plugins/plugin.ts";
 import { createTempFile } from "./test_utils.ts";
 
 // Define interface for globalThis extension
@@ -14,30 +14,27 @@ Deno.test("PluginLoader - basic plugin loading", async () => {
 	const cli = new CLI(undefined, true, true);
 	const loader = new PluginLoader();
 
-	const pluginContent = `
-        export default {
-            metadata: {
-                name: "TestPlugin",
-                version: "1.0.0",
-                description: "A test plugin",
-                dependencies: []
-            },
-            init: (cli) => {
-                cli.register({
-                    name: "test",
-                    description: "Test command",
-                    action: () => {}
-                });
-            }
-        };
-    `;
+	const pluginPath = await createTempFile(
+		`
+    export default {
+      metadata: {
+        name: "test-plugin",
+        version: "1.0.0"
+      },
+      init: () => {}
+    };
+  `,
+		true,
+	);
 
-	const pluginPath = await createTempFile(pluginContent, true);
-
-	await loader.loadPlugin(pluginPath, cli);
-	const plugins = loader.listPlugins();
-	assertEquals(plugins.length, 1);
-	assertEquals(plugins[0].name, "TestPlugin");
+	try {
+		await loader.loadPlugin(pluginPath, cli);
+		const plugins = loader.listPlugins();
+		assertEquals(plugins.length, 1);
+		assertEquals(plugins[0].name, "test-plugin");
+	} finally {
+		await Deno.remove(pluginPath).catch(() => {});
+	}
 });
 
 Deno.test("PluginLoader - dependency handling", async () => {
@@ -45,51 +42,40 @@ Deno.test("PluginLoader - dependency handling", async () => {
 	const loader = new PluginLoader();
 
 	const basePluginContent = `
-        export default {
-            metadata: {
-                name: "BasePlugin",
-                version: "1.0.0"
-            },
-            init: (cli) => {
-                cli.register({
-                    name: "base",
-                    description: "Base command",
-                    action: () => {}
-                });
-            }
-        };
-    `;
+    export default {
+      metadata: {
+        name: "base-plugin",
+        version: "1.0.0"
+      },
+      init: () => {}
+    };
+  `;
 
 	const dependentPluginContent = `
-        export default {
-            metadata: {
-                name: "DependentPlugin",
-                version: "1.0.0",
-                dependencies: ["BasePlugin"]
-            },
-            init: (cli) => {
-                cli.register({
-                    name: "dependent",
-                    description: "Dependent command",
-                    action: () => {}
-                });
-            }
-        };
-    `;
+    export default {
+      metadata: {
+        name: "dependent-plugin",
+        version: "1.0.0",
+        dependencies: ["base-plugin"]
+      },
+      init: () => {}
+    };
+  `;
 
-	const basePluginPath = await createTempFile(basePluginContent, true);
-	const dependentPluginPath = await createTempFile(
-		dependentPluginContent,
-		true,
-	);
+	const basePath = await createTempFile(basePluginContent, true);
+	const dependentPath = await createTempFile(dependentPluginContent, true);
 
-	await loader.loadPlugin(basePluginPath, cli);
-	await loader.loadPlugin(dependentPluginPath, cli);
-
-	const plugins = loader.listPlugins();
-	assertEquals(plugins.length, 2);
-	assertEquals(plugins[0].name, "BasePlugin");
-	assertEquals(plugins[1].name, "DependentPlugin");
+	try {
+		await loader.loadPlugin(basePath, cli);
+		await loader.loadPlugin(dependentPath, cli);
+		const plugins = loader.listPlugins();
+		assertEquals(plugins.length, 2);
+		assertEquals(plugins[0].name, "base-plugin");
+		assertEquals(plugins[1].name, "dependent-plugin");
+	} finally {
+		await Deno.remove(basePath);
+		await Deno.remove(dependentPath);
+	}
 });
 
 Deno.test("PluginLoader should handle dependencies correctly", async () => {

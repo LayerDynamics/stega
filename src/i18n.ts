@@ -13,7 +13,7 @@ export class I18n {
 	async load() {
 		try {
 			const data = await Deno.readTextFile(
-				`./locales/${this.currentLocale}.json`,
+				`./src/locales/${this.currentLocale}.json`,
 			);
 			this.messages = JSON.parse(data);
 		} catch (error: unknown) {
@@ -34,7 +34,7 @@ export class I18n {
 
 	async loadLocale(locale: string) {
 		try {
-			const data = await Deno.readTextFile(`./locales/${locale}.json`);
+			const data = await Deno.readTextFile(`./src/locales/${locale}.json`);
 			this.messages = JSON.parse(data);
 			this.currentLocale = locale;
 		} catch (error: unknown) {

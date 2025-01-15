@@ -198,14 +198,16 @@ export class CLI {
 				const helpIndex = args.command.indexOf("help");
 				const helpTarget = args.command[helpIndex + 1];
 				if (helpTarget) {
-					const command = this.registry.findCommand(helpTarget);
+					const command = this.findCommand(helpTarget);
 					if (command) {
-						console.log(this.help.generateHelp(command));
+						this.logger.info(this.help.generateHelp(command));
 					} else {
-						console.error(`Command "${helpTarget}" not found.`);
+						this.logger.error(
+							this.i18n.t("command_not_found", { command: helpTarget }),
+						);
 					}
 				} else {
-					console.log(this.help.generateHelp());
+					this.showHelp();
 				}
 				return;
 			}
@@ -213,13 +215,13 @@ export class CLI {
 			if (args.flags.help || args.flags.h) {
 				const cmdName = args.command[0];
 				if (cmdName) {
-					const command = this.registry.findCommand(cmdName);
+					const command = this.findCommand(cmdName);
 					if (command) {
-						console.log(this.help.generateHelp(command));
+						this.logger.info(this.help.generateHelp(command));
 						return;
 					}
 				}
-				console.log(this.help.generateHelp());
+				this.showHelp();
 				return;
 			}
 
@@ -253,9 +255,9 @@ export class CLI {
 		} catch (err) {
 			const error = err as Error;
 			if (error instanceof StegaError) {
-				console.error(this.i18n.t("error", { message: error.message }));
+				this.logger.error(this.i18n.t("error", { message: error.message }));
 			} else {
-				console.error(
+				this.logger.error(
 					this.i18n.t("unexpected_error", { message: error.message }),
 				);
 			}
@@ -362,7 +364,9 @@ export class CLI {
 	 * Displays the general help information.
 	 */
 	showHelp() {
-		console.log(this.help.generateHelp());
+		const helpText = this.help.generateHelp();
+		this.logger.info(this.i18n.t("available_commands"));
+		console.log(helpText);
 	}
 
 	/**

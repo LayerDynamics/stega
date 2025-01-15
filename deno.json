@@ -21,7 +21,8 @@
 		"lint": "deno lint",
 		"fmt": "deno fmt",
 		"check": "deno check --import-map=import_map.json src/mod.ts",
-		"prepublish": "deno fmt --check && deno lint && deno test -A"
+		"check:all": "deno fmt --check && deno lint && deno test -A",
+		"publish:check": "deno task check:all && deno publish --dry-run"
 	},
 	"lint": {
 		"include": ["src/", "tests/"],

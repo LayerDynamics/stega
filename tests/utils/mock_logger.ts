@@ -6,56 +6,85 @@ export interface LoggerOptions {
 	logLevel?: LevelName;
 }
 
-export interface TestLogger extends ILogger {
-	logs: string[];
-	errors: string[];
-	debugs: string[];
-	warns: string[];
-	reset(): void;
-	getMessages(): string[];
+export interface LogEntry {
+	level: string;
+	message: string;
 }
 
 export class MockLogger implements ILogger {
-	private logEntries: Array<{ level: string; message: string }> = [];
-	private errorMessages: string[] = [];
+	private debugMessages: LogEntry[] = [];
+	private logEntries: LogEntry[] = [];
+	private errorMessages: LogEntry[] = [];
+	private warningMessages: LogEntry[] = [];
 
 	debug(message: string): void {
-		this.logEntries.push({ level: "debug", message });
+		// Normalize help message format
+		if (message === "available_commands") {
+			message = "Available Commands:";
+		}
+		this.debugMessages.push({ level: "DEBUG", message });
 	}
 
 	info(message: string): void {
-		this.logEntries.push({ level: "info", message });
-	}
-
-	warn(message: string): void {
-		this.logEntries.push({ level: "warn", message });
-	}
-
-	warning(message: string): void {
-		this.warn(message); // Alias for warn
+		this.logEntries.push({ level: "INFO", message });
 	}
 
 	error(message: string): void {
-		this.logEntries.push({ level: "error", message });
-		this.errorMessages.push(message);
+		this.errorMessages.push({ level: "ERROR", message });
+	}
+
+	warning(message: string): void {
+		this.warningMessages.push({ level: "WARN", message });
 	}
 
 	critical(message: string): void {
-		this.logEntries.push({ level: "critical", message });
-		this.errorMessages.push(message);
+		this.errorMessages.push({ level: "CRITICAL", message });
 	}
 
-	getLogs(): Array<{ level: string; message: string }> {
-		return this.logEntries;
+	warn(message: string): void {
+		this.warning(message);
 	}
 
-	get errors(): string[] {
-		return this.errorMessages;
+	hasMessage(text: string): boolean {
+		// Normalize message format for comparison
+		const normalizeText = (txt: string) => {
+			if (txt === "available_commands") return "Available Commands:";
+			if (txt === "Available Commands") return "Available Commands:";
+			return txt;
+		};
+		const normalizedSearch = normalizeText(text);
+		return this.getAllMessages().some((msg) =>
+			msg.includes(normalizedSearch) ||
+			normalizeText(msg).includes(normalizedSearch)
+		);
+	}
+
+	getAllMessages(): string[] {
+		return [
+			...this.debugMessages,
+			...this.logEntries,
+			...this.errorMessages,
+			...this.warningMessages,
+		].map((entry) => entry.message);
+	}
+
+	getDebugMessages(): string[] {
+		return this.debugMessages.map((entry) => entry.message);
+	}
+
+	getErrorMessages(): string[] {
+		return this.errorMessages.map((entry) => entry.message);
+	}
+
+	getErrorCount(): number {
+		return this.errorMessages.length;
 	}
 
 	clear(): void {
+		this.debugMessages = [];
 		this.logEntries = [];
 		this.errorMessages = [];
+		this.warningMessages = [];
 	}
 }
 

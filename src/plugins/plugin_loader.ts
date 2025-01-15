@@ -1,10 +1,9 @@
-// src/plugin_loader.ts
-import { CLI } from "../core/core.ts"; // Import CLI
-import { logger } from "../logger/logger.ts"; // Import logger
-import { Plugin, PluginMetadata } from "./plugin.ts"; // Import Plugin interface
+// src/plugins/plugin_loader.ts
+import { CLI } from "../core/core.ts";
+import { logger } from "../logger/logger.ts";
+import { Plugin, PluginMetadata } from "./plugin.ts";
 import { PLUGIN_REGISTRY, PluginKey } from "./registry.ts";
 
-// Replace or define ValidationError:
 export class ValidationError extends Error {
 	constructor(message: string) {
 		super(message);
@@ -12,12 +11,12 @@ export class ValidationError extends Error {
 	}
 }
 
-interface PluginSource {
+export interface PluginSource {
 	type: "local" | "remote" | "jsr";
 	path: string;
 }
 
-interface RemotePluginSource {
+export interface RemotePluginSource {
 	type: "github" | "jsdelivr";
 	owner: string;
 	repo: string;
@@ -25,28 +24,31 @@ interface RemotePluginSource {
 	ref?: string;
 }
 
-interface PluginModule {
+export interface PluginModule {
 	default: Plugin;
 }
 
 export class PluginLoader {
 	private loadedPlugins: Map<string, Plugin> = new Map();
 	private loadingPromises: Map<string, Promise<void>> = new Map();
+	private allowedPaths = [
+		"src/",
+		"tests/",
+		"tests/fixtures/",
+		"tests/plugins/",
+	];
 
-	/**
-	 * Loads a plugin from a file path
-	 */
 	async loadPlugin(path: string, cli: CLI): Promise<void> {
 		const pluginName = this.getPluginName(path);
 		try {
 			cli.logger.debug(`Loading plugin from path: ${path}`);
+			this.validatePluginPath(path);
 
-			// Normalize the path to handle test fixtures
 			const normalizedPath = path.replace(/\\/g, "/");
 			const plugin = await this.loadPluginFromPath(normalizedPath, cli);
 
-			if (!plugin?.metadata?.name) {
-				throw new Error(`Invalid plugin: missing metadata.name in ${path}`);
+			if (!this.validatePlugin(plugin)) {
+				throw new Error(`Invalid plugin: missing required fields in ${path}`);
 			}
 
 			if (this.loadedPlugins.has(plugin.metadata.name)) {
@@ -54,12 +56,39 @@ export class PluginLoader {
 				return;
 			}
 
+			await this.validateDependencies(plugin);
 			await this.initializePlugin(plugin, cli);
 		} catch (error: unknown) {
 			const e = error instanceof Error ? error : new Error(String(error));
 			throw new ValidationError(
 				`Failed to load plugin ${pluginName}: ${e.message}`,
 			);
+		}
+	}
+
+	private validatePlugin(plugin: unknown): plugin is Plugin {
+		return Boolean(
+			plugin &&
+				typeof plugin === "object" &&
+				"metadata" in plugin &&
+				typeof plugin.metadata === "object" &&
+				plugin.metadata &&
+				"name" in plugin.metadata &&
+				"version" in plugin.metadata &&
+				"init" in plugin &&
+				typeof (plugin as Plugin).init === "function",
+		);
+	}
+
+	private async validateDependencies(plugin: Plugin): Promise<void> {
+		if (!plugin.metadata.dependencies?.length) {
+			return;
+		}
+
+		for (const dep of plugin.metadata.dependencies) {
+			if (!this.loadedPlugins.has(dep)) {
+				throw new Error(`Missing dependency: ${dep}`);
+			}
 		}
 	}
 
@@ -81,14 +110,11 @@ export class PluginLoader {
 		const source = this.parsePluginSource(path);
 
 		switch (source.type) {
-			case "remote": {
+			case "remote":
 				return source.path;
-			}
-			case "jsr": {
+			case "jsr":
 				return `https://jsr.io/${source.path}`;
-			}
 			case "local": {
-				// Only allow specific directories for local plugins
 				const allowedDirs = ["plugins/", "tests/plugins/"];
 				const isAllowed = allowedDirs.some((dir) => source.path.includes(dir));
 				if (!isAllowed) {
@@ -117,6 +143,7 @@ export class PluginLoader {
 				ref: pathParts[0] === "blob" ? pathParts[1] : undefined,
 			};
 		}
+
 		if (url.hostname === "cdn.jsdelivr.net") {
 			const [service, owner, repo, ...pathParts] = url.pathname.split("/")
 				.filter(Boolean);
@@ -129,6 +156,7 @@ export class PluginLoader {
 				};
 			}
 		}
+
 		return null;
 	}
 
@@ -145,7 +173,6 @@ export class PluginLoader {
 		}
 
 		const code = await response.text();
-		// Create typed moduleExports object
 		const moduleExports = {} as PluginModule;
 
 		try {
@@ -164,24 +191,24 @@ export class PluginLoader {
 			);
 		}
 
-		if (!moduleExports.default || typeof moduleExports.default !== "object") {
-			throw new Error("Remote plugin must have a default export");
+		if (!moduleExports.default || !this.validatePlugin(moduleExports.default)) {
+			throw new Error("Remote plugin must have a valid default export");
 		}
 
 		return moduleExports.default;
 	}
 
-	private async loadPluginModule(resolvedPath: string): Promise<Plugin> {
-		let pluginModule;
+	private isValidPluginKey(key: string): key is PluginKey {
+		return key in PLUGIN_REGISTRY;
+	}
 
+	private async loadPluginModule(resolvedPath: string): Promise<Plugin> {
 		if (resolvedPath.startsWith("https://jsr.io/")) {
-			// Handle JSR modules
 			const moduleName = resolvedPath.replace("https://jsr.io/", "");
 			if (this.isValidPluginKey(moduleName)) {
-				pluginModule = await PLUGIN_REGISTRY[moduleName].import();
-				// Extract the first export that matches the Plugin interface
+				const pluginModule = await PLUGIN_REGISTRY[moduleName].import();
 				const pluginExport = Object.values(pluginModule)[0] as Plugin;
-				if (!pluginExport || !pluginExport.metadata) {
+				if (!this.validatePlugin(pluginExport)) {
 					throw new Error("No valid plugin export found");
 				}
 				return pluginExport;
@@ -189,30 +216,42 @@ export class PluginLoader {
 			throw new Error(`Unknown JSR module: ${moduleName}`);
 		}
 
-		// Handle local modules
 		if (
 			resolvedPath.startsWith("file://") || resolvedPath.includes("/plugins/")
 		) {
-			const localPath = resolvedPath
+			const normalizedPath = resolvedPath
 				.replace("file://", "")
-				.split("/plugins/")[1]
-				?.replace(/\.(ts|js)$/, "");
+				.replace(/\\/g, "/");
 
-			if (localPath) {
+			if (normalizedPath.includes("/tests/plugins/")) {
+				const localPath = normalizedPath
+					.split("/tests/plugins/")[1]
+					?.replace(/\.(ts|js)$/, "");
 				try {
-					pluginModule = await import(`./plugins/${localPath}.ts`);
-				} catch {
-					if (resolvedPath.includes("tests/plugins/")) {
-						pluginModule = await import(`../../tests/plugins/${localPath}.ts`);
-					} else {
-						throw new Error(`Unable to load plugin: ${localPath}`);
+					const module = await import(`../../tests/plugins/${localPath}.ts`);
+					if (!this.validatePlugin(module.default)) {
+						throw new Error("Invalid plugin format");
 					}
+					return module.default;
+				} catch (error) {
+					throw new Error(`Unable to load plugin from tests/plugins: ${error}`);
 				}
-				return pluginModule.default;
+			} else {
+				const localPath = normalizedPath
+					.split("/plugins/")[1]
+					?.replace(/\.(ts|js)$/, "");
+				try {
+					const module = await import(`./plugins/${localPath}.ts`);
+					if (!this.validatePlugin(module.default)) {
+						throw new Error("Invalid plugin format");
+					}
+					return module.default;
+				} catch (error) {
+					throw new Error(`Unable to load plugin from plugins/: ${error}`);
+				}
 			}
 		}
 
-		// Handle remote modules
 		try {
 			const url = new URL(resolvedPath);
 			const remoteSource = this.parseRemoteUrl(url);
@@ -225,16 +264,10 @@ export class PluginLoader {
 		}
 	}
 
-	// Add type guard for plugin keys
-	private isValidPluginKey(key: string): key is PluginKey {
-		return key in PLUGIN_REGISTRY;
-	}
-
 	private async loadPluginFromPath(path: string, cli: CLI): Promise<Plugin> {
 		try {
 			const resolvedPath = await this.resolvePluginSource(path);
 			cli.logger.debug(`Loading plugin from URL: ${resolvedPath}`);
-
 			return await this.loadPluginModule(resolvedPath);
 		} catch (error: unknown) {
 			const e = error instanceof Error ? error.message : String(error);
@@ -263,15 +296,9 @@ export class PluginLoader {
 		cli.logger.debug(`Plugin ${plugin.metadata.name} fully loaded`);
 	}
 
-	/**
-	 * Retrieves all loaded plugins.
-	 * @returns An array of loaded plugins.
-	 */
 	getLoadedPlugins(): Plugin[] {
 		return Array.from(this.loadedPlugins.values());
 	}
-
-	// ...existing methods...
 
 	async unloadPlugin(name: string, cli: CLI): Promise<void> {
 		const plugin = this.loadedPlugins.get(name);
@@ -293,14 +320,25 @@ export class PluginLoader {
 
 	private validatePluginPath(path: string): void {
 		const normalizedPath = path.replace(/\\/g, "/");
-		const validPaths = ["src/", "tests/", "tests/fixtures/", "tests/plugins/"];
-		const isValidPath = validPaths.some((prefix) =>
-			normalizedPath.includes(prefix)
+
+		// Add support for test fixtures and temp files during tests
+		const allowedPaths = [
+			"plugins/",
+			"tests/plugins/",
+			"tests/fixtures/",
+			"tests/fixtures/tmp/",
+			"/tmp/",
+		];
+
+		const isValidPath = allowedPaths.some((prefix) =>
+			normalizedPath.toLowerCase().includes(prefix.toLowerCase())
 		);
 
 		if (!isValidPath) {
 			throw new Error(
-				`Invalid plugin path: ${path}. Plugins must be in src/ or tests/ directory`,
+				`Invalid plugin path: ${path}. Plugins must be in: ${
+					allowedPaths.join(", ")
+				}`,
 			);
 		}
 	}

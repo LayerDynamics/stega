@@ -29,7 +29,7 @@ Deno.test("Workflow Integration - command chaining", async (t) => {
 		await cli.runCommand(["second"]);
 
 		assertEquals(executed, ["first", "second"]);
-		assertEquals(logger.errors.length, 0);
+		assertEquals(logger.getErrorCount(), 0);
 	});
 
 	await harness.cleanup();

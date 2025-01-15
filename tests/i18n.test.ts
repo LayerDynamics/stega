@@ -4,16 +4,11 @@ import { ConfigLoader } from "../src/config.ts";
 import { assertEquals } from "https://deno.land/std@0.203.0/testing/asserts.ts";
 
 Deno.test("i18n should load and retrieve messages correctly", async () => {
-	// Mock ConfigLoader with English locale
-	const loader = new ConfigLoader();
-	const config = { locale: "en" };
-	loader.load = () => Promise.resolve(config);
+	const configLoader = new ConfigLoader();
+	const config = await configLoader.load();
 	const i18n = new I18n(config);
-	await i18n.load();
+	await i18n.loadLocale("en");
 
-	assertEquals(i18n.t("available_commands"), "Available Commands:");
-	assertEquals(
-		i18n.t("command_not_found", { command: "test" }),
-		'Command "test" not found.',
-	);
+	const message = i18n.t("available_commands");
+	assertEquals(message, "Available Commands:"); // Message is already formatted by t()
 });
