@@ -21,82 +21,106 @@ jobs:
         with:
           deno-version: v1.x
 
-      - name: Initialize Dependencies and Generate Lockfile
+      - name: Initialize Dependencies
         run: |
           # Remove existing lockfile
           rm -f deno.lock
 
-          # Initialize cache and create new lockfile
-          echo "Initializing cache..."
-          deno cache mod.ts
-
-          echo "Creating lockfile..."
+          # Cache and create fresh lockfile
           deno cache --lock=deno.lock --lock-write mod.ts
 
-          echo "Verifying dependencies..."
+          # Verify dependencies
           deno cache --reload --lock=deno.lock mod.ts
 
-          # Verify lockfile
-          if [ ! -s deno.lock ]; then
-              echo "Error: Lockfile generation failed"
-              exit 1
-          fi
-
-          # Cache all source files
-          echo "Caching source files..."
-          find src -name "*.ts" -type f -exec deno cache {} +
+      - name: Clean Test Environment
+        run: |
+          deno task test:clean
 
       - name: Setup Test Environment
         run: |
-          # Create test directories
-          mkdir -p tests/fixtures/{templates,plugins,locales,tmp,dynamic}
-          chmod -R 777 tests/fixtures
-
-          # Create and set permissions for temp directories
           sudo mkdir -p /tmp/test_tmp /tmp/deno_dir
           sudo chmod -R 777 /tmp/test_tmp /tmp/deno_dir
-          sudo chown -R $USER:$USER /tmp/test_tmp /tmp/deno_dir
+
+          mkdir -p tests/fixtures/{templates,plugins,locales,tmp,dynamic,generated}
+          chmod -R 777 tests/fixtures
+
+          # Setup temporary file permissions
+          sudo chmod 777 /tmp
 
           # Initialize test data
-          echo "Initializing test environment..."
-          deno task test:init || true
+          deno task test:init
+          deno task test:cache
+
+      - name: Pre-Test Format
+        run: |
+          # Format everything before tests
+          deno fmt
+          deno fmt tests/
+
+          # Verify formatting
+          deno fmt --check
+
+      - name: Format and Verify
+        run: |
+          # First run formatter
+          deno fmt
+
+          # Then check if everything is formatted
+          deno fmt --check
+
+      - name: Run Linter
+        run: deno lint
+
+      - name: Pre-Coverage Cache
+        run: |
+          # Cache any plugin test files before coverage
+          if [ -d "tests/plugins" ] && [ -n "$(ls -A tests/plugins)" ]; then
+            deno cache tests/plugins/*.ts
+          fi
 
       - name: Run Tests with Coverage
         env:
-          DENO_DIR: ~/.cache/deno
+          DENO_DIR: /tmp/deno_dir
           TMPDIR: /tmp/test_tmp
           TEST_MODE: ci
           NO_COLOR: true
           DEBUG: true
-          PRESERVE_TEST_FILES: "1"
+          LOCALE: en
+          DENO_PERMISSIONS: allow-all
         run: |
-          # Clean and prepare cache directory
-          sudo rm -rf ~/.cache/deno
-          sudo mkdir -p ~/.cache/deno
-          sudo chmod -R 777 ~/.cache/deno
+          # Ensure temp directories exist with proper permissions
+          sudo mkdir -p $TMPDIR
+          sudo chmod -R 777 $TMPDIR
+          sudo chown -R $USER:$USER $TMPDIR
 
-          # Run tests first to generate all test files
-          echo "Running initial test pass..."
-          deno test --allow-all || exit 1
+          # Create coverage directory
+          mkdir -p coverage
 
-          # Wait for file system
-          sleep 2
-
-          # Cache any generated test files
-          echo "Caching test files..."
-          sudo find tests/fixtures -name "*.ts" -type f -exec deno cache {} + || true
-
-          # Run tests again with coverage
-          echo "Running tests with coverage..."
+          # Run tests and generate coverage in one step
           deno test --allow-all --coverage=coverage --parallel
 
-          # Ensure proper permissions
+          # Wait for file system to sync
+          sleep 1
+
+          # Ensure coverage directory is accessible
           sudo chown -R $USER:$USER coverage
-          sudo chmod -R 777 coverage
 
           # Generate coverage report
-          echo "Generating coverage report..."
           deno coverage coverage --lcov > coverage.lcov
+
+      - name: Post-Test Format
+        run: |
+          # Format everything after tests
+          deno fmt
+
+          # Only format dynamic test files if they exist
+          if [ -d "tests/fixtures/dynamic" ] && [ -n "$(ls -A tests/fixtures/dynamic)" ]; then
+            deno fmt tests/fixtures/dynamic/
+            find tests/fixtures/dynamic -name "*.ts" -exec deno fmt {} \;
+          fi
+
+          # Final format check
+          deno fmt --check
 
       - name: Build Binaries
         run: |
