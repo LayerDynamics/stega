@@ -3,6 +3,7 @@ import { assertEquals, assertRejects } from "@std/assert";
 import { createBuildCommand } from "../src/commands/build.ts";
 import { createTestCLI } from "./test_utils.ts";
 import type { BuildOptions, Plugin } from "../src/plugins/plugin.ts";
+import { createTempDir } from "./utils/test_helpers.ts";
 
 // Mock Process class with correct interface implementation
 class MockProcess implements Deno.ChildProcess {
@@ -103,7 +104,7 @@ Deno.test({
 			MockCommand.reset();
 
 			// Create temporary test file
-			const tmpDir = await Deno.makeTempDir();
+			const tmpDir = await createTempDir();
 			const testFile = `${tmpDir}/test.ts`;
 			await Deno.writeTextFile(testFile, "console.log('test');");
 

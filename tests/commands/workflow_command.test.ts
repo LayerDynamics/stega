@@ -11,22 +11,25 @@ Deno.test("Workflow Command - Add and run workflow", async () => {
 		steps: [{ name: "step1", command: "echo test" }],
 	};
 
+	// Pass content as string to createTempFile
 	const configPath = await createTempFile(JSON.stringify(config));
 
-	await cli.runCommand([
-		"workflow",
-		"add",
-		"--name=test-workflow",
-		`--config=${configPath}`,
-	]);
+	try {
+		await cli.runCommand([
+			"workflow",
+			"add",
+			"--name=test-workflow",
+			`--config=${configPath}`,
+		]);
 
-	await cli.runCommand([
-		"workflow",
-		"run",
-		"--name=test-workflow",
-	]);
-
-	await Deno.remove(configPath);
+		await cli.runCommand([
+			"workflow",
+			"run",
+			"--name=test-workflow",
+		]);
+	} finally {
+		await Deno.remove(configPath);
+	}
 });
 
 // ...rest of workflow tests...

@@ -36,11 +36,18 @@ jobs:
         run: |
           deno task test:clean
 
-      - name: Setup Test Data
+      - name: Setup Test Environment
         run: |
-          # Create test directories with proper permissions
+          # Create and set permissions for temp directories
+          sudo mkdir -p /tmp/test_tmp /tmp/deno_dir
+          sudo chmod -R 777 /tmp/test_tmp /tmp/deno_dir
+          
+          # Create test directories
           mkdir -p tests/fixtures/{templates,plugins,locales,tmp,dynamic,generated}
           chmod -R 777 tests/fixtures
+          
+          # Setup temporary file permissions
+          sudo chmod 777 /tmp
           
           # Initialize test data
           deno task test:init
@@ -76,12 +83,12 @@ jobs:
           LOCALE: en
           DENO_PERMISSIONS: allow-all
         run: |
-          # Create dynamically generated test files directory
-          mkdir -p tests/fixtures/dynamic
-          chmod -R 777 tests/fixtures/dynamic
+          # Ensure temp directories exist with proper permissions
+          mkdir -p $TMPDIR
+          chmod -R 777 $TMPDIR
           
           # Run tests with all required permissions
-          deno test --allow-all --coverage=coverage --parallel
+          deno test --allow-all --coverage=coverage --parallel || exit 1
           
           # Format any generated test files
           deno fmt tests/fixtures/dynamic/
