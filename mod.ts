@@ -13,6 +13,7 @@ export * from "./src/commands/mod.ts";
 // Plugin system
 export type {Plugin,PluginMetadata} from "./src/plugins/plugin.ts";
 export {PluginLoader} from "./src/plugins/plugin_loader.ts";
+export {PLUGIN_REGISTRY} from "./src/plugins/registry.ts";
 
 // Middleware system
 export type {MiddlewareFunction} from "./src/middleware/middleware.ts";
@@ -21,11 +22,11 @@ export {loggingMiddleware} from "./src/middleware/logger.ts";
 
 // Types
 export type {
-    Args,
-    BuildOptions,
-    CommandLifecycle,
-    Option,
-    ValidationRules,
+	Args,
+	BuildOptions,
+	CommandLifecycle,
+	Option,
+	ValidationRules,
 } from "./src/types/types.ts";
 
 // Re-export Command type
@@ -33,11 +34,11 @@ export type {Command} from "./src/command.ts";
 
 // Error handling
 export {
-    CommandNotFoundError,
-    InvalidFlagValueError,
-    MissingFlagError,
-    StegaError,
-    SubcommandNotFoundError,
+	CommandNotFoundError,
+	InvalidFlagValueError,
+	MissingFlagError,
+	StegaError,
+	SubcommandNotFoundError,
 } from "./src/error.ts";
 
 // Utilities
@@ -52,3 +53,7 @@ export * from "./src/compiler/mod.ts";
 // Prompts and Progress
 export * from "./src/prompts.ts";
 export {ProgressBar,Spinner} from "./src/progress.ts";
+
+// IO and Process
+export * from "./src/io.ts";
+export * from "./src/types/process.ts";
