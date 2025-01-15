@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -29,16 +29,13 @@ jobs:
 
       - name: Initialize Dependencies
         run: |
-          # Ensure clean state
+          # Remove existing lockfile
           rm -f deno.lock
 
-          # Cache core module
-          deno cache mod.ts
-          
-          # Generate lockfile
+          # Cache dependencies and create new lockfile
           deno cache --lock=deno.lock --lock-write mod.ts
-          
-          # Verify lock
+
+          # Verify dependencies
           deno cache --reload --lock=deno.lock mod.ts
 
       - name: Cache Deno Dependencies

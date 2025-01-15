@@ -23,7 +23,10 @@ jobs:
           deno-version: v1.x
 
       - name: Verify Package
-        run: deno task prepublish
+        run: |
+          deno fmt --check
+          deno lint
+          deno test -A
 
       - name: Publish to JSR
         run: deno publish
