@@ -51,5 +51,25 @@
 	"test": {
 		"include": ["tests/"],
 		"exclude": ["tests/fixtures/dynamic/", "tests/fixtures/generated/"]
+	},
+	"publish": {
+		"include": [
+			"src/**/*.ts",
+			"mod.ts",
+			"LICENSE",
+			"README.md"
+		],
+		"exclude": [
+			"**/*.test.ts",
+			"**/*.spec.ts",
+			"tests/**/*",
+			"examples/**/*",
+			"scripts/**/*",
+			"coverage/**/*",
+			"dist/**/*",
+			".git/**/*",
+			".github/**/*",
+			".vscode/**/*"
+		]
 	}
 }
