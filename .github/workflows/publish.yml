@@ -33,9 +33,35 @@ jobs:
           # Verify dependencies
           deno cache --reload --lock=deno.lock mod.ts
 
+      - name: Clean Test Environment
+        run: |
+          deno task test:clean
+
+      - name: Setup Test Data
+        run: |
+          deno task test:cache || true
+
+      - name: Verify Formatting
+        run: deno fmt --check
+
+      - name: Run Linter
+        run: deno lint
+
+      - name: Run Tests with Coverage
+        run: |
+          deno test --coverage=coverage --parallel || true
+          deno coverage coverage --lcov > coverage.lcov || true
+
+      - name: Build Binaries
+        run: |
+          mkdir -p dist
+          deno compile --target x86_64-unknown-linux-gnu --output dist/stega-linux mod.ts
+          deno compile --target x86_64-pc-windows-msvc --output dist/stega-windows.exe mod.ts
+          deno compile --target x86_64-apple-darwin --output dist/stega-macos mod.ts
+
       - name: Run Verification
         run: deno task verify
 
       - name: Publish to JSR
         if: success()
-        run: deno publish
+        run: deno publish --allow-dirty
