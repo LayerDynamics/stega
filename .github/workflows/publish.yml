@@ -23,58 +23,58 @@ jobs:
 
       - name: Setup Test Environment
         run: |
-          # Create all required directories with proper permissions
-          sudo mkdir -p /tmp/test_tmp /tmp/deno_dir
-          sudo chmod -R 777 /tmp/test_tmp /tmp/deno_dir
-
+          # Create test directories
           mkdir -p tests/fixtures/{templates,plugins,locales,tmp,dynamic}
           chmod -R 777 tests/fixtures
+
+          # Create and set permissions for temp directories
+          sudo mkdir -p /tmp/test_tmp /tmp/deno_dir
+          sudo chmod -R 777 /tmp/test_tmp /tmp/deno_dir
+          sudo chown -R $USER:$USER /tmp/test_tmp /tmp/deno_dir
 
           # Initialize test data
           deno task test:init
 
       - name: Initialize Dependencies
         run: |
-          # Clear and reinitialize cache
-          rm -rf .deno
-          mkdir -p .deno
+          # Clean and initialize cache directories
+          sudo rm -rf ~/.cache/deno
+          sudo mkdir -p ~/.cache/deno
+          sudo chmod -R 777 ~/.cache/deno
 
           # Cache dependencies with lockfile
+          deno cache --reload mod.ts
           deno cache --lock=deno.lock --lock-write mod.ts
 
           # Cache test files
           find tests -name "*.ts" -type f -exec deno cache {} +
 
-          # Force cache plugins directory
-          mkdir -p tests/fixtures/plugins
-          find tests/fixtures/plugins -name "*.ts" -type f -exec deno cache {} + || true
-
       - name: Run Tests with Coverage
         env:
-          DENO_DIR: .deno
+          DENO_DIR: ~/.cache/deno
           TMPDIR: /tmp/test_tmp
           TEST_MODE: ci
           NO_COLOR: true
           DEBUG: true
           PRESERVE_TEST_FILES: "1"
-          DENO_COMMAND_TIMEOUT: "60000"
         run: |
-          # Create coverage directory
-          mkdir -p coverage
+          # Run tests first to generate all test files
+          deno test --allow-all || exit 1
 
-          # Run tests while preserving generated files
-          deno test --allow-all --coverage=coverage --parallel || exit 1
+          # Wait for file system
+          sleep 2
 
-          # Ensure coverage directory permissions
+          # Cache any generated test files
+          sudo find tests/fixtures -name "*.ts" -type f -exec deno cache {} + || true
+
+          # Run tests again with coverage
+          deno test --allow-all --coverage=coverage --parallel
+
+          # Ensure proper permissions
           sudo chown -R $USER:$USER coverage
+          sudo chmod -R 777 coverage
 
-          # Cache any dynamically generated test files
-          find tests/fixtures -name "*.ts" -type f -exec deno cache {} + || true
-
-          # Allow file system to sync
-          sleep 5
-
-          # Generate coverage with increased timeout
+          # Generate coverage report
           deno coverage coverage --lcov > coverage.lcov
 
       - name: Build Binaries
