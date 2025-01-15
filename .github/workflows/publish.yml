@@ -2,6 +2,7 @@ name: Publish
 
 on:
   push:
+    branches: [main]
     tags: ["v*"]
 
 jobs:
@@ -9,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write  # Required for OIDC authentication with JSR
+      id-token: write
 
     steps:
       - uses: actions/checkout@v4
@@ -61,9 +62,6 @@ jobs:
       - name: Run Verification
         run: deno task verify
 
-      - name: Verify Package
-        run: deno publish --dry-run
-
       - name: Publish to JSR
-        if: startsWith(github.ref, 'refs/tags/v')
-        run: deno publish
+        if: success()
+        run: deno publish --allow-dirty

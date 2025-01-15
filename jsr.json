@@ -8,10 +8,16 @@
 		"bun": ">=1.0.0"
 	},
 	"exports": {
-		".": "./mod.ts",
-		"./cli": "./src/core/core.ts",
+		".": {
+			"types": "./mod.ts",
+			"import": "./mod.ts"
+		},
+		"./cli": {
+			"types": "./src/core.ts",
+			"import": "./src/core.ts"
+		},
 		"./commands": "./src/commands/mod.ts",
-		"./plugins": "./src/plugins/mod.ts",
+		"./plugins": "./src/plugin.ts",
 		"./workflow": "./src/commands/workflow_command.ts",
 		"./template": "./src/commands/template_command.ts",
 		"./service": "./src/commands/service_command.ts",
@@ -20,23 +26,36 @@
 		"./utils": "./src/utils/mod.ts",
 		"./logger": "./src/logger/mod.ts",
 		"./middleware": "./src/middleware/mod.ts",
-		"./types": "./src/types/mod.ts"
+		"./types": "./src/types/mod.ts",
+		"./error": "./src/error.ts",
+		"./progress": "./src/progress.ts",
+		"./prompts": "./src/prompts.ts",
+		"./i18n": "./src/i18n.ts"
 	},
 	"publish": {
 		"include": [
 			"src/**/*.ts",
-			"mod.ts",
+			"plugins/**/*.ts",
+			"docs/**/*.md",
+			"examples/**/*.ts",
+			"locales/**/*.json",
+			"README.md",
 			"LICENSE",
-			"README.md"
+			"mod.ts"
 		],
 		"exclude": [
-			"**/*.test.ts",
-			"**/*.spec.ts",
-			"tests/**/*",
-			"examples/**/*",
-			"scripts/**/*",
-			"coverage/**/*",
-			"dist/**/*"
+			"dist/",
+			"cov/",
+			"tests/",
+			"test-bin",
+			".history/",
+			".vscode/",
+			".github/",
+			".gitignore",
+			".gitattributes",
+			".gitmodules",
+			".gitkeep",
+			".git"
 		]
 	},
 	"compilerOptions": {
