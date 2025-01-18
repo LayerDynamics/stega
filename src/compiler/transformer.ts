@@ -10,7 +10,6 @@ import { SourceMapGenerator } from "npm:source-map@0.7.4";
 import { logger } from "./logger.ts";
 import { ts } from "npm:ts-morph@17.0.1";
 
-
 export interface TransformResult {
 	ast: SourceFile;
 	map?: string;
@@ -28,22 +27,22 @@ type TransformFn = (sourceFile: SourceFile) => void;
 /**
  * A class responsible for applying various AST transformations to TypeScript source files.
  * Handles decorators, TypeScript-specific syntax, module transformations, and dynamic imports.
- * 
+ *
  * @example
  * ```typescript
  * const transformer = new Transformer(compilerOptions);
  * const result = transformer.transform({ ast: sourceFile, path: 'file.ts' });
  * ```
- * 
+ *
  * @remarks
  * The transformer applies the following transformations in sequence:
  * - Decorators removal (when experimentalDecorators is enabled)
  * - TypeScript-specific syntax removal (types, interfaces, etc.)
  * - Module import/export transformations
  * - Dynamic import transformations
- * 
+ *
  * Source maps are generated if enabled in the compiler options.
- * 
+ *
  * @public
  */
 export class Transformer {

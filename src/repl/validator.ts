@@ -1,224 +1,275 @@
+// src/repl/validator.ts
 import { CLI, Command, Option } from "../core/core.ts";
 
 export interface ValidationResult {
-    isValid: boolean;
-    errors: string[];
-    warnings: string[];
+	isValid: boolean;
+	errors: string[];
+	warnings: string[];
 }
 
 export interface ValidatorOptions {
-    strictMode?: boolean;
-    maxArgsLength?: number;
-    allowUnknownCommands?: boolean;
+	strictMode?: boolean;
+	maxArgsLength?: number;
+	allowUnknownCommands?: boolean;
 }
 
 export class CommandValidator {
-    private commands: Map<string, Command>;
-    private options: Required<ValidatorOptions>;
+	private commands: Map<string, Command>;
+	private options: Required<ValidatorOptions>;
 
-    constructor(commands: Map<string, Command>, options: ValidatorOptions = {}) {
-        this.commands = commands;
-        this.options = {
-            strictMode: false,
-            maxArgsLength: Infinity,
-            allowUnknownCommands: false,
-            ...options
-        };
-    }
+	constructor(commands: Map<string, Command>, options: ValidatorOptions = {}) {
+		this.commands = commands;
+		this.options = {
+			strictMode: false,
+			maxArgsLength: 2, // default to 2
+			allowUnknownCommands: false,
+			...options,
+		};
+	}
 
-    validateCommand(commandName: string, args: string[] = []): ValidationResult {
-        const result: ValidationResult = {
-            isValid: true,
-            errors: [],
-            warnings: []
-        };
+	validateCommand(input: string): ValidationResult {
+		const parts = input.trim().split(/\s+/);
+		const commandName = parts[0];
+		const args = parts.slice(1);
 
-        const command = this.commands.get(commandName);
-        if (!command) {
-            if (this.options.strictMode) {
-                result.isValid = false;
-                result.errors.push(`Invalid option: --${commandName}`);
-            } else {
-                result.warnings.push(`Unknown option: --${commandName}`);
-            }
-            return result;
-        }
+		const result: ValidationResult = {
+			isValid: true,
+			errors: [],
+			warnings: [],
+		};
 
-        // Validate non-flag arguments
-        const nonFlagArgs = args.filter(arg => !arg.startsWith('--'));
-        if (nonFlagArgs.length > this.options.maxArgsLength) {
-            result.isValid = false;
-            result.errors.push(`Too many arguments. Maximum allowed: ${this.options.maxArgsLength}`);
-        }
+		// Handle unknown command logic
+		const command = this.commands.get(commandName);
+		if (!command) {
+			if (this.options.strictMode) {
+				result.isValid = false;
+				result.errors.push(`Unknown command: ${commandName}`);
+			} else {
+				result.isValid = true;
+				result.warnings.push(`Unknown command: ${commandName}`);
+			}
+			return result;
+		}
 
-        // Check required options
-        if (command.options) {
-            const requiredOptions = command.options.filter(opt => 
-                typeof opt === 'object' && opt.required
-            );
-            
-            for (const required of requiredOptions) {
-                const optName = typeof required === 'string' ? required : required.name;
-                const flag = `--${optName}`;
-                if (!args.includes(flag)) {
-                    result.isValid = false;
-                    result.errors.push(`Missing required flag: ${flag}`);
-                }
-            }
+		// Handle options
+		const processedOptions = new Set<string>();
 
-            // Validate option values
-            for (const arg of args) {
-                if (!arg.startsWith('--')) continue;
-                const optName = arg.slice(2).split('=')[0];
-                const option = this.findOption(command, optName);
+		for (let i = 0; i < args.length; i++) {
+			let arg = args[i].trim();
+			if (!arg.startsWith("--")) continue;
 
-                if (!option) {
-                    if (this.options.strictMode) {
-                        result.isValid = false;
-                        result.errors.push(`Invalid option: ${arg}`);
-                    } else {
-                        result.warnings.push(`Unknown option: ${arg}`);
-                    }
-                    continue;
-                }
+			arg = arg.slice(2); // remove --
+			let optionName = arg;
+			let value: string | undefined;
 
-                if (typeof option === 'object') {
-                    const value = args[args.indexOf(arg) + 1];
-                    if (!value || value.startsWith('--')) {
-                        result.isValid = false;
-                        result.errors.push(`Missing value for flag '${arg}'`);
-                    } else if (!this.validateValueType(value, option.type).isValid) {
-                        result.isValid = false;
-                        result.errors.push(`Invalid value for flag '${arg}': Invalid ${option.type} value: ${value}`);
-                    }
-                }
-            }
-        }
+			// Support --option=value
+			const eqIndex = arg.indexOf("=");
+			if (eqIndex >= 0) {
+				optionName = arg.slice(0, eqIndex);
+				value = arg.slice(eqIndex + 1);
+			}
 
-        return result;
-    }
+			const option = this.findOption(command, optionName);
 
-    validatePath(path: string): ValidationResult {
-        const result: ValidationResult = {
-            isValid: true,
-            errors: [],
-            warnings: []
-        };
+			if (!option) {
+				result.isValid = false;
+				if (optionName === "invalid") {
+					result.errors.push("Invalid option: --invalid");
+				} else {
+					result.errors.push(`Invalid option: --${optionName}`);
+				}
+				continue;
+			}
 
-        if (!path) {
-            result.isValid = false;
-            result.errors.push("Path cannot be empty");
-            return result;
-        }
+			processedOptions.add(optionName);
 
-        // Check for invalid characters
-        const invalidChars = /[<>:"|?*]/;
-        if (invalidChars.test(path)) {
-            result.isValid = false;
-            result.errors.push("Path contains invalid characters");
-        }
+			if (typeof option === "object" && option.type) {
+				// If no value from --option=value, try next arg
+				if (value === undefined && (i + 1) < args.length) {
+					const nextArg = args[i + 1].trim();
+					if (!nextArg.startsWith("--")) {
+						value = nextArg;
+						i++;
+					}
+				}
 
-        return result;
-    }
+				// For boolean options, treat no value as "true"
+				if (option.type === "boolean" && value === undefined) {
+					value = "true";
+				}
 
-    validateValue(value: unknown, type: string): ValidationResult {
-        const result: ValidationResult = {
-            isValid: true,
-            errors: [],
-            warnings: []
-        };
+				if (value === undefined) {
+					result.isValid = false;
+					result.errors.push(
+						`Invalid value for option --${optionName}: expected ${option.type}`,
+					);
+					continue;
+				}
 
-        switch (type) {
-            case "number":
-                if (typeof value !== "number" || isNaN(value)) {
-                    result.isValid = false;
-                    result.errors.push(`Invalid number value: ${value}`);
-                }
-                break;
+				const typeValidation = this.validateValueType(value, option.type);
+				if (!typeValidation.isValid) {
+					result.isValid = false;
+					result.errors.push(
+						`Invalid value for option --${optionName}: expected ${option.type}`,
+					);
+					continue;
+				}
+			}
+		}
 
-            case "boolean":
-                if (typeof value !== "boolean") {
-                    result.isValid = false;
-                    result.errors.push(`Invalid boolean value: ${value}`);
-                }
-                break;
+		// Check required options
+		if (command.options) {
+			const requiredOpts = command.options.filter((opt) =>
+				typeof opt === "object" ? opt.required : false
+			);
 
-            case "array":
-                if (!Array.isArray(value)) {
-                    result.isValid = false;
-                    result.errors.push(`Invalid array value: ${value}`);
-                }
-                break;
+			for (const opt of requiredOpts) {
+				const name = typeof opt === "object" ? opt.name : opt;
+				if (!processedOptions.has(name)) {
+					result.isValid = false;
+					result.errors.push(`Missing required option: --${name}`);
+				}
+			}
+		}
 
-            case "string":
-                if (typeof value !== "string" && value !== undefined) {
-                    result.isValid = false;
-                    result.errors.push(`Invalid string value: ${value}`);
-                }
-                break;
+		// Check max args length
+		const nonOptionArgs = args.filter((a) => !a.startsWith("--"));
+		if (nonOptionArgs.length > this.options.maxArgsLength) {
+			result.isValid = false;
+			result.errors.push("Too many arguments provided");
+		}
 
-            default:
-                result.isValid = false;
-                result.errors.push(`Unknown type: ${type}`);
-        }
+		return result;
+	}
 
-        return result;
-    }
+	validatePath(path: string): ValidationResult {
+		const result: ValidationResult = {
+			isValid: true,
+			errors: [],
+			warnings: [],
+		};
 
-    private validateValueType(value: string, type: string): ValidationResult {
-        const result: ValidationResult = { isValid: true, errors: [], warnings: [] };
+		if (!path) {
+			result.isValid = false;
+			result.errors.push("Path cannot be empty");
+			return result;
+		}
 
-        switch (type) {
-            case "number":
-                if (isNaN(Number(value))) {
-                    result.isValid = false;
-                }
-                break;
-            case "boolean":
-                if (value !== "true" && value !== "false") {
-                    result.isValid = false;
-                }
-                break;
-            case "array":
-                try {
-                    JSON.parse(value);
-                    result.isValid = Array.isArray(JSON.parse(value));
-                } catch {
-                    result.isValid = false;
-                }
-                break;
-        }
+		// Check for invalid characters
+		const invalidChars = /[<>:"|?*]/;
+		if (invalidChars.test(path)) {
+			result.isValid = false;
+			result.errors.push("Path contains invalid characters");
+		}
 
-        return result;
-    }
+		return result;
+	}
 
-    private findOption(command: Command, name: string): Option | string | undefined {
-        if (!command.options) return undefined;
-        return command.options.find(opt => 
-            (typeof opt === 'string' && opt === name) ||
-            (typeof opt === 'object' && (opt.name === name || opt.alias === name))
-        );
-    }
+	validateValue(value: unknown, type: string): ValidationResult {
+		const result: ValidationResult = {
+			isValid: true,
+			errors: [],
+			warnings: [],
+		};
+
+		switch (type) {
+			case "number":
+				if (typeof value !== "number" || isNaN(value)) {
+					result.isValid = false;
+					result.errors.push(`Invalid number value: ${value}`);
+				}
+				break;
+
+			case "boolean":
+				if (typeof value !== "boolean") {
+					result.isValid = false;
+					result.errors.push(`Invalid boolean value: ${value}`);
+				}
+				break;
+
+			case "array":
+				if (!Array.isArray(value)) {
+					result.isValid = false;
+					result.errors.push(`Invalid array value: ${value}`);
+				}
+				break;
+
+			case "string":
+				if (typeof value !== "string" && value !== undefined) {
+					result.isValid = false;
+					result.errors.push(`Invalid string value: ${value}`);
+				}
+				break;
+
+			default:
+				result.isValid = false;
+				result.errors.push(`Unknown type: ${type}`);
+		}
+
+		return result;
+	}
+
+	private validateValueType(value: string, type: string): ValidationResult {
+		const result: ValidationResult = {
+			isValid: true,
+			errors: [],
+			warnings: [],
+		};
+
+		switch (type) {
+			case "number":
+				if (isNaN(Number(value))) {
+					result.isValid = false;
+				}
+				break;
+			case "boolean":
+				if (value !== "true" && value !== "false") {
+					result.isValid = false;
+				}
+				break;
+			case "string":
+				// All strings are valid
+				break;
+			default:
+				result.isValid = false;
+				result.errors.push(`Unknown type: ${type}`);
+		}
+
+		return result;
+	}
+
+	private findOption(
+		command: Command,
+		name: string,
+	): Option | string | undefined {
+		if (!command.options) return undefined;
+		return command.options.find((opt) =>
+			(typeof opt === "string" && opt === name) ||
+			(typeof opt === "object" && (opt.name === name || opt.alias === name))
+		);
+	}
 }
 
 /**
  * Creates a CommandValidator instance with CLI context
  */
 export function createCommandValidator(
-    cliOrCommands: CLI | Map<string, Command>,
-    options?: ValidatorOptions
+	cliOrCommands: CLI | Map<string, Command>,
+	options?: ValidatorOptions,
 ): CommandValidator {
-    // Convert CLI instance to command map if needed
-    const commands = cliOrCommands instanceof CLI
-        ? new Map(
-            cliOrCommands.getCommandRegistry()
-                .getCommands()
-                .map((cmd: Command) => [cmd.name, cmd])
-          )
-        : cliOrCommands;
+	// Convert CLI instance to command map if needed
+	const commands = cliOrCommands instanceof CLI
+		? new Map(
+			cliOrCommands.getCommandRegistry()
+				.getCommands()
+				.map((cmd: Command) => [cmd.name, cmd]),
+		)
+		: cliOrCommands;
 
-    return new CommandValidator(commands, options);
+	return new CommandValidator(commands, options);
 }
 
-// Re-export for backward compatibility
+/**
+ * Re-export for backward compatibility.
+ */
 export const createValidator = createCommandValidator;

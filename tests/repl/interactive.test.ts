@@ -1,18 +1,11 @@
 // tests/repl/interactive.test.ts
 
+import { assert, assertEquals, assertExists } from "@std/assert";
+import { createREPL, InteractiveREPL } from "../../src/repl/interactive.ts";
+import { CLI } from "../../src/core/core.ts";
 import {
-	assertEquals,
-	assertExists,
-	assert,
-} from "@std/assert";
-import {
-	InteractiveREPL,
-	createREPL,
-} from "../../src/repl/interactive.ts";
-import {CLI} from "../../src/core/core.ts";
-import {
-	HistoryStatistics,
 	createCommandHistory,
+	HistoryStatistics,
 } from "../../src/repl/history.ts";
 import {
 	createMockInput,
@@ -35,16 +28,16 @@ async function runREPLTest(
 	inputs: string[],
 	mockInput: MockStreamReader,
 	mockOutput: MockStreamWriter,
-	assertions?: () => void|Promise<void>,
-	timeout=4000 // Optional: Increase if necessary
+	assertions?: () => void | Promise<void>,
+	timeout = 4000, // Optional: Increase if necessary
 ): Promise<void> {
 	try {
 		mockInput.setLines(inputs); // Inject commands
 
-		const startPromise=repl.start();
+		const startPromise = repl.start();
 
 		// Allow some time for the REPL to process the inputs
-		await new Promise(resolve => setTimeout(resolve,1000)); // Increased delay
+		await new Promise((resolve) => setTimeout(resolve, 1000)); // Increased delay
 
 		// Terminate the REPL by injecting Ctrl+D
 		mockInput.enqueueChar("\x04");
@@ -52,10 +45,10 @@ async function runREPLTest(
 		// Await the startPromise to ensure 'start()' finishes
 		await startPromise;
 
-		if(assertions) {
+		if (assertions) {
 			await assertions();
 		}
-	} catch(error) {
+	} catch (error) {
 		throw error;
 	} finally {
 		mockOutput.clear();
@@ -67,10 +60,10 @@ async function runREPLTest(
  * @returns A Promise that resolves to the path of the temporary history file.
  */
 async function createTempHistoryFile(): Promise<string> {
-	const tempHistoryFile=await Deno.makeTempFile({
+	const tempHistoryFile = await Deno.makeTempFile({
 		suffix: ".json",
 	});
-	await Deno.writeTextFile(tempHistoryFile,"[]"); // Initialize with empty array
+	await Deno.writeTextFile(tempHistoryFile, "[]"); // Initialize with empty array
 	return tempHistoryFile;
 }
 
@@ -82,16 +75,16 @@ Deno.test(
 	"InteractiveREPL - basic command execution",
 	async () => {
 		// Initialize mockInput and mockOutput
-		const mockInput=createMockInput([]);
-		const mockOutput=createMockOutput();
-		const cli=new CLI();
-		let commandExecuted=false;
+		const mockInput = createMockInput([]);
+		const mockOutput = createMockOutput();
+		const cli = new CLI();
+		let commandExecuted = false;
 
 		// Create a temporary history file
-		const tempHistoryFile=await createTempHistoryFile();
+		const tempHistoryFile = await createTempHistoryFile();
 
 		// Instantiate InteractiveREPL with a custom 'test' command
-		const repl=new InteractiveREPL(cli,{
+		const repl = new InteractiveREPL(cli, {
 			prompt: "> ",
 			stdin: mockInput,
 			stdout: mockOutput,
@@ -102,7 +95,7 @@ Deno.test(
 					usage: "test",
 					examples: ["test"],
 					action: () => {
-						commandExecuted=true;
+						commandExecuted = true;
 						return Promise.resolve();
 					},
 				},
@@ -116,40 +109,38 @@ Deno.test(
 				mockInput,
 				mockOutput,
 				async () => {
-					const statistics=repl.getStatistics();
-					assertEquals(statistics.totalCommands,1);
-					assertEquals(statistics.uniqueCommands,1);
-					assertEquals(statistics.successRate,100);
+					const statistics = repl.getStatistics();
+					assertEquals(statistics.totalCommands, 1);
+					assertEquals(statistics.uniqueCommands, 1);
+					assertEquals(statistics.successRate, 100);
 					assert(
-						statistics.averageDuration>=0
+						statistics.averageDuration >= 0,
 					); // Ensure duration is non-negative
 					assertEquals(
 						statistics.mostUsedCommands[0].command,
-						"test"
+						"test",
 					);
 					assertEquals(
 						statistics.mostUsedCommands[0].count,
-						1
+						1,
 					);
 					assert(
-						mockOutput.output.some(out =>
-							out.includes(">")
-						)
+						mockOutput.output.some((out) => out.includes(">")),
 					);
 					assert(
-						commandExecuted
+						commandExecuted,
 					); // Ensure the command was executed
 				},
-				2000 // Optional: Increase timeout if needed
+				2000, // Optional: Increase timeout if needed
 			);
-		} catch(error) {
-			console.error("Test failed:",error);
+		} catch (error) {
+			console.error("Test failed:", error);
 			throw error;
 		} finally {
 			await repl.close();
 			await Deno.remove(tempHistoryFile);
 		}
-	}
+	},
 );
 
 /**
@@ -160,13 +151,13 @@ Deno.test(
 	"InteractiveREPL - command history navigation",
 	async () => {
 		// Initialize mockInput and mockOutput
-		const mockInput=createMockInput([]);
-		const mockOutput=createMockOutput();
-		const cli=new CLI();
-		const tempHistoryFile=await createTempHistoryFile();
+		const mockInput = createMockInput([]);
+		const mockOutput = createMockOutput();
+		const cli = new CLI();
+		const tempHistoryFile = await createTempHistoryFile();
 
 		// Instantiate InteractiveREPL with 'first' and 'second' commands
-		const repl=new InteractiveREPL(cli,{
+		const repl = new InteractiveREPL(cli, {
 			stdin: mockInput,
 			stdout: mockOutput,
 			historyFile: tempHistoryFile,
@@ -188,49 +179,43 @@ Deno.test(
 
 		await runREPLTest(
 			repl,
-			["first\n","second\n","history\n"], // Injected commands
+			["first\n", "second\n", "history\n"], // Injected commands
 			mockInput,
 			mockOutput,
 			async () => {
-				const statistics=repl.getStatistics();
-				assertEquals(statistics.totalCommands,2); // Only 'first' and 'second' are recorded
-				assertEquals(statistics.uniqueCommands,2);
-				assertEquals(statistics.successRate,100);
+				const statistics = repl.getStatistics();
+				assertEquals(statistics.totalCommands, 2); // Only 'first' and 'second' are recorded
+				assertEquals(statistics.uniqueCommands, 2);
+				assertEquals(statistics.successRate, 100);
 				assert(
-					statistics.averageDuration>=0
+					statistics.averageDuration >= 0,
 				);
 				assertEquals(
 					statistics.mostUsedCommands.find(
-						(cmd) => cmd.command==="first"
+						(cmd) => cmd.command === "first",
 					)?.count,
-					1
+					1,
 				);
 				assertEquals(
 					statistics.mostUsedCommands.find(
-						(cmd) => cmd.command==="second"
+						(cmd) => cmd.command === "second",
 					)?.count,
-					1
+					1,
 				);
 				// Verify history output contains 'first', 'second', and 'history'
 				assert(
-					mockOutput.output.some(out =>
-						out.includes("first")
-					)
+					mockOutput.output.some((out) => out.includes("first")),
 				);
 				assert(
-					mockOutput.output.some(out =>
-						out.includes("second")
-					)
+					mockOutput.output.some((out) => out.includes("second")),
 				);
 				assert(
-					mockOutput.output.some(out =>
-						out.includes("history")
-					)
+					mockOutput.output.some((out) => out.includes("history")),
 				);
 			},
-			3000 // Increased timeout to allow all commands to be processed
+			3000, // Increased timeout to allow all commands to be processed
 		);
-	}
+	},
 );
 
 /**
@@ -241,15 +226,15 @@ Deno.test(
 	"InteractiveREPL - multiline input",
 	async () => {
 		// Initialize mockInput and mockOutput
-		const mockInput=createMockInput([]);
-		const mockOutput=createMockOutput();
-		const cli=new CLI();
-		let multilineCommandExecuted=false;
+		const mockInput = createMockInput([]);
+		const mockOutput = createMockOutput();
+		const cli = new CLI();
+		let multilineCommandExecuted = false;
 
-		const tempHistoryFile=await createTempHistoryFile();
+		const tempHistoryFile = await createTempHistoryFile();
 
 		// Instantiate InteractiveREPL with a custom 'multiline' command
-		const repl=new InteractiveREPL(cli,{
+		const repl = new InteractiveREPL(cli, {
 			multiline: true,
 			stdin: mockInput,
 			stdout: mockOutput,
@@ -260,7 +245,7 @@ Deno.test(
 					usage: "multiline",
 					examples: ["multiline"],
 					action: () => {
-						multilineCommandExecuted=true;
+						multilineCommandExecuted = true;
 						return Promise.resolve();
 					},
 				},
@@ -269,33 +254,33 @@ Deno.test(
 
 		await runREPLTest(
 			repl,
-			["multiline\n","line1\n","line2\n","\n"], // Injected commands
+			["multiline\n", "line1\n", "line2\n", "\n"], // Injected commands
 			mockInput,
 			mockOutput,
 			async () => {
-				const statistics=repl.getStatistics();
-				assertEquals(statistics.totalCommands,1); // Only 'multiline' is recorded
-				assertEquals(statistics.uniqueCommands,1);
-				assertEquals(statistics.successRate,100);
+				const statistics = repl.getStatistics();
+				assertEquals(statistics.totalCommands, 1); // Only 'multiline' is recorded
+				assertEquals(statistics.uniqueCommands, 1);
+				assertEquals(statistics.successRate, 100);
 				assert(
-					statistics.averageDuration>=0
+					statistics.averageDuration >= 0,
 				);
 				assertEquals(
 					statistics.mostUsedCommands[0].command,
-					"multiline"
+					"multiline",
 				);
 				assertEquals(
 					statistics.mostUsedCommands[0].count,
-					1
+					1,
 				);
 				// Verify that the multiline command was executed
 				assert(
-					multilineCommandExecuted
+					multilineCommandExecuted,
 				);
 			},
-			3000 // Increased timeout
+			3000, // Increased timeout
 		);
-	}
+	},
 );
 
 /**
@@ -306,19 +291,19 @@ Deno.test(
 	"InteractiveREPL - tab completion",
 	async () => {
 		// Initialize mockInput and mockOutput
-		const mockInput=createMockInput([]);
-		const mockOutput=createMockOutput();
-		const cli=new CLI();
+		const mockInput = createMockInput([]);
+		const mockOutput = createMockOutput();
+		const cli = new CLI();
 		cli.register({
 			name: "test-command",
 			description: "Test command with hyphen",
 			action: () => Promise.resolve(),
 		});
 
-		const tempHistoryFile=await createTempHistoryFile();
+		const tempHistoryFile = await createTempHistoryFile();
 
 		// Instantiate InteractiveREPL with a custom 'test-command'
-		const repl=new InteractiveREPL(cli,{
+		const repl = new InteractiveREPL(cli, {
 			enableSuggestions: true,
 			stdin: mockInput,
 			stdout: mockOutput,
@@ -335,35 +320,33 @@ Deno.test(
 
 		await runREPLTest(
 			repl,
-			["test\t","\n"], // Injected commands (test + tab + enter)
+			["test\t", "\n"], // Injected commands (test + tab + enter)
 			mockInput,
 			mockOutput,
 			async () => {
-				const statistics=repl.getStatistics();
-				assertEquals(statistics.totalCommands,1); // Only 'test-command' is recorded
-				assertEquals(statistics.uniqueCommands,1);
-				assertEquals(statistics.successRate,100);
+				const statistics = repl.getStatistics();
+				assertEquals(statistics.totalCommands, 1); // Only 'test-command' is recorded
+				assertEquals(statistics.uniqueCommands, 1);
+				assertEquals(statistics.successRate, 100);
 				assert(
-					statistics.averageDuration>=0
+					statistics.averageDuration >= 0,
 				);
 				assertEquals(
 					statistics.mostUsedCommands[0].command,
-					"test-command"
+					"test-command",
 				);
 				assertEquals(
 					statistics.mostUsedCommands[0].count,
-					1
+					1,
 				);
 				// Verify that 'test-command' was offered as a completion
 				assert(
-					mockOutput.output.some(out =>
-						out.includes("test-command")
-					)
+					mockOutput.output.some((out) => out.includes("test-command")),
 				);
 			},
-			2000
+			2000,
 		);
-	}
+	},
 );
 
 /**
@@ -374,9 +357,9 @@ Deno.test(
 	"InteractiveREPL - error handling",
 	async () => {
 		// Initialize mockInput and mockOutput
-		const mockInput=createMockInput([]);
-		const mockOutput=createMockOutput();
-		const cli=new CLI();
+		const mockInput = createMockInput([]);
+		const mockOutput = createMockOutput();
+		const cli = new CLI();
 		cli.register({
 			name: "error",
 			description: "Command that throws an error",
@@ -385,10 +368,10 @@ Deno.test(
 			},
 		});
 
-		const tempHistoryFile=await createTempHistoryFile();
+		const tempHistoryFile = await createTempHistoryFile();
 
 		// Instantiate InteractiveREPL with a custom 'error' command
-		const repl=new InteractiveREPL(cli,{
+		const repl = new InteractiveREPL(cli, {
 			stdin: mockInput,
 			stdout: mockOutput,
 			historyFile: tempHistoryFile,
@@ -410,31 +393,29 @@ Deno.test(
 			mockInput,
 			mockOutput,
 			async () => {
-				const statistics=repl.getStatistics();
-				assertEquals(statistics.totalCommands,1); // Only 'error' is recorded
-				assertEquals(statistics.uniqueCommands,1);
-				assertEquals(statistics.successRate,0);
+				const statistics = repl.getStatistics();
+				assertEquals(statistics.totalCommands, 1); // Only 'error' is recorded
+				assertEquals(statistics.uniqueCommands, 1);
+				assertEquals(statistics.successRate, 0);
 				assert(
-					statistics.averageDuration>=0
+					statistics.averageDuration >= 0,
 				);
 				assertEquals(
 					statistics.mostUsedCommands[0].command,
-					"error"
+					"error",
 				);
 				assertEquals(
 					statistics.mostUsedCommands[0].count,
-					1
+					1,
 				);
 				// Verify that the error message was displayed
 				assert(
-					mockOutput.output.some(out =>
-						out.includes("Test error")
-					)
+					mockOutput.output.some((out) => out.includes("Test error")),
 				);
 			},
-			2000
+			2000,
 		);
-	}
+	},
 );
 
 /**
@@ -445,22 +426,22 @@ Deno.test(
 	"InteractiveREPL - custom commands",
 	async () => {
 		// Initialize mockInput and mockOutput
-		const mockInput=createMockInput([]);
-		const mockOutput=createMockOutput();
-		const cli=new CLI();
-		let customCommandExecuted=false;
+		const mockInput = createMockInput([]);
+		const mockOutput = createMockOutput();
+		const cli = new CLI();
+		let customCommandExecuted = false;
 
-		const tempHistoryFile=await createTempHistoryFile();
+		const tempHistoryFile = await createTempHistoryFile();
 
 		// Instantiate InteractiveREPL with a custom 'custom' command
-		const repl=createREPL(cli,{
+		const repl = createREPL(cli, {
 			commands: {
 				custom: {
 					description: "Custom test command",
 					usage: "custom",
 					examples: ["custom"],
 					action: async () => {
-						customCommandExecuted=true;
+						customCommandExecuted = true;
 						// Encode string to Uint8Array before writing
 						await repl.writeOutput("Custom command executed\n");
 					},
@@ -474,40 +455,39 @@ Deno.test(
 		try {
 			await runREPLTest(
 				repl,
-				["custom\n","help custom\n"], // Injected commands
+				["custom\n", "help custom\n"], // Injected commands
 				mockInput,
 				mockOutput,
 				async () => {
-					const statistics=repl.getStatistics();
-					assertEquals(statistics.totalCommands,1); // Only 'custom' is recorded
-					assertEquals(statistics.uniqueCommands,1);
-					assertEquals(statistics.successRate,100);
+					const statistics = repl.getStatistics();
+					assertEquals(statistics.totalCommands, 1); // Only 'custom' is recorded
+					assertEquals(statistics.uniqueCommands, 1);
+					assertEquals(statistics.successRate, 100);
 					assert(
-						statistics.averageDuration>=0
+						statistics.averageDuration >= 0,
 					);
 					assertEquals(
 						statistics.mostUsedCommands.find(
-							(cmd: {command: string}) =>
-								cmd.command==="custom"
+							(cmd: { command: string }) => cmd.command === "custom",
 						)?.count,
-						1
+						1,
 					);
 					assert(
-						customCommandExecuted
+						customCommandExecuted,
 					);
 					assert(
-						mockOutput.output.some(out =>
+						mockOutput.output.some((out) =>
 							out.includes("Custom command executed")
-						)
+						),
 					);
 				},
-				3000 // Increased timeout
+				3000, // Increased timeout
 			);
 		} finally {
 			await repl.close();
 			await Deno.remove(tempHistoryFile);
 		}
-	}
+	},
 );
 
 /**
@@ -518,19 +498,19 @@ Deno.test(
 	"InteractiveREPL - built-in help command",
 	async () => {
 		// Initialize mockInput and mockOutput
-		const mockInput=createMockInput([]);
-		const mockOutput=createMockOutput();
-		const cli=new CLI();
+		const mockInput = createMockInput([]);
+		const mockOutput = createMockOutput();
+		const cli = new CLI();
 		cli.register({
 			name: "test",
 			description: "Test command",
 			action: () => Promise.resolve(),
 		});
 
-		const tempHistoryFile=await createTempHistoryFile();
+		const tempHistoryFile = await createTempHistoryFile();
 
 		// Instantiate InteractiveREPL with a custom 'test' command
-		const repl=new InteractiveREPL(cli,{
+		const repl = new InteractiveREPL(cli, {
 			stdin: mockInput,
 			stdout: mockOutput,
 			historyFile: tempHistoryFile,
@@ -546,32 +526,28 @@ Deno.test(
 
 		await runREPLTest(
 			repl,
-			["help\n","help test\n"], // Injected commands
+			["help\n", "help test\n"], // Injected commands
 			mockInput,
 			mockOutput,
 			async () => {
-				const statistics=repl.getStatistics();
-				assertEquals(statistics.totalCommands,0); // 'help' commands are built-in and not recorded
-				assertEquals(statistics.uniqueCommands,0);
-				assertEquals(statistics.successRate,0); // Changed from 100 to 0
+				const statistics = repl.getStatistics();
+				assertEquals(statistics.totalCommands, 0); // 'help' commands are built-in and not recorded
+				assertEquals(statistics.uniqueCommands, 0);
+				assertEquals(statistics.successRate, 0); // Changed from 100 to 0
 				assert(
-					statistics.averageDuration>=0
+					statistics.averageDuration >= 0,
 				);
 				// Verify help output
 				assert(
-					mockOutput.output.some(out =>
-						out.includes("Available Commands:")
-					)
+					mockOutput.output.some((out) => out.includes("Available Commands:")),
 				);
 				assert(
-					mockOutput.output.some(out =>
-						out.includes("Test command")
-					)
+					mockOutput.output.some((out) => out.includes("Test command")),
 				);
 			},
-			3000 // Increased timeout
+			3000, // Increased timeout
 		);
-	}
+	},
 );
 
 /**
@@ -582,13 +558,13 @@ Deno.test(
 	"InteractiveREPL - history command",
 	async () => {
 		// Initialize mockInput and mockOutput
-		const mockInput=createMockInput([]);
-		const mockOutput=createMockOutput();
-		const cli=new CLI();
-		const tempHistoryFile=await createTempHistoryFile();
+		const mockInput = createMockInput([]);
+		const mockOutput = createMockOutput();
+		const cli = new CLI();
+		const tempHistoryFile = await createTempHistoryFile();
 
 		// Instantiate InteractiveREPL with 'command1' and 'command2'
-		const repl=new InteractiveREPL(cli,{
+		const repl = new InteractiveREPL(cli, {
 			stdin: mockInput,
 			stdout: mockOutput,
 			historyFile: tempHistoryFile,
@@ -610,49 +586,43 @@ Deno.test(
 
 		await runREPLTest(
 			repl,
-			["command1\n","command2\n","history\n"], // Injected commands
+			["command1\n", "command2\n", "history\n"], // Injected commands
 			mockInput,
 			mockOutput,
 			async () => {
-				const statistics=repl.getStatistics();
-				assertEquals(statistics.totalCommands,2); // 'command1' and 'command2' are recorded
-				assertEquals(statistics.uniqueCommands,2);
-				assertEquals(statistics.successRate,100);
+				const statistics = repl.getStatistics();
+				assertEquals(statistics.totalCommands, 2); // 'command1' and 'command2' are recorded
+				assertEquals(statistics.uniqueCommands, 2);
+				assertEquals(statistics.successRate, 100);
 				assert(
-					statistics.averageDuration>=0
+					statistics.averageDuration >= 0,
 				);
 				assertEquals(
 					statistics.mostUsedCommands.find(
-						(cmd) => cmd.command==="command1"
+						(cmd) => cmd.command === "command1",
 					)?.count,
-					1
+					1,
 				);
 				assertEquals(
 					statistics.mostUsedCommands.find(
-						(cmd) => cmd.command==="command2"
+						(cmd) => cmd.command === "command2",
 					)?.count,
-					1
+					1,
 				);
 				// Verify history output contains 'command1', 'command2', and 'history'
 				assert(
-					mockOutput.output.some(out =>
-						out.includes("command1")
-					)
+					mockOutput.output.some((out) => out.includes("command1")),
 				);
 				assert(
-					mockOutput.output.some(out =>
-						out.includes("command2")
-					)
+					mockOutput.output.some((out) => out.includes("command2")),
 				);
 				assert(
-					mockOutput.output.some(out =>
-						out.includes("history")
-					)
+					mockOutput.output.some((out) => out.includes("history")),
 				);
 			},
-			3000 // Increased timeout
+			3000, // Increased timeout
 		);
-	}
+	},
 );
 
 /**
@@ -663,13 +633,13 @@ Deno.test(
 	"InteractiveREPL - clear command",
 	async () => {
 		// Initialize mockInput and mockOutput
-		const mockInput=createMockInput([]);
-		const mockOutput=createMockOutput();
-		const cli=new CLI();
-		const tempHistoryFile=await createTempHistoryFile();
+		const mockInput = createMockInput([]);
+		const mockOutput = createMockOutput();
+		const cli = new CLI();
+		const tempHistoryFile = await createTempHistoryFile();
 
 		// Instantiate InteractiveREPL with a custom 'echo' command
-		const repl=new InteractiveREPL(cli,{
+		const repl = new InteractiveREPL(cli, {
 			stdin: mockInput, // Corrected 'stdin'
 			stdout: mockOutput,
 			historyFile: tempHistoryFile,
@@ -679,7 +649,7 @@ Deno.test(
 					usage: "echo <message>",
 					examples: ["echo test"],
 					action: async (args: string[]) => {
-						await repl.writeOutput(args.join(" ")+"\n");
+						await repl.writeOutput(args.join(" ") + "\n");
 					},
 				},
 			},
@@ -687,39 +657,35 @@ Deno.test(
 
 		await runREPLTest(
 			repl,
-			["echo test\n","clear\n"], // Injected commands
+			["echo test\n", "clear\n"], // Injected commands
 			mockInput,
 			mockOutput,
 			async () => {
-				const statistics=repl.getStatistics();
-				assertEquals(statistics.totalCommands,1); // Only 'echo' is recorded
-				assertEquals(statistics.uniqueCommands,1);
-				assertEquals(statistics.successRate,100);
+				const statistics = repl.getStatistics();
+				assertEquals(statistics.totalCommands, 1); // Only 'echo' is recorded
+				assertEquals(statistics.uniqueCommands, 1);
+				assertEquals(statistics.successRate, 100);
 				assert(
-					statistics.averageDuration>=0
+					statistics.averageDuration >= 0,
 				);
 				assertEquals(
 					statistics.mostUsedCommands.find(
-						(cmd) => cmd.command==="clear"
+						(cmd) => cmd.command === "clear",
 					),
-					undefined // 'clear' is built-in and not recorded
+					undefined, // 'clear' is built-in and not recorded
 				);
 				// Verify clear screen sequence was sent
 				assert(
-					mockOutput.output.some(out =>
-						out.includes("\x1b[2J\x1b[H")
-					)
+					mockOutput.output.some((out) => out.includes("\x1b[2J\x1b[H")),
 				);
 				// Verify echo output
 				assert(
-					mockOutput.output.some(out =>
-						out.includes("test")
-					)
+					mockOutput.output.some((out) => out.includes("test")),
 				);
 			},
-			3000 // Increased timeout
+			3000, // Increased timeout
 		);
-	}
+	},
 );
 
 /**
@@ -730,14 +696,14 @@ Deno.test(
 	"InteractiveREPL - debug command",
 	async () => {
 		// Initialize mockInput and mockOutput
-		const mockInput=createMockInput([]);
-		const mockOutput=createMockOutput();
-		const cli=new CLI();
+		const mockInput = createMockInput([]);
+		const mockOutput = createMockOutput();
+		const cli = new CLI();
 
-		const tempHistoryFile=await createTempHistoryFile();
+		const tempHistoryFile = await createTempHistoryFile();
 
 		// Instantiate InteractiveREPL without initial debug mode
-		const repl=new InteractiveREPL(cli,{
+		const repl = new InteractiveREPL(cli, {
 			historyFile: tempHistoryFile,
 			maxHistorySize: 100,
 			debugMode: false,
@@ -749,32 +715,32 @@ Deno.test(
 		try {
 			await runREPLTest(
 				repl,
-				["debug on\n","exit\n"], // Injected commands
+				["debug on\n", "exit\n"], // Injected commands
 				mockInput,
 				mockOutput,
 				async () => {
 					// Retrieve statistics or any other assertions as needed
-					const statistics: HistoryStatistics=repl.getStatistics();
+					const statistics: HistoryStatistics = repl.getStatistics();
 
 					// Example assertion to check if debug mode was enabled
 					assertEquals(
 						repl.getDebugMode(),
-						true
+						true,
 					);
 					// Verify that debug mode was toggled in the output
 					assert(
 						mockOutput.output.some((out: string) =>
 							out.includes("Debug mode enabled")
-						)
+						),
 					);
 				},
-				3000 // Increased timeout
+				3000, // Increased timeout
 			);
 		} finally {
 			await repl.close();
 			await Deno.remove(tempHistoryFile);
 		}
-	}
+	},
 );
 
 /**
@@ -784,14 +750,14 @@ Deno.test(
 Deno.test(
 	"createREPL factory function",
 	async () => {
-		const cli=new CLI();
+		const cli = new CLI();
 		// Initialize mockInput and mockOutput
-		const mockInput=createMockInput([]);
-		const mockOutput=createMockOutput();
-		const tempHistoryFile=await createTempHistoryFile();
+		const mockInput = createMockInput([]);
+		const mockOutput = createMockOutput();
+		const tempHistoryFile = await createTempHistoryFile();
 
 		// Create REPL using factory function
-		const repl=createREPL(cli,{
+		const repl = createREPL(cli, {
 			prompt: "test> ",
 			multiline: true,
 			historyFile: tempHistoryFile,
@@ -802,7 +768,7 @@ Deno.test(
 		assertExists(repl);
 		assertEquals(
 			repl instanceof InteractiveREPL,
-			true
+			true,
 		);
 
 		// Inject Ctrl+D to terminate the REPL
@@ -814,11 +780,11 @@ Deno.test(
 			async () => {
 				// No additional assertions needed for factory function
 			},
-			2000
+			2000,
 		);
 
 		await Deno.remove(tempHistoryFile);
-	}
+	},
 );
 
 /**
@@ -829,14 +795,14 @@ Deno.test(
 	"InteractiveREPL - statistics",
 	async () => {
 		// Initialize mockInput and mockOutput
-		const mockInput=createMockInput([]);
-		const mockOutput=createMockOutput();
-		const cli=new CLI();
+		const mockInput = createMockInput([]);
+		const mockOutput = createMockOutput();
+		const cli = new CLI();
 
-		const tempHistoryFile=await createTempHistoryFile();
+		const tempHistoryFile = await createTempHistoryFile();
 
 		// Instantiate InteractiveREPL with a custom 'testCommand'
-		const repl=new InteractiveREPL(cli,{
+		const repl = new InteractiveREPL(cli, {
 			historyFile: tempHistoryFile,
 			maxHistorySize: 100,
 			debugMode: true,
@@ -855,44 +821,44 @@ Deno.test(
 
 		await runREPLTest(
 			repl,
-			["testCommand\n","exit\n"], // Injected commands
+			["testCommand\n", "exit\n"], // Injected commands
 			mockInput,
 			mockOutput,
 			async () => {
 				// Retrieve statistics
-				const statistics: HistoryStatistics=repl.getStatistics();
+				const statistics: HistoryStatistics = repl.getStatistics();
 
 				// Assertions
 				assertEquals(
 					statistics.totalCommands,
-					1
+					1,
 				);
 				assertEquals(
 					statistics.uniqueCommands,
-					1
+					1,
 				);
 				assertEquals(
 					statistics.successRate,
-					100
+					100,
 				);
 				assert(
-					statistics.averageDuration>=0
+					statistics.averageDuration >= 0,
 				);
 				assertEquals(
 					statistics.mostUsedCommands[0].command,
-					"testcommand" // Commands are stored in lowercase
+					"testcommand", // Commands are stored in lowercase
 				);
 				assertEquals(
 					statistics.mostUsedCommands[0].count,
-					1
+					1,
 				);
 			},
-			3000 // Increased timeout
+			3000, // Increased timeout
 		);
 
 		await repl.close();
 		await Deno.remove(tempHistoryFile);
-	}
+	},
 );
 
 /**
@@ -902,29 +868,29 @@ Deno.test(
 Deno.test(
 	"CommandHistory - handle corrupted history file",
 	async () => {
-		const tempFile=await Deno.makeTempFile({
+		const tempFile = await Deno.makeTempFile({
 			suffix: ".json",
 		});
 		await Deno.writeTextFile(
 			tempFile,
-			"{ invalid json"
+			"{ invalid json",
 		);
 
-		const history=createCommandHistory({
+		const history = createCommandHistory({
 			storageFilePath: tempFile,
 		});
 
 		await history.loadHistory();
-		const statistics=history.getStatistics();
+		const statistics = history.getStatistics();
 
-		assertEquals(statistics.totalCommands,0);
-		assertEquals(statistics.uniqueCommands,0);
-		assertEquals(statistics.successRate,0); // Changed from 100 to 0
-		assertEquals(statistics.averageDuration,0);
-		assertEquals(statistics.mostUsedCommands.length,0);
+		assertEquals(statistics.totalCommands, 0);
+		assertEquals(statistics.uniqueCommands, 0);
+		assertEquals(statistics.successRate, 0); // Changed from 100 to 0
+		assertEquals(statistics.averageDuration, 0);
+		assertEquals(statistics.mostUsedCommands.length, 0);
 
 		// Ensure that the corrupted file was overwritten with an empty array
-		const fileContent=await Deno.readTextFile(tempFile);
-		assertEquals(fileContent.trim(),"[]");
-	}
+		const fileContent = await Deno.readTextFile(tempFile);
+		assertEquals(fileContent.trim(), "[]");
+	},
 );

@@ -1,80 +1,94 @@
 {
-	"name": "@layerdynamics/stega",
-	"version": "1.0.0-beta.9",
-	"exports": "./mod.ts",
-	"compilerOptions": {
-		"lib": ["deno.window", "deno.ns"],
-		"strict": true,
-		"allowUnusedLabels": false,
-		"allowUnreachableCode": false,
-		"types": ["./src/types/symbols.d.ts"]
-	},
-	"importMap": "./import_map.json",
-	"tasks": {
-		"dev": "deno run --watch mod.ts",
-		"test": "deno test --allow-all --unstable-kv --unstable-fs --import-map=import_map.json",
-		"test:setup": "mkdir -p tests/fixtures/{templates,plugins,locales,tmp,dynamic,generated} && chmod -R 777 tests/fixtures",
-		"test:init": "deno task test:setup && cp -n ./tests/fixtures/locales/en.json.template ./tests/fixtures/locales/en.json 2>/dev/null || echo '{\"available_commands\":\"Available Commands:\"}' > ./tests/fixtures/locales/en.json",
-		"test:cache": "rm -rf .deno && deno cache --reload mod.ts && deno cache --reload 'tests/**/*.ts' 'src/**/*.ts' --import-map=import_map.json && mkdir -p tests/fixtures/dynamic",
-		"test:clean": "deno task test:setup && rm -rf coverage coverage.lcov cov cov.lcov tmp .deno && find tests/fixtures -mindepth 2 -type f -delete || true",
-		"test:coverage": "mkdir -p coverage && deno test --allow-all --coverage=coverage --parallel && sleep 2 && deno coverage coverage --lcov > coverage.lcov",
-		"test:ci": "deno task test:clean && deno task test:init && deno task test:cache && deno task test:coverage",
-		"build": "deno compile --allow-run --allow-read --allow-write --allow-env --import-map=import_map.json mod.ts",
-		"build:linux": "deno compile --target x86_64-unknown-linux-gnu --output dist/stega-linux mod.ts",
-		"build:windows": "deno compile --target x86_64-pc-windows-msvc --output dist/stega-windows.exe mod.ts",
-		"build:macos": "deno compile --target x86_64-apple-darwin --output dist/stega-macos mod.ts",
-		"build:all": "mkdir -p dist && deno task build:linux && deno task build:windows && deno task build:macos",
-		"lint": "deno lint",
-		"fmt": "deno fmt",
-		"fmt:check": "deno fmt --check",
-		"check": "deno check --import-map=import_map.json src/mod.ts",
-		"check:all": "deno task fmt:check && deno lint && deno test -A",
-		"verify": "deno cache --reload mod.ts && deno task fmt:check && deno lint && deno test -A",
-		"publish:check": "deno task check:all && deno publish --dry-run",
-		"format": "scripts/format-fix.sh --fix",
-		"format:verify": "scripts/format-fix.sh --check",
-		"prepublish": "deno task verify"
-	},
-	"lint": {
-		"include": ["src/", "tests/"],
-		"exclude": ["cov/", "dist/"],
-		"rules": {
-			"tags": ["recommended"],
-			"exclude": [
-				"no-inferrable-types",
-				"require-await",
-				"no-unused-vars",
-				"no-control-regex"
-			]
-		}
-	},
-	"fmt": {
-		"include": ["src/", "tests/", "tests/fixtures/"],
-		"exclude": ["cov/", "dist/", "tests/fixtures/generated/"],
-		"useTabs": true,
-		"lineWidth": 80,
-		"indentWidth": 2,
-		"singleQuote": false,
-		"proseWrap": "preserve"
-	},
-	"test": {
-		"include": ["tests/"],
-		"exclude": ["tests/fixtures/dynamic/", "tests/fixtures/generated/"]
-	},
-	"publish": {
-		"include": ["src/**/*.ts", "mod.ts", "LICENSE", "README.md"],
-		"exclude": [
-			"**/*.test.ts",
-			"**/*.spec.ts",
-			"tests/**/*",
-			"examples/**/*",
-			"scripts/**/*",
-			"coverage/**/*",
-			"dist/**/*",
-			".git/**/*",
-			".github/**/*",
-			".vscode/**/*"
-		]
-	}
+  "name": "@layerdynamics/stega",
+  "version": "1.0.0-beta.9",
+  "exports": "./mod.ts",
+  "imports": {
+    "@std/assert": "jsr:@std/assert@^1.0.0"
+  },
+  "compilerOptions": {
+    "lib": ["deno.window", "deno.ns"],
+    "strict": true,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+    "types": [
+      "./src/types/deno.run.d.ts",
+      "./src/types/symbols.d.ts",
+      "./src/types/mod.ts",
+      "./src/types/process.ts",
+      "./src/types/types.ts"
+    ]
+  },
+  "tasks": {
+    "dev": "deno run --watch mod.ts",
+    "test": "deno test --allow-read --allow-write --allow-sys --allow-net --allow-env --allow-run --allow-ffi --unstable-kv --unstable-fs --import-map=import_map.json",
+    "test:setup": "deno run --allow-read --allow-write --allow-env scripts/setup-test-env.ts",
+    "test:init": "deno task test:setup && mkdir -p src/locales && cp -n ./tests/fixtures/locales/en.json.template ./src/locales/en.json 2>/dev/null || echo '{\"available_commands\":\"Available Commands:\"}' > ./src/locales/en.json",
+    "test:cache": "rm -rf .deno && mkdir -p .deno && deno cache --reload mod.ts && deno cache --reload 'tests/**/*.ts' 'src/**/*.ts' --import-map=import_map.json && mkdir -p tests/fixtures/dynamic",
+    "test:clean": "deno run --allow-read --allow-write --allow-env scripts/clean-test-env.ts",
+    "test:coverage": "DENO_DIR=./.deno deno test --allow-read --allow-write --allow-sys --allow-net --allow-env --allow-run --allow-ffi --coverage=coverage --parallel --trace-ops && sleep 2 && deno coverage coverage --lcov > coverage.lcov",
+    "test:ci": "DENO_DIR=./.deno TMPDIR=/tmp/test_tmp deno task test:clean && deno task test:init && deno task test:cache && deno task test:coverage",
+    "build": "deno compile --allow-read --allow-write --allow-env --allow-net --allow-run --import-map=import_map.json mod.ts",
+    "build:linux": "deno compile --target x86_64-unknown-linux-gnu --allow-read --allow-write --allow-env --allow-net --allow-run --output dist/stega-linux mod.ts",
+    "build:windows": "deno compile --target x86_64-pc-windows-msvc --allow-read --allow-write --allow-env --allow-net --allow-run --output dist/stega-windows.exe mod.ts",
+    "build:macos": "deno compile --target x86_64-apple-darwin --allow-read --allow-write --allow-env --allow-net --allow-run --output dist/stega-macos mod.ts",
+    "build:all": "mkdir -p dist && deno task build:linux && deno task build:windows && deno task build:macos",
+    "lint": "deno lint",
+    "fmt": "deno fmt",
+    "fmt:check": "deno fmt --check",
+    "check": "deno check --import-map=import_map.json src/mod.ts",
+    "check:all": "deno task fmt:check && deno lint && deno test --allow-read --allow-write --allow-sys --allow-net --allow-env --allow-run --allow-ffi",
+    "verify": "deno cache --reload mod.ts && deno task fmt:check && deno lint && deno test --allow-read --allow-write --allow-sys --allow-net --allow-env --allow-run --allow-ffi",
+    "publish:check": "deno task check:all && deno publish --dry-run",
+    "format": "deno fmt",
+    "format:verify": "deno fmt --check",
+    "prepublish": "deno task verify"
+  },
+  "lint": {
+    "include": ["src/", "tests/"],
+    "exclude": ["cov/", "dist/"],
+    "rules": {
+      "tags": ["recommended"],
+      "exclude": [
+        "no-inferrable-types",
+        "require-await",
+        "no-unused-vars",
+        "no-control-regex"
+      ]
+    }
+  },
+  "fmt": {
+    "include": ["src/", "tests/", "tests/fixtures/"],
+    "exclude": ["cov/", "dist/", "tests/fixtures/generated/"],
+    "useTabs": true,
+    "lineWidth": 80,
+    "indentWidth": 2,
+    "singleQuote": false,
+    "proseWrap": "preserve"
+  },
+  "test": {
+    "include": [
+      "tests/**/*.test.ts",
+      "tests/**/*_test.ts"
+    ],
+    "exclude": [
+      "tests/fixtures/dynamic/",
+      "tests/fixtures/generated/",
+      "tests/fixtures/**/*"
+    ]
+  },
+  "publish": {
+    "include": ["src/**/*.ts", "mod.ts", "LICENSE", "README.md"],
+    "exclude": [
+      "**/*.test.ts",
+      "**/*.spec.ts",
+      "tests/**/*",
+      "examples/**/*",
+      "scripts/**/*",
+      "coverage/**/*",
+      "dist/**/*",
+      ".git/**/*",
+      ".github/**/*",
+      ".vscode/**/*"
+    ]
+  }
 }
-

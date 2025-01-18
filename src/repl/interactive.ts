@@ -1,10 +1,10 @@
 // src/repl/interactive.ts
 
-import {CLI} from "../core/core.ts";
-import {HistoryStatistics,CommandHistory} from "./history.ts";
+import { CLI } from "../core/core.ts";
+import { CommandHistory, HistoryStatistics } from "./history.ts";
 
 interface REPLStreamReader {
-	read(p: Uint8Array): Promise<number|null>;
+	read(p: Uint8Array): Promise<number | null>;
 	setRaw?(mode: boolean): Promise<void>;
 	close(): void;
 }
@@ -19,7 +19,7 @@ interface REPLOptions {
 	historyFile?: string;
 	maxHistorySize?: number;
 	enableSuggestions?: boolean;
-	commands?: Record<string,REPLCommand>;
+	commands?: Record<string, REPLCommand>;
 	multiline?: boolean;
 	debugMode?: boolean;
 	stdin?: REPLStreamReader;
@@ -29,7 +29,7 @@ interface REPLOptions {
 
 interface REPLCommand {
 	description: string;
-	action: (args: string[]) => Promise<void>|void;
+	action: (args: string[]) => Promise<void> | void;
 	usage?: string;
 	examples?: string[];
 }
@@ -38,21 +38,21 @@ export class InteractiveREPL extends EventTarget {
 	private cli: CLI;
 	private history: CommandHistory;
 	private options: Required<REPLOptions>;
-	private running=false;
-	private currentLine="";
-	private cursorPos=0;
-	private historyIndex=-1;
-	private tempLine="";
-	private multilineBuffer: string[]=[];
-	private undoStack: string[]=[];
-	private redoStack: string[]=[];
+	private running = false;
+	private currentLine = "";
+	private cursorPos = 0;
+	private historyIndex = -1;
+	private tempLine = "";
+	private multilineBuffer: string[] = [];
+	private undoStack: string[] = [];
+	private redoStack: string[] = [];
 
 	private stdin: REPLStreamReader;
 	private stdout: REPLStreamWriter;
 
-	private eventListenersMap: Map<string,EventListener[]>=new Map();
+	private eventListenersMap: Map<string, EventListener[]> = new Map();
 
-	private static readonly ESCAPE_CODES={
+	private static readonly ESCAPE_CODES = {
 		CLEAR_LINE: "\x1b[2K",
 		CURSOR_LEFT: "\x1b[D",
 		CURSOR_RIGHT: "\x1b[C",
@@ -62,14 +62,14 @@ export class InteractiveREPL extends EventTarget {
 		RESTORE_CURSOR: "\x1b[u",
 	};
 
-	private readonly builtinCommands: Record<string,REPLCommand>={
+	private readonly builtinCommands: Record<string, REPLCommand> = {
 		help: {
 			description: "Show help information",
 			usage: "help [command]",
-			examples: ["help","help history"],
+			examples: ["help", "help history"],
 			action: async (args) => {
-				const commandName=args[0];
-				if(typeof commandName==="string") {
+				const commandName = args[0];
+				if (typeof commandName === "string") {
 					await this.showCommandHelp(commandName);
 				} else {
 					await this.showHelp();
@@ -91,17 +91,16 @@ export class InteractiveREPL extends EventTarget {
 		history: {
 			description: "Show command history",
 			usage: "history [search-term]",
-			examples: ["history","history grep","history --last=10"],
-			action: (args) => this.showHistory(args[0]||""),
+			examples: ["history", "history grep", "history --last=10"],
+			action: (args) => this.showHistory(args[0] || ""),
 		},
 		debug: {
 			description: "Toggle debug mode",
 			usage: "debug [on|off]",
 			action: (args) => {
-				this.options.debugMode=
-					args[0]==="on"||args[0]==="true";
+				this.options.debugMode = args[0] === "on" || args[0] === "true";
 				this.writeOutput(
-					`Debug mode ${this.options.debugMode? "enabled":"disabled"}\n`
+					`Debug mode ${this.options.debugMode ? "enabled" : "disabled"}\n`,
 				);
 			},
 		},
@@ -123,17 +122,17 @@ export class InteractiveREPL extends EventTarget {
 		},
 	};
 
-	constructor(cli: CLI,options: REPLOptions={}) {
+	constructor(cli: CLI, options: REPLOptions = {}) {
 		super();
-		this.cli=cli;
-		this.history=new CommandHistory({
-			maxEntries: options.maxHistorySize||1000,
-			storageFilePath:
-				options.historyFile?.trim()||".stega/repl_history.json",
+		this.cli = cli;
+		this.history = new CommandHistory({
+			maxEntries: options.maxHistorySize || 1000,
+			storageFilePath: options.historyFile?.trim() ||
+				".stega/repl_history.json",
 			excludeCommands: ["help", "exit", "clear", "history"],
 		});
 
-		const defaultOptions: Required<REPLOptions>={
+		const defaultOptions: Required<REPLOptions> = {
 			prompt: "> ",
 			historyFile: ".stega/repl_history.json",
 			maxHistorySize: 1000,
@@ -153,14 +152,14 @@ export class InteractiveREPL extends EventTarget {
 			idleTimeout: 2000,
 		};
 
-		this.options={...defaultOptions,...options};
-		this.options.commands={
+		this.options = { ...defaultOptions, ...options };
+		this.options.commands = {
 			...this.builtinCommands,
 			...this.options.commands,
 		};
 
-		this.stdin=this.options.stdin!;
-		this.stdout=this.options.stdout!;
+		this.stdin = this.options.stdin!;
+		this.stdout = this.options.stdout!;
 
 		this.setupEventHandlers();
 	}
@@ -169,22 +168,22 @@ export class InteractiveREPL extends EventTarget {
 		this.addEventListener(
 			"line",
 			((event: CustomEvent<string>) => {
-				const line=event.detail;
-				if(this.options.debugMode) {
+				const line = event.detail;
+				if (this.options.debugMode) {
 					this.writeOutput(`Debug: Processing line: ${line}\n`);
 				}
-			}) as EventListener
+			}) as EventListener,
 		);
 
 		this.addEventListener(
 			"error",
 			((event: CustomEvent<Error>) => {
-				const error=event.detail;
+				const error = event.detail;
 				this.writeOutput(`REPL Error: ${error.message}\n`);
-				if(this.options.debugMode) {
+				if (this.options.debugMode) {
 					this.writeOutput(`${error.stack}\n`);
 				}
-			}) as EventListener
+			}) as EventListener,
 		);
 	}
 
@@ -193,7 +192,7 @@ export class InteractiveREPL extends EventTarget {
 	 * @param text The text to write.
 	 */
 	public async writeOutput(text: string): Promise<void> {
-		const encoder=new TextEncoder();
+		const encoder = new TextEncoder();
 		await this.stdout.write(encoder.encode(text));
 	}
 
@@ -206,56 +205,55 @@ export class InteractiveREPL extends EventTarget {
 	}
 
 	public async start(): Promise<void> {
-		if(this.running) return;
-		this.running=true;
+		if (this.running) return;
+		this.running = true;
 
 		await this.history.loadHistory();
 		await this.writeOutput(
-			"Interactive REPL started. Type 'help' for available commands.\n"
+			"Interactive REPL started. Type 'help' for available commands.\n",
 		);
 		this.dispatchEvent(new CustomEvent("start"));
 		await this.readLoop();
 	}
 
 	private async readLoop(): Promise<void> {
-		let lastActivity=Date.now();
+		let lastActivity = Date.now();
 
-		while(this.running) {
+		while (this.running) {
 			try {
-				const prompt=
-					this.options.multiline&&this.multilineBuffer.length>0
-						? "... "
-						:this.options.prompt??"> ";
+				const prompt = this.options.multiline && this.multilineBuffer.length > 0
+					? "... "
+					: this.options.prompt ?? "> ";
 				await this.writeOutput(prompt);
 
-				const line=await this.readLine();
-				if(!line) {
+				const line = await this.readLine();
+				if (!line) {
 					// Check idle timeout
-					if(Date.now()-lastActivity>this.options.idleTimeout) {
+					if (Date.now() - lastActivity > this.options.idleTimeout) {
 						await this.writeOutput("Idle timeout reached. Exiting REPL.\n");
 						await this.close();
 						break;
 					}
 				} else {
-					lastActivity=Date.now(); // Reset idle timer on actual input
+					lastActivity = Date.now(); // Reset idle timer on actual input
 				}
 
-				if(this.options.multiline) {
-					if(line.trim()==="") {
-						const fullCommand=this.multilineBuffer.join("\n");
-						if(fullCommand.trim()) {
+				if (this.options.multiline) {
+					if (line.trim() === "") {
+						const fullCommand = this.multilineBuffer.join("\n");
+						if (fullCommand.trim()) {
 							await this.eval(fullCommand);
 						}
-						this.multilineBuffer=[];
+						this.multilineBuffer = [];
 					} else {
 						this.multilineBuffer.push(line);
 					}
-				} else if(line.trim()) {
+				} else if (line.trim()) {
 					await this.eval(line);
 				}
-			} catch(error) {
+			} catch (error) {
 				this.dispatchEvent(
-					new CustomEvent("error",{detail: error})
+					new CustomEvent("error", { detail: error }),
 				);
 			}
 		}
@@ -263,10 +261,10 @@ export class InteractiveREPL extends EventTarget {
 
 	private async handleKeypress(key: string): Promise<boolean> {
 		// Special key combinations
-		if(key==="\x03") {
+		if (key === "\x03") {
 			// Ctrl+C
-			if(this.multilineBuffer.length>0) {
-				this.multilineBuffer=[];
+			if (this.multilineBuffer.length > 0) {
+				this.multilineBuffer = [];
 				await this.stdout.write(new TextEncoder().encode("\n"));
 				return true;
 			}
@@ -274,32 +272,32 @@ export class InteractiveREPL extends EventTarget {
 			return true;
 		}
 
-		if(key==="\x04") {
+		if (key === "\x04") {
 			// Ctrl+D
-			if(this.currentLine.length===0&&this.multilineBuffer.length===0) {
+			if (this.currentLine.length === 0 && this.multilineBuffer.length === 0) {
 				await this.close();
 				return true;
 			}
 		}
 
-		if(key==="\x1a") {
+		if (key === "\x1a") {
 			// Ctrl+Z
-			if(this.undoStack.length>0) {
+			if (this.undoStack.length > 0) {
 				this.redoStack.push(this.currentLine);
-				this.currentLine=this.undoStack.pop()!;
-				this.cursorPos=this.currentLine.length;
+				this.currentLine = this.undoStack.pop()!;
+				this.cursorPos = this.currentLine.length;
 				await this.refreshLine();
 				return true;
 			}
 			return true;
 		}
 
-		if(key==="\x19") {
+		if (key === "\x19") {
 			// Ctrl+Y
-			if(this.redoStack.length>0) {
+			if (this.redoStack.length > 0) {
 				this.undoStack.push(this.currentLine);
-				this.currentLine=this.redoStack.pop()!;
-				this.cursorPos=this.currentLine.length;
+				this.currentLine = this.redoStack.pop()!;
+				this.cursorPos = this.currentLine.length;
 				await this.refreshLine();
 				return true;
 			}
@@ -307,17 +305,16 @@ export class InteractiveREPL extends EventTarget {
 		}
 
 		// Handle regular keys and special characters
-		switch(key) {
+		switch (key) {
 			case "\r":
 			case "\n":
 				await this.refreshLine();
 				return true;
 
 			case "\x7f": // Backspace
-				if(this.cursorPos>0) {
+				if (this.cursorPos > 0) {
 					this.undoStack.push(this.currentLine);
-					this.currentLine=
-						this.currentLine.slice(0,this.cursorPos-1)+
+					this.currentLine = this.currentLine.slice(0, this.cursorPos - 1) +
 						this.currentLine.slice(this.cursorPos);
 					this.cursorPos--;
 					await this.refreshLine();
@@ -333,14 +330,14 @@ export class InteractiveREPL extends EventTarget {
 				return true;
 
 			case "\x1b[C": // Right arrow
-				if(this.cursorPos<this.currentLine.length) {
+				if (this.cursorPos < this.currentLine.length) {
 					this.cursorPos++;
 					await this.refreshLine();
 				}
 				return true;
 
 			case "\x1b[D": // Left arrow
-				if(this.cursorPos>0) {
+				if (this.cursorPos > 0) {
 					this.cursorPos--;
 					await this.refreshLine();
 				}
@@ -351,11 +348,10 @@ export class InteractiveREPL extends EventTarget {
 				return true;
 
 			default:
-				if(key.length===1&&key>=" ") {
+				if (key.length === 1 && key >= " ") {
 					this.undoStack.push(this.currentLine);
-					this.currentLine=
-						this.currentLine.slice(0,this.cursorPos)+
-						key+
+					this.currentLine = this.currentLine.slice(0, this.cursorPos) +
+						key +
 						this.currentLine.slice(this.cursorPos);
 					this.cursorPos++;
 					await this.refreshLine();
@@ -366,47 +362,47 @@ export class InteractiveREPL extends EventTarget {
 	}
 
 	private async readLine(): Promise<string> {
-		this.currentLine="";
-		this.cursorPos=0;
-		this.undoStack=[];
-		this.redoStack=[];
+		this.currentLine = "";
+		this.cursorPos = 0;
+		this.undoStack = [];
+		this.redoStack = [];
 
-		if(this.hasRawMode()) {
+		if (this.hasRawMode()) {
 			await this.stdin.setRaw!(true);
 		}
 
 		try {
-			while(true) {
-				const buf=new Uint8Array(8);
+			while (true) {
+				const buf = new Uint8Array(8);
 
-				let n: number|null;
+				let n: number | null;
 				try {
-					n=await this.stdin.read(buf);
-				} catch(e) {
+					n = await this.stdin.read(buf);
+				} catch (e) {
 					await this.close();
 					throw e;
 				}
 
-				if(n===null) break;
+				if (n === null) break;
 
-				const decoder=new TextDecoder();
-				const key=decoder.decode(buf.subarray(0,n));
-				const handled=await this.handleKeypress(key);
+				const decoder = new TextDecoder();
+				const key = decoder.decode(buf.subarray(0, n));
+				const handled = await this.handleKeypress(key);
 
-				if(!handled&&key.startsWith("\x1b")) {
+				if (!handled && key.startsWith("\x1b")) {
 					continue; // Skip unhandled escape sequences
 				}
 
-				if(key==="\r"||key==="\n") {
-					const line=this.currentLine;
-					this.currentLine="";
-					this.cursorPos=0;
+				if (key === "\r" || key === "\n") {
+					const line = this.currentLine;
+					this.currentLine = "";
+					this.cursorPos = 0;
 					await this.stdout.write(new TextEncoder().encode("\n"));
 					return line;
 				}
 			}
 		} finally {
-			if(this.hasRawMode()) {
+			if (this.hasRawMode()) {
 				await this.stdin.setRaw!(false);
 			}
 		}
@@ -415,92 +411,92 @@ export class InteractiveREPL extends EventTarget {
 	}
 
 	private async refreshLine(): Promise<void> {
-		const line=this.options.prompt+this.currentLine;
-		const output=new TextEncoder().encode(
-			InteractiveREPL.ESCAPE_CODES.CURSOR_START+
-			InteractiveREPL.ESCAPE_CODES.CLEAR_LINE+
-			line
+		const line = this.options.prompt + this.currentLine;
+		const output = new TextEncoder().encode(
+			InteractiveREPL.ESCAPE_CODES.CURSOR_START +
+				InteractiveREPL.ESCAPE_CODES.CLEAR_LINE +
+				line,
 		);
 		await this.stdout.write(output);
 
-		if(this.cursorPos<this.currentLine.length) {
-			const moveLeft=this.currentLine.length-this.cursorPos;
+		if (this.cursorPos < this.currentLine.length) {
+			const moveLeft = this.currentLine.length - this.cursorPos;
 			await this.stdout.write(
-				new TextEncoder().encode(`\x1b[${moveLeft}D`)
+				new TextEncoder().encode(`\x1b[${moveLeft}D`),
 			);
 		}
 	}
 
-	private async navigateHistory(direction: "up"|"down"): Promise<void> {
-		const history=this.history.getHistory();
+	private async navigateHistory(direction: "up" | "down"): Promise<void> {
+		const history = this.history.getHistory();
 
-		if(direction==="up") {
-			if(this.historyIndex===-1) {
-				this.tempLine=this.currentLine;
+		if (direction === "up") {
+			if (this.historyIndex === -1) {
+				this.tempLine = this.currentLine;
 			}
-			if(this.historyIndex<history.length-1) {
+			if (this.historyIndex < history.length - 1) {
 				this.historyIndex++;
-				this.currentLine=history[this.historyIndex].command;
-				this.cursorPos=this.currentLine.length;
+				this.currentLine = history[this.historyIndex].command;
+				this.cursorPos = this.currentLine.length;
 				await this.refreshLine();
 			}
 		} else {
-			if(this.historyIndex>-1) {
+			if (this.historyIndex > -1) {
 				this.historyIndex--;
-				if(this.historyIndex===-1) {
-					this.currentLine=this.tempLine;
+				if (this.historyIndex === -1) {
+					this.currentLine = this.tempLine;
 				} else {
-					this.currentLine=history[this.historyIndex].command;
+					this.currentLine = history[this.historyIndex].command;
 				}
-				this.cursorPos=this.currentLine.length;
+				this.cursorPos = this.currentLine.length;
 				await this.refreshLine();
 			}
 		}
 	}
 
 	private async handleTabCompletion(): Promise<void> {
-		const word=this.getCurrentWord();
-		const completions=this.getCompletions(word);
+		const word = this.getCurrentWord();
+		const completions = this.getCompletions(word);
 
-		if(completions.length===0) return;
+		if (completions.length === 0) return;
 
-		if(completions.length===1) {
-			const completion=completions[0];
-			const beforeCursor=this.currentLine.slice(
+		if (completions.length === 1) {
+			const completion = completions[0];
+			const beforeCursor = this.currentLine.slice(
 				0,
-				this.cursorPos-word.length
+				this.cursorPos - word.length,
 			);
-			const afterCursor=this.currentLine.slice(this.cursorPos);
-			this.currentLine=beforeCursor+completion+afterCursor;
-			this.cursorPos+=completion.length-word.length;
+			const afterCursor = this.currentLine.slice(this.cursorPos);
+			this.currentLine = beforeCursor + completion + afterCursor;
+			this.cursorPos += completion.length - word.length;
 			await this.refreshLine();
 		} else {
 			await this.writeOutput("\n");
-			const commonPrefix=this.findCommonPrefix(completions);
-			if(commonPrefix.length>word.length) {
-				const beforeCursor=this.currentLine.slice(
+			const commonPrefix = this.findCommonPrefix(completions);
+			if (commonPrefix.length > word.length) {
+				const beforeCursor = this.currentLine.slice(
 					0,
-					this.cursorPos-word.length
+					this.cursorPos - word.length,
 				);
-				const afterCursor=this.currentLine.slice(this.cursorPos);
-				this.currentLine=beforeCursor+commonPrefix+afterCursor;
-				this.cursorPos+=commonPrefix.length-word.length;
+				const afterCursor = this.currentLine.slice(this.cursorPos);
+				this.currentLine = beforeCursor + commonPrefix + afterCursor;
+				this.cursorPos += commonPrefix.length - word.length;
 			}
 
 			// Display completions in columns
-			const maxWidth=Math.max(...completions.map(c => c.length));
-			const columns=Math.floor(80/(maxWidth+2));
-			const rows=Math.ceil(completions.length/columns);
+			const maxWidth = Math.max(...completions.map((c) => c.length));
+			const columns = Math.floor(80 / (maxWidth + 2));
+			const rows = Math.ceil(completions.length / columns);
 
-			for(let row=0;row<rows;row++) {
-				const line: string[]=[];
-				for(let col=0;col<columns;col++) {
-					const idx=col*rows+row;
-					if(idx<completions.length) {
-						line.push(completions[idx].padEnd(maxWidth+2));
+			for (let row = 0; row < rows; row++) {
+				const line: string[] = [];
+				for (let col = 0; col < columns; col++) {
+					const idx = col * rows + row;
+					if (idx < completions.length) {
+						line.push(completions[idx].padEnd(maxWidth + 2));
 					}
 				}
-				this.writeOutput(line.join("")+"\n");
+				this.writeOutput(line.join("") + "\n");
 			}
 
 			await this.refreshLine();
@@ -508,13 +504,13 @@ export class InteractiveREPL extends EventTarget {
 	}
 
 	private findCommonPrefix(strings: string[]): string {
-		if(strings.length===0) return "";
-		const firstStr=strings[0];
-		let prefix="";
-		for(let i=0;i<firstStr.length;i++) {
-			const char=firstStr[i];
-			if(strings.every(str => str[i]===char)) {
-				prefix+=char;
+		if (strings.length === 0) return "";
+		const firstStr = strings[0];
+		let prefix = "";
+		for (let i = 0; i < firstStr.length; i++) {
+			const char = firstStr[i];
+			if (strings.every((str) => str[i] === char)) {
+				prefix += char;
 			} else {
 				break;
 			}
@@ -523,80 +519,81 @@ export class InteractiveREPL extends EventTarget {
 	}
 
 	private getCompletions(word: string): string[] {
-		const commands=this.options.commands??{};
-		const cliCommands=this.cli
+		const commands = this.options.commands ?? {};
+		const cliCommands = this.cli
 			.getCommandRegistry()
 			.getCommands()
-			.map(cmd => cmd.name);
+			.map((cmd) => cmd.name);
 
 		const allCommands = [
 			...Object.keys(commands),
 			...cliCommands,
 		];
 
-		const matches = allCommands.filter(cmd => 
+		const matches = allCommands.filter((cmd) =>
 			cmd.toLowerCase().startsWith(word.toLowerCase())
 		);
 
 		// First try exact matches for longer commands
-		const exactMatches = matches.filter(cmd => 
-			cmd.toLowerCase().startsWith(word.toLowerCase()) && 
-			cmd.includes('-')
+		const exactMatches = matches.filter((cmd) =>
+			cmd.toLowerCase().startsWith(word.toLowerCase()) &&
+			cmd.includes("-")
 		);
 
 		return exactMatches.length > 0 ? exactMatches : matches;
 	}
 
 	private getCurrentWord(): string {
-		const before=this.currentLine.slice(0,this.cursorPos);
-		const words=before.split(/\s+/);
-		return words[words.length-1]||"";
+		const before = this.currentLine.slice(0, this.cursorPos);
+		const words = before.split(/\s+/);
+		return words[words.length - 1] || "";
 	}
 
 	/**
 	 * Evaluate and execute a line of input
 	 */
 	private async eval(line: string): Promise<void> {
-		const startTime=performance.now();
-		let success=false;
-		let error: Error|undefined;
+		const startTime = performance.now();
+		let success = false;
+		let error: Error | undefined;
 
 		try {
-			const [command,...args]=line.trim().toLowerCase().split(/\s+/);
+			const [command, ...args] = line.trim().toLowerCase().split(/\s+/);
 
-			if(this.options.debugMode) {
+			if (this.options.debugMode) {
 				this.writeOutput(
-					`Debug: Executing command: ${command} with args: ${args.join(
-						" "
-					)}\n`
+					`Debug: Executing command: ${command} with args: ${
+						args.join(
+							" ",
+						)
+					}\n`,
 				);
 			}
 
-			const commands=this.options.commands??{};
-			const cmd=commands[command];
-			if(cmd) {
+			const commands = this.options.commands ?? {};
+			const cmd = commands[command];
+			if (cmd) {
 				await cmd.action(args);
-				success=true; // Ensure success is set to true here
+				success = true; // Ensure success is set to true here
 			} else {
-				await this.cli.runCommand([command,...args]);
-				success=true; // Ensure success is set to true here
+				await this.cli.runCommand([command, ...args]);
+				success = true; // Ensure success is set to true here
 			}
-		} catch(e) {
-			error=
-				e instanceof Error? e:new Error(String(e));
+		} catch (e) {
+			error = e instanceof Error ? e : new Error(String(e));
 			this.writeOutput(`Error: ${error.message}\n`);
 			this.dispatchEvent(
-				new CustomEvent("error",{detail: error})
+				new CustomEvent("error", { detail: error }),
 			);
 		} finally {
 			// Add to history regardless of exclusion; CommandHistory handles exclusion
-			const commandName=line.trim().split(/\s+/)[0].toLowerCase();
+			const commandName = line.trim().split(/\s+/)[0].toLowerCase();
 			await this.history.addEntry({
 				command: commandName, // Record only the command name
 				args: this.parseArgs(line),
 				timestamp: Date.now(),
 				success,
-				duration: performance.now()-startTime,
+				duration: performance.now() - startTime,
 				error: error?.message,
 			});
 		}
@@ -606,17 +603,17 @@ export class InteractiveREPL extends EventTarget {
 	 * Parse arguments from the command line.
 	 * This is a simple parser; consider using a more robust solution if needed.
 	 */
-	private parseArgs(line: string): Record<string,unknown> {
-		const args: Record<string,unknown>={};
-		const tokens=line.trim().split(/\s+/);
+	private parseArgs(line: string): Record<string, unknown> {
+		const args: Record<string, unknown> = {};
+		const tokens = line.trim().split(/\s+/);
 		// Simple parsing: key=value or standalone arguments
-		for(let i=1;i<tokens.length;i++) {
-			const token=tokens[i];
-			const [key,value]=token.split("=");
-			if(value!==undefined) {
-				args[key]=value;
+		for (let i = 1; i < tokens.length; i++) {
+			const token = tokens[i];
+			const [key, value] = token.split("=");
+			if (value !== undefined) {
+				args[key] = value;
 			} else {
-				args[`arg${i}`]=token;
+				args[`arg${i}`] = token;
 			}
 		}
 		return args;
@@ -628,7 +625,7 @@ export class InteractiveREPL extends EventTarget {
 	private async showCommandHelp(commandName: string): Promise<void> {
 		const commands = this.options.commands ?? {};
 		const command = commands[commandName];
-		if(!command) {
+		if (!command) {
 			this.writeOutput(`No help available for '${commandName}'\n`);
 			return;
 		}
@@ -636,13 +633,13 @@ export class InteractiveREPL extends EventTarget {
 		this.writeOutput(`\nCommand: ${commandName}\n`);
 		this.writeOutput(`${command.description}\n`);
 
-		if(command.usage) {
+		if (command.usage) {
 			this.writeOutput(`\nUsage: ${command.usage}\n`);
 		}
 
-		if(command.examples?.length) {
+		if (command.examples?.length) {
 			this.writeOutput("\nExamples:\n");
-			for(const example of command.examples) {
+			for (const example of command.examples) {
 				this.writeOutput(`  ${example}\n`);
 			}
 		}
@@ -657,19 +654,19 @@ export class InteractiveREPL extends EventTarget {
 		this.writeOutput("\nAvailable Commands:\n");
 
 		// Show built-in and custom commands
-		const commands=this.options.commands??{};
-		for(const [name,cmd] of Object.entries(commands)) {
+		const commands = this.options.commands ?? {};
+		for (const [name, cmd] of Object.entries(commands)) {
 			this.writeOutput(`  ${name.padEnd(15)} ${cmd.description}\n`);
 		}
 
 		// Show CLI commands
 		this.writeOutput("\nCLI Commands:\n");
-		const cliCommands=this.cli
+		const cliCommands = this.cli
 			.getCommandRegistry()
 			.getCommands();
-		for(const cmd of cliCommands) {
+		for (const cmd of cliCommands) {
 			this.writeOutput(
-				`  ${cmd.name.padEnd(15)} ${cmd.description||""}\n`
+				`  ${cmd.name.padEnd(15)} ${cmd.description || ""}\n`,
 			);
 		}
 
@@ -680,9 +677,9 @@ export class InteractiveREPL extends EventTarget {
 		this.writeOutput("  Ctrl+Y         Redo\n");
 		this.writeOutput("  Up/Down        Navigate history\n");
 		this.writeOutput("  Tab            Command completion\n");
-		if(this.options.multiline) {
+		if (this.options.multiline) {
 			this.writeOutput(
-				"  Empty line     End multiline input\n"
+				"  Empty line     End multiline input\n",
 			);
 		}
 		this.writeOutput("\n");
@@ -692,40 +689,40 @@ export class InteractiveREPL extends EventTarget {
 	 * Show command history with optional search term
 	 */
 	private async showHistory(
-		searchTerm: string
+		searchTerm: string,
 	): Promise<void> {
-		let history=this.history.getHistory();
+		let history = this.history.getHistory();
 
-		if(searchTerm) {
-			history=history.filter(entry =>
+		if (searchTerm) {
+			history = history.filter((entry) =>
 				entry.command.toLowerCase().includes(searchTerm.toLowerCase())
 			);
-			if(history.length===0) {
+			if (history.length === 0) {
 				this.writeOutput(
-					`No commands found matching '${searchTerm}'\n`
+					`No commands found matching '${searchTerm}'\n`,
 				);
 				return;
 			}
 		}
 
-		if(history.length===0) {
+		if (history.length === 0) {
 			this.writeOutput("No command history\n");
 			return;
 		}
 
 		this.writeOutput("\nCommand History:\n");
-		for(const entry of history) {
-			const timestamp=new Date(
-				entry.timestamp
+		for (const entry of history) {
+			const timestamp = new Date(
+				entry.timestamp,
 			).toLocaleString();
-			const duration=entry.duration.toFixed(2);
-			const status=entry.success? "✓":"✗";
+			const duration = entry.duration.toFixed(2);
+			const status = entry.success ? "✓" : "✗";
 			this.writeOutput(
-				`  ${timestamp} ${status} ${duration}ms ${entry.command}\n`
+				`  ${timestamp} ${status} ${duration}ms ${entry.command}\n`,
 			);
-			if(!entry.success&&entry.error) {
+			if (!entry.success && entry.error) {
 				this.writeOutput(
-					`    Error: ${entry.error}\n`
+					`    Error: ${entry.error}\n`,
 				);
 			}
 		}
@@ -736,11 +733,11 @@ export class InteractiveREPL extends EventTarget {
 	 * Close the REPL and remove all event listeners.
 	 */
 	public async close(): Promise<void> {
-		if(!this.running) return;
-		this.running=false;
+		if (!this.running) return;
+		this.running = false;
 		await this.writeOutput("\n");
 		this.dispatchEvent(
-			new CustomEvent<void>("exit")
+			new CustomEvent<void>("exit"),
 		);
 		this.removeAllEventListeners();
 	}
@@ -748,13 +745,13 @@ export class InteractiveREPL extends EventTarget {
 	// Override addEventListener to track listeners
 	public override addEventListener(
 		type: string,
-		listener: EventListenerOrEventListenerObject|null,
-		options?: boolean|AddEventListenerOptions
+		listener: EventListenerOrEventListenerObject | null,
+		options?: boolean | AddEventListenerOptions,
 	): void {
-		super.addEventListener(type,listener,options);
-		if(listener&&typeof listener==="function") {
-			if(!this.eventListenersMap.has(type)) {
-				this.eventListenersMap.set(type,[]);
+		super.addEventListener(type, listener, options);
+		if (listener && typeof listener === "function") {
+			if (!this.eventListenersMap.has(type)) {
+				this.eventListenersMap.set(type, []);
 			}
 			this.eventListenersMap.get(type)!.push(listener);
 		}
@@ -763,18 +760,18 @@ export class InteractiveREPL extends EventTarget {
 	// Override removeEventListener to update the tracking map
 	public override removeEventListener(
 		type: string,
-		listener: EventListenerOrEventListenerObject|null,
-		options?: boolean|EventListenerOptions
+		listener: EventListenerOrEventListenerObject | null,
+		options?: boolean | EventListenerOptions,
 	): void {
-		super.removeEventListener(type,listener,options);
-		if(listener&&typeof listener==="function") {
-			const listeners=this.eventListenersMap.get(type);
-			if(listeners) {
-				const index=listeners.indexOf(listener);
-				if(index!==-1) {
-					listeners.splice(index,1);
+		super.removeEventListener(type, listener, options);
+		if (listener && typeof listener === "function") {
+			const listeners = this.eventListenersMap.get(type);
+			if (listeners) {
+				const index = listeners.indexOf(listener);
+				if (index !== -1) {
+					listeners.splice(index, 1);
 				}
-				if(listeners.length===0) {
+				if (listeners.length === 0) {
 					this.eventListenersMap.delete(type);
 				}
 			}
@@ -783,17 +780,15 @@ export class InteractiveREPL extends EventTarget {
 
 	// Implement the listeners method to retrieve tracked listeners
 	public listeners(type: string): EventListener[] {
-		return this.eventListenersMap.get(type)||[];
+		return this.eventListenersMap.get(type) || [];
 	}
 
 	// Update removeAllEventListeners to use the new listeners method
 	private removeAllEventListeners(): void {
-		const types=Array.from(this.eventListenersMap.keys());
-		for(const type of types) {
-			const listeners=Array.from(this.listeners(type));
-			listeners.forEach(listener =>
-				this.removeEventListener(type,listener)
-			);
+		const types = Array.from(this.eventListenersMap.keys());
+		for (const type of types) {
+			const listeners = Array.from(this.listeners(type));
+			listeners.forEach((listener) => this.removeEventListener(type, listener));
 		}
 	}
 
@@ -806,7 +801,7 @@ export class InteractiveREPL extends EventTarget {
 	 * Check if stdin has setRaw method (raw mode)
 	 */
 	private hasRawMode(): boolean {
-		return "setRaw" in this.stdin&&typeof this.stdin.setRaw==="function";
+		return "setRaw" in this.stdin && typeof this.stdin.setRaw === "function";
 	}
 }
 
@@ -818,7 +813,7 @@ export class InteractiveREPL extends EventTarget {
  */
 export function createREPL(
 	cli: CLI,
-	options?: REPLOptions
+	options?: REPLOptions,
 ): InteractiveREPL {
-	return new InteractiveREPL(cli,options);
+	return new InteractiveREPL(cli, options);
 }

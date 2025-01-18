@@ -19,7 +19,6 @@ export interface BundleResult {
 	modules: Map<string, string>;
 }
 
-
 /**
  * A class responsible for bundling TypeScript modules into a single file.
  *

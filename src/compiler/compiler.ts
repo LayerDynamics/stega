@@ -24,11 +24,10 @@ import { logger } from "./logger.ts";
 import { DependencyGraph } from "./dependency-graph.ts";
 import { Cache } from "./cache.ts";
 
-
 /**
  * A compiler class that handles the full compilation pipeline for TypeScript/JavaScript code.
  * This includes parsing, transforming, bundling, and code generation stages.
- * 
+ *
  * @remarks
  * The compiler supports various features including:
  * - Source map generation
@@ -38,7 +37,7 @@ import { Cache } from "./cache.ts";
  * - Module resolution and bundling
  * - Multiple output formats (ES6, UMD)
  * - Caching for improved performance
- * 
+ *
  * @example
  * ```typescript
  * const compiler = new Compiler({
@@ -49,7 +48,7 @@ import { Cache } from "./cache.ts";
  * });
  * await compiler.compile();
  * ```
- * 
+ *
  * @public
  */
 export class Compiler {

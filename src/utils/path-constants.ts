@@ -1,1 +1,1 @@
-export const PATH_SEPARATOR = Deno.build.os === 'windows' ? '\\' : '/';
+export const PATH_SEPARATOR = Deno.build.os === "windows" ? "\\" : "/";

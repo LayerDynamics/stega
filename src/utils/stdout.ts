@@ -1,6 +1,5 @@
 import { encode } from "./encode.ts";
 
-
 /**
  * ANSI escape codes for terminal text formatting and colors.
  * @constant
@@ -29,29 +28,29 @@ import { encode } from "./encode.ts";
  * @property {string} bgWhite - Sets background color to white
  */
 const COLORS = {
-    reset: "\x1b[0m",
-    bright: "\x1b[1m",
-    dim: "\x1b[2m",
-    italic: "\x1b[3m",
-    underscore: "\x1b[4m",
-    // Foreground colors
-    black: "\x1b[30m",
-    red: "\x1b[31m",
-    green: "\x1b[32m",
-    yellow: "\x1b[33m",
-    blue: "\x1b[34m",
-    magenta: "\x1b[35m",
-    cyan: "\x1b[36m",
-    white: "\x1b[37m",
-    // Background colors
-    bgBlack: "\x1b[40m",
-    bgRed: "\x1b[41m",
-    bgGreen: "\x1b[42m",
-    bgYellow: "\x1b[43m",
-    bgBlue: "\x1b[44m",
-    bgMagenta: "\x1b[45m",
-    bgCyan: "\x1b[46m",
-    bgWhite: "\x1b[47m"
+	reset: "\x1b[0m",
+	bright: "\x1b[1m",
+	dim: "\x1b[2m",
+	italic: "\x1b[3m",
+	underscore: "\x1b[4m",
+	// Foreground colors
+	black: "\x1b[30m",
+	red: "\x1b[31m",
+	green: "\x1b[32m",
+	yellow: "\x1b[33m",
+	blue: "\x1b[34m",
+	magenta: "\x1b[35m",
+	cyan: "\x1b[36m",
+	white: "\x1b[37m",
+	// Background colors
+	bgBlack: "\x1b[40m",
+	bgRed: "\x1b[41m",
+	bgGreen: "\x1b[42m",
+	bgYellow: "\x1b[43m",
+	bgBlue: "\x1b[44m",
+	bgMagenta: "\x1b[45m",
+	bgCyan: "\x1b[46m",
+	bgWhite: "\x1b[47m",
 } as const;
 
 /**
@@ -65,12 +64,12 @@ const COLORS = {
  * @property {boolean} [timestamp] - Whether to prepend a timestamp to the output
  */
 export interface StdoutOptions {
-    newline?: boolean;
-    color?: keyof typeof COLORS;
-    background?: keyof typeof COLORS;
-    styles?: Array<keyof typeof COLORS>;
-    indent?: number;
-    timestamp?: boolean;
+	newline?: boolean;
+	color?: keyof typeof COLORS;
+	background?: keyof typeof COLORS;
+	styles?: Array<keyof typeof COLORS>;
+	indent?: number;
+	timestamp?: boolean;
 }
 
 /**
@@ -111,190 +110,189 @@ export interface StdoutOptions {
  * is stripped when output is not directed to a TTY.
  */
 class Stdout {
-    private isEnabled = true;
-    private indentSize = 2;
-    private buffer: string[] = [];
-    private isTTY: boolean;
+	private isEnabled = true;
+	private indentSize = 2;
+	private buffer: string[] = [];
+	private isTTY: boolean;
 
-    constructor() {
-        this.isTTY = Deno.stdout.isTerminal();
-    }
+	constructor() {
+		this.isTTY = Deno.stdout.isTerminal();
+	}
 
-    /**
-     * Write raw text to stdout
-     */
-    async write(text: string, options: StdoutOptions = {}): Promise<void> {
-        if (!this.isEnabled) return;
+	/**
+	 * Write raw text to stdout
+	 */
+	async write(text: string, options: StdoutOptions = {}): Promise<void> {
+		if (!this.isEnabled) return;
 
-        let output = text;
+		let output = text;
 
-        // Apply indentation
-        if (options.indent) {
-            const indent = " ".repeat(options.indent * this.indentSize);
-            output = output.split("\n").map(line => indent + line).join("\n");
-        }
+		// Apply indentation
+		if (options.indent) {
+			const indent = " ".repeat(options.indent * this.indentSize);
+			output = output.split("\n").map((line) => indent + line).join("\n");
+		}
 
-        // Apply timestamp
-        if (options.timestamp) {
-            const timestamp = new Date().toISOString();
-            output = `[${timestamp}] ${output}`;
-        }
+		// Apply timestamp
+		if (options.timestamp) {
+			const timestamp = new Date().toISOString();
+			output = `[${timestamp}] ${output}`;
+		}
 
-        // Apply colors and styles if terminal supports it
-        if (this.isTTY) {
-            if (options.color) {
-                output = COLORS[options.color] + output + COLORS.reset;
-            }
-            if (options.background) {
-                output = COLORS[options.background] + output + COLORS.reset;
-            }
-            if (options.styles?.length) {
-                output = options.styles.map(style => COLORS[style]).join("") + output + COLORS.reset;
-            }
-        }
+		// Apply colors and styles if terminal supports it
+		if (this.isTTY) {
+			if (options.color) {
+				output = COLORS[options.color] + output + COLORS.reset;
+			}
+			if (options.background) {
+				output = COLORS[options.background] + output + COLORS.reset;
+			}
+			if (options.styles?.length) {
+				output = options.styles.map((style) => COLORS[style]).join("") +
+					output + COLORS.reset;
+			}
+		}
 
-        // Add newline if requested
-        if (options.newline) {
-            output += "\n";
-        }
+		// Add newline if requested
+		if (options.newline) {
+			output += "\n";
+		}
 
-        await Deno.stdout.write(encode(output));
-    }
+		await Deno.stdout.write(encode(output));
+	}
 
-    /**
-     * Write a line of text
-     */
-    async writeLine(text: string, options: StdoutOptions = {}): Promise<void> {
-        await this.write(text, { ...options, newline: true });
-    }
+	/**
+	 * Write a line of text
+	 */
+	async writeLine(text: string, options: StdoutOptions = {}): Promise<void> {
+		await this.write(text, { ...options, newline: true });
+	}
 
-    /**
-     * Write success message
-     */
-    async writeSuccess(text: string, options: StdoutOptions = {}): Promise<void> {
-        await this.write(`✓ ${text}`, {
-            ...options,
-            newline: true,
-            color: "green",
-            styles: ["bright"]
-        });
-    }
+	/**
+	 * Write success message
+	 */
+	async writeSuccess(text: string, options: StdoutOptions = {}): Promise<void> {
+		await this.write(`✓ ${text}`, {
+			...options,
+			newline: true,
+			color: "green",
+			styles: ["bright"],
+		});
+	}
 
-    /**
-     * Write error message
-     */
-    async writeError(text: string, options: StdoutOptions = {}): Promise<void> {
-        await this.write(`✗ ${text}`, {
-            ...options,
-            newline: true,
-            color: "red",
-            styles: ["bright"]
-        });
-    }
+	/**
+	 * Write error message
+	 */
+	async writeError(text: string, options: StdoutOptions = {}): Promise<void> {
+		await this.write(`✗ ${text}`, {
+			...options,
+			newline: true,
+			color: "red",
+			styles: ["bright"],
+		});
+	}
 
-    /**
-     * Write warning message
-     */
-    async writeWarning(text: string, options: StdoutOptions = {}): Promise<void> {
-        await this.write(`⚠ ${text}`, {
-            ...options,
-            newline: true,
-            color: "yellow",
-            styles: ["bright"]
-        });
-    }
+	/**
+	 * Write warning message
+	 */
+	async writeWarning(text: string, options: StdoutOptions = {}): Promise<void> {
+		await this.write(`⚠ ${text}`, {
+			...options,
+			newline: true,
+			color: "yellow",
+			styles: ["bright"],
+		});
+	}
 
-    /**
-     * Write info message
-     */
-    async writeInfo(text: string, options: StdoutOptions = {}): Promise<void> {
-        await this.write(`ℹ ${text}`, {
-            ...options,
-            newline: true,
-            color: "blue",
-            styles: ["bright"]
-        });
-    }
+	/**
+	 * Write info message
+	 */
+	async writeInfo(text: string, options: StdoutOptions = {}): Promise<void> {
+		await this.write(`ℹ ${text}`, {
+			...options,
+			newline: true,
+			color: "blue",
+			styles: ["bright"],
+		});
+	}
 
-    /**
-     * Write debug message
-     */
-    async writeDebug(text: string, options: StdoutOptions = {}): Promise<void> {
-        if (Deno.env.get("DEBUG")) {
-            await this.write(`🔍 ${text}`, {
-                ...options,
-                newline: true,
-                color: "magenta",
-                styles: ["dim"]
-            });
-        }
-    }
+	/**
+	 * Write debug message
+	 */
+	async writeDebug(text: string, options: StdoutOptions = {}): Promise<void> {
+		if (Deno.env.get("DEBUG")) {
+			await this.write(`🔍 ${text}`, {
+				...options,
+				newline: true,
+				color: "magenta",
+				styles: ["dim"],
+			});
+		}
+	}
 
-    /**
-     * Start buffering output
-     */
-    startBuffer(): void {
-        this.buffer = [];
-        this.isEnabled = false;
-    }
+	/**
+	 * Start buffering output
+	 */
+	startBuffer(): void {
+		this.buffer = [];
+		this.isEnabled = false;
+	}
 
-    /**
-     * Flush buffered output
-     */
-    async flushBuffer(): Promise<void> {
-        this.isEnabled = true;
-        for (const text of this.buffer) {
-            await this.write(text);
-        }
-        this.buffer = [];
-    }
+	/**
+	 * Flush buffered output
+	 */
+	async flushBuffer(): Promise<void> {
+		this.isEnabled = true;
+		for (const text of this.buffer) {
+			await this.write(text);
+		}
+		this.buffer = [];
+	}
 
-    /**
-     * Clear the screen
-     */
-    async clear(): Promise<void> {
-        if (this.isTTY) {
-            await this.write("\x1b[2J\x1b[H");
-        }
-    }
+	/**
+	 * Clear the screen
+	 */
+	async clear(): Promise<void> {
+		if (this.isTTY) {
+			await this.write("\x1b[2J\x1b[H");
+		}
+	}
 
+	/**
+	 * Move the cursor up by a specified number of lines.
+	 * @param lines - The number of lines to move the cursor up. Defaults to 1.
+	 */
+	async moveUp(lines = 1): Promise<void> {
+		if (this.isTTY) {
+			await this.write(`\x1b[${lines}A`);
+		}
+	}
 
-    /**
-     * Move the cursor up by a specified number of lines.
-     * @param lines - The number of lines to move the cursor up. Defaults to 1.
-     */
-    async moveUp(lines = 1): Promise<void> {
-        if (this.isTTY) {
-            await this.write(`\x1b[${lines}A`);
-        }
-    }
+	/**
+	 * Move the cursor down by a specified number of lines.
+	 * @param lines - The number of lines to move the cursor down. Defaults to 1.
+	 */
 
-
-    /**
-     * Move the cursor down by a specified number of lines.
-     * @param lines - The number of lines to move the cursor down. Defaults to 1.
-     */
-
-    async moveDown(lines = 1): Promise<void> {
-        if (this.isTTY) {
-            await this.write(`\x1b[${lines}B`);
-        }
-    }
+	async moveDown(lines = 1): Promise<void> {
+		if (this.isTTY) {
+			await this.write(`\x1b[${lines}B`);
+		}
+	}
 
 	/**
 	 * Sets whether stdout is enabled or disabled
 	 * @param enabled - Boolean flag indicating if stdout should be enabled (true) or disabled (false)
 	 */
-    setEnabled(enabled: boolean): void {
-        this.isEnabled = enabled;
-    }
+	setEnabled(enabled: boolean): void {
+		this.isEnabled = enabled;
+	}
 
-    /**
-     * Check if stdout is a TTY
-     */
-    isTTYOutput(): boolean {
-        return this.isTTY;
-    }
+	/**
+	 * Check if stdout is a TTY
+	 */
+	isTTYOutput(): boolean {
+		return this.isTTY;
+	}
 }
 
 // Export singleton instance

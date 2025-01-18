@@ -8,7 +8,7 @@ import type { KeyPressEvent, PromptOptions, PromptState } from "./types.ts";
  *
  * @template T The type of the value that the prompt returns upon successful completion.
  */
- 
+
 /**
  * @protected
  * Stores the current state of the prompt, including the typed value and control flags.
@@ -26,7 +26,7 @@ import type { KeyPressEvent, PromptOptions, PromptState } from "./types.ts";
  * @protected
  * @abstract
  */
- 
+
 /**
  * Handles individual keypress events. Must be implemented by subclasses to customize
  * how user input is processed.
@@ -43,7 +43,7 @@ import type { KeyPressEvent, PromptOptions, PromptState } from "./types.ts";
  * @throws If validation fails, an error will be thrown.
  * @async
  */
- 
+
 /**
  * Initializes the prompt rendering process.
  * @protected
@@ -52,15 +52,15 @@ import type { KeyPressEvent, PromptOptions, PromptState } from "./types.ts";
 
 /**
  * Applies a transformation function to the user's input if one is provided in the prompt options.
- * 
+ *
  * @returns The transformed user input.
  * @protected
  * @async
  */
- 
+
 /**
  * Reads raw key sequences from the terminal in raw mode.
- * 
+ *
  * @returns An object describing the pressed key sequence.
  * @private
  * @async
@@ -69,7 +69,7 @@ import type { KeyPressEvent, PromptOptions, PromptState } from "./types.ts";
 /**
  * Parses a raw character sequence to determine the specific key pressed and whether any
  * modifier keys (control, shift, or meta) were involved.
- * 
+ *
  * @param sequence - The raw sequence of characters from the terminal.
  * @returns A key event object describing the pressed key.
  * @private

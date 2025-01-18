@@ -3,11 +3,10 @@ import type { ModuleInfo } from "./types.ts";
 import * as path from "jsr:@std/path@0.224.0";
 import { ts } from "npm:ts-morph@17.0.1";
 
-
 /**
  * Represents a directed graph of module dependencies for tracking and managing relationships between modules.
  * Provides functionality for building, analyzing, and optimizing module dependencies in a TypeScript/JavaScript project.
- * 
+ *
  * Features:
  * - Dependency tracking and resolution
  * - Cycle detection
@@ -15,22 +14,22 @@ import { ts } from "npm:ts-morph@17.0.1";
  * - Graph optimization
  * - Module merging
  * - Connected components analysis
- * 
+ *
  * @example
  * ```typescript
  * const graph = new DependencyGraph();
  * await graph.build(entryModule, { parseModule: async (path) => {...} });
  * const order = graph.getTopologicalOrder();
  * ```
- * 
+ *
  * @remarks
  * The graph maintains three primary data structures:
  * - modules: Map of module paths to their corresponding ModuleInfo
  * - dependencies: Map of module paths to their dependencies
  * - reverseDependencies: Map of module paths to their dependents
- * 
+ *
  * The graph can be serialized to JSON for persistence and deserialized back into a working graph.
- * 
+ *
  * @see {@link ModuleInfo} for the structure of module information
  * @see {@link build} for initializing the graph
  * @see {@link optimizeGraph} for performing graph optimizations

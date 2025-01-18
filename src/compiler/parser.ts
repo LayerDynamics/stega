@@ -12,17 +12,16 @@ export interface ParseResult {
 	errors: string[];
 }
 
-
 /**
  * A TypeScript parser that processes source files and manages dependencies.
  * Uses the ts-morph Project API to handle TypeScript source files and AST operations.
- * 
+ *
  * @remarks
  * The Parser class provides functionality to:
  * - Parse TypeScript source files into AST
  * - Collect module dependencies from import and export declarations
  * - Handle and report TypeScript diagnostics
- * 
+ *
  * @example
  * ```typescript
  * const parser = new Parser({ target: ts.ScriptTarget.ES2020 });

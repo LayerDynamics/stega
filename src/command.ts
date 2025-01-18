@@ -110,17 +110,17 @@ export class CommandRegistry {
 
 // Define and export the function
 export function createCommand(
-    name: string,
-    options: Omit<Command, 'name'> & { action?: Command['action'] }
+	name: string,
+	options: Omit<Command, "name"> & { action?: Command["action"] },
 ): Command {
-    return {
-        name,
-        description: options.description || '',
-        options: options.options || [],
-        subcommands: options.subcommands || [],
-        action: options.action || (() => {}),
-        aliases: options.aliases || [],
-    };
+	return {
+		name,
+		description: options.description || "",
+		options: options.options || [],
+		subcommands: options.subcommands || [],
+		action: options.action || (() => {}),
+		aliases: options.aliases || [],
+	};
 }
 
 // Remove redundant exports at the end

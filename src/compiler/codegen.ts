@@ -68,10 +68,9 @@ interface CodeFragment {
 	sourceFile?: string;
 }
 
-
 /**
  * Handles the generation of JavaScript code from TypeScript AST nodes and manages source maps.
- * 
+ *
  * @remarks
  * This class is responsible for:
  * - Generating code from TypeScript AST nodes
@@ -79,7 +78,7 @@ interface CodeFragment {
  * - Handling different module formats (CommonJS, UMD, ES6)
  * - Minifying code when requested
  * - Managing warnings and assets during code generation
- * 
+ *
  * @example
  * ```typescript
  * const generator = new CodeGenerator({
@@ -92,10 +91,10 @@ interface CodeFragment {
  *   platform: "browser",
  *   format: "es6"
  * });
- * 
+ *
  * const output = await generator.generate(bundle, genOptions);
  * ```
- * 
+ *
  * @public
  */
 export class CodeGenerator {

@@ -6,9 +6,4 @@ export { default as stdout } from "./stdout.ts";
 export { encode, encodeBase64 } from "./encode.ts";
 
 // Explicitly export decoding functions
-export {
-    decode,
-    decodeBase64,
-    decodeHex,
-    decodeBase64Url
-} from "./decode.ts";
+export { decode, decodeBase64, decodeBase64Url, decodeHex } from "./decode.ts";
