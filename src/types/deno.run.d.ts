@@ -7,36 +7,52 @@ declare global {
 
 	namespace Deno {
 		interface RunOptions {
-			cmd: string[];
-			// Use type union with Deno's built-in types
-			stdout?: "inherit" | "piped" | "null";
-			stderr?: "inherit" | "piped" | "null";
-			stdin?: "inherit" | "piped" | "null";
-			// Use URL type for cwd
-			cwd?: string | URL;
-			env?: Record<string, string>;
+			cmd: readonly string[]|[string|URL,...string[]];
+			stdout?: "inherit"|"piped"|"null"|number;
+			stderr?: "inherit"|"piped"|"null"|number;
+			stdin?: "inherit"|"piped"|"null"|number;
+			cwd?: string;
+			env?: Record<string,string>;
 		}
 
 		interface CommandOptions {
-			cmd?: string[];
+			cmd?: readonly string[]|[string|URL,...string[]];
 			args?: string[];
-			stdout?: "inherit" | "piped" | "null";
-			stderr?: "inherit" | "piped" | "null";
-			stdin?: "inherit" | "piped" | "null";
-			cwd?: string | URL;
-			env?: Record<string, string>;
+			stdout?: "inherit"|"piped"|"null"|number;
+			stderr?: "inherit"|"piped"|"null"|number;
+			stdin?: "inherit"|"piped"|"null"|number;
+			cwd?: string;
+			env?: Record<string,string>;
 		}
 
 		interface Process {
-			status(): Promise<{ success: boolean; code: number }>;
+			status(): Promise<{success: boolean; code: number}>;
 			output(): Promise<Uint8Array>;
 			stderrOutput(): Promise<Uint8Array>;
 			close(): void;
 			kill(signo: number): void;
-			rid: number;
-			stdin?: WritableStream<Uint8Array>;
-			stdout?: ReadableStream<Uint8Array>;
-			stderr?: ReadableStream<Uint8Array>;
+			readonly rid: number;
+			readonly stdin: Writer&Closer&{
+				writable: WritableStream<Uint8Array>;
+			}|null;
+			readonly stdout: Reader&Closer&{
+				readable: ReadableStream<Uint8Array>;
+			}|null;
+			readonly stderr: Reader&Closer&{
+				readable: ReadableStream<Uint8Array>;
+			}|null;
+		}
+
+		interface Writer {
+			write(p: Uint8Array): Promise<number>;
+		}
+
+		interface Reader {
+			read(p: Uint8Array): Promise<number|null>;
+		}
+
+		interface Closer {
+			close(): void;
 		}
 	}
 }
