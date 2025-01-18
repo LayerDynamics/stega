@@ -50,9 +50,9 @@ class MockProcess implements Deno.ChildProcess {
 	ref(): void {}
 	unref(): void {}
 
-	kill(signo?: Deno.Signal): void {
+	kill(signo?: Deno.Signal | number): void {
 		this._killed = true;
-		if (signo && !["SIGTERM", "SIGKILL"].includes(signo)) {
+		if (typeof signo === "string" && !["SIGTERM", "SIGKILL"].includes(signo)) {
 			throw new Error(`Unsupported signal: ${signo}`);
 		}
 		this.#stdout.cancel();
