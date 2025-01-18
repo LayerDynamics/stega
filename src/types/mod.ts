@@ -2,16 +2,15 @@
 // Export process types with namespace to avoid conflicts
 export * as ProcessTypes from "./process.ts";
 
-// Re-export core types explicitly
-import type { Command as CoreCommand } from "../core/mod.ts";
-import type {
+// Re-export types from other modules
+export type { Command as CoreCommand } from "../core/mod.ts";
+export type {
 	Args,
 	BuildOptions,
 	CommandLifecycle,
-	FlagType,
-	FlagValue,
 	ValidationRules,
 } from "./types.ts";
+export type { FlagType, FlagValue } from "../flag.ts";
 
 export interface PluginRegistry {
 	name: string;
@@ -20,15 +19,5 @@ export interface PluginRegistry {
 	integrity?: string;
 }
 
-export type {
-	Args,
-	BuildOptions,
-	CommandLifecycle,
-	CoreCommand as Command,
-	FlagType,
-	FlagValue,
-	ValidationRules,
-};
-
-// Also export other types from types.ts
+// Export remaining types
 export * from "./types.ts";

@@ -3,6 +3,7 @@
 import { CLI } from "../core/core.ts";
 import { crypto } from "jsr:@std/crypto@0.224.0";
 import * as path from "jsr:@std/path@0.224.0";
+import { getPlugin } from "./plugin_registry.ts";
 
 // Custom event types
 interface PluginEvent extends Event {
@@ -128,8 +129,20 @@ export class PluginManager extends EventTarget {
 	 * Import plugin module
 	 */
 	private async importPlugin(pluginPath: string): Promise<EnhancedPlugin> {
-		const module = await import(pluginPath);
-		return module.default;
+		// Validate and normalize the path
+		const normalizedPath = path.normalize(pluginPath);
+
+		// Validate file extension
+		if (!normalizedPath.endsWith(".ts") && !normalizedPath.endsWith(".js")) {
+			throw new Error("Plugin files must have .ts or .js extension");
+		}
+
+		const plugin = await getPlugin(normalizedPath);
+		if (!plugin) {
+			throw new Error(`Plugin at ${pluginPath} is not registered`);
+		}
+
+		return plugin;
 	}
 
 	/**

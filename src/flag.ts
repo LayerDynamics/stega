@@ -1,7 +1,8 @@
 // src/flag.ts
 
-export type FlagType = "boolean" | "string" | "number" | "array";
-export type FlagValue = string | number | boolean | string[];
+// Core flag type definitions
+export type FlagType = "string" | "number" | "boolean" | "array";
+export type FlagValue = string | number | boolean | Array<string>;
 
 /**
  * Converts a string value to the specified type.
