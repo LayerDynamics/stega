@@ -1,3 +1,4 @@
+// src/io.ts
 type Reader = {
 	read(p: Uint8Array): Promise<number | null>;
 };

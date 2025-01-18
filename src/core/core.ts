@@ -39,6 +39,36 @@ export interface BuildOptions {
 	entry: string;
 }
 
+/**
+ * Represents the main Command Line Interface (CLI) application.
+ * Handles command registration, parsing, plugin management, internationalization,
+ * and execution of commands.
+ * 
+ * @example
+ * ```typescript
+ * const cli = new CLI();
+ * await cli.run();
+ * ```
+ * 
+ * @class
+ * @property {CommandRegistry} registry - Stores and manages CLI commands
+ * @property {Parser} parser - Parses command line arguments
+ * @property {Help} help - Generates help documentation
+ * @property {ConfigLoader} configLoader - Loads configuration from files
+ * @property {Record<string, FlagValue>} config - Stores CLI configuration
+ * @property {boolean} testMode - Indicates if CLI is running in test mode
+ * @property {MiddlewareRegistry} middlewareRegistry - Manages middleware functions
+ * @property {I18n} i18n - Handles internationalization
+ * @property {PluginLoader} pluginLoader - Manages CLI plugins
+ * @property {boolean} ready - Indicates if CLI is ready for use
+ * @property {Promise<void>} loadingPromise - Promise resolving when CLI is loaded
+ * @property {ILogger} logger - Logger instance for CLI operations
+ * 
+ * @throws {CommandNotFoundError} When a specified command is not found
+ * @throws {SubcommandNotFoundError} When a specified subcommand is not found
+ * @throws {MissingFlagError} When a required flag is missing
+ * @throws {StegaError} When a CLI-specific error occurs
+ */
 export class CLI {
 	private registry: CommandRegistry;
 	private parser: Parser;

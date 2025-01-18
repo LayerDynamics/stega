@@ -19,8 +19,33 @@ export interface BundleResult {
 	modules: Map<string, string>;
 }
 
+
 /**
- * Bundler class responsible for combining all modules into a single bundle.
+ * A class responsible for bundling TypeScript modules into a single file.
+ *
+ * The bundler processes a dependency graph of modules and combines them into a single
+ * output file, supporting different module formats (CommonJS, UMD, ES6) and source maps.
+ *
+ * @example
+ * ```typescript
+ * const bundler = new Bundler({
+ *   module: ts.ModuleKind.CommonJS,
+ *   sourceMaps: true,
+ *   entryPoint: './src/index.ts',
+ *   externals: ['lodash']
+ * });
+ * const result = bundler.bundle(dependencyGraph);
+ * ```
+ *
+ * @remarks
+ * The bundler handles:
+ * - Module format transformation
+ * - Source map generation
+ * - External module exclusion
+ * - Dependency ordering
+ * - Module wrapping and initialization
+ *
+ * @public
  */
 export class Bundler {
 	constructor(private options: CompilerOptions) {}

@@ -24,8 +24,33 @@ import { logger } from "./logger.ts";
 import { DependencyGraph } from "./dependency-graph.ts";
 import { Cache } from "./cache.ts";
 
+
 /**
- * Compiler class orchestrates the parsing, transforming, bundling, and code generation processes.
+ * A compiler class that handles the full compilation pipeline for TypeScript/JavaScript code.
+ * This includes parsing, transforming, bundling, and code generation stages.
+ * 
+ * @remarks
+ * The compiler supports various features including:
+ * - Source map generation
+ * - Code minification
+ * - Tree shaking
+ * - Plugin system for extensibility
+ * - Module resolution and bundling
+ * - Multiple output formats (ES6, UMD)
+ * - Caching for improved performance
+ * 
+ * @example
+ * ```typescript
+ * const compiler = new Compiler({
+ *   entryPoint: "./src/index.ts",
+ *   outDir: "dist",
+ *   sourceMaps: true,
+ *   minify: true
+ * });
+ * await compiler.compile();
+ * ```
+ * 
+ * @public
  */
 export class Compiler {
 	private parser: Parser;

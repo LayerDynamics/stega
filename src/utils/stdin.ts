@@ -18,6 +18,30 @@ export interface StdinOptions {
 	timeout?: number;
 }
 
+/**
+ * A class for handling standard input operations in Deno with advanced terminal features.
+ *
+ * @class
+ * @example
+ * ```ts
+ * const stdin = new Stdin();
+ * const line = await stdin.readLine();
+ * ```
+ *
+ * @property {boolean} private isRawMode - Tracks if terminal is in raw mode
+ * @property {Uint8Array} private buffer - Internal buffer for reading data
+ * @property {number} private currentPosition - Current position in the buffer
+ * @property {boolean} private isReading - Flag indicating if reading is in progress
+ *
+ * @interface StdinOptions
+ * @property {number} [bufferSize] - Size of the internal buffer
+ * @property {boolean} [raw] - Enable raw mode for input
+ * @property {boolean} [echo] - Enable character echoing
+ * @property {boolean} [stripNewlines] - Remove newline characters from output
+ *
+ * @throws {Deno.errors.NotSupported} When raw mode is not supported
+ * @throws {Deno.errors.Interrupted} When input is interrupted (Ctrl+C)
+ */
 export class Stdin {
 	private isRawMode = false;
 	private buffer: Uint8Array;

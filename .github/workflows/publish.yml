@@ -80,14 +80,18 @@ jobs:
 
       - name: Run Tests with Coverage
         env:
-          DENO_DIR: /tmp/deno_dir
+          DENO_DIR: ./.deno
           TMPDIR: /tmp/test_tmp
           TEST_MODE: ci
           NO_COLOR: true
           DEBUG: true
           LOCALE: en
-          DENO_PERMISSIONS: allow-all
+          PRESERVE_TEST_FILES: "1"
         run: |
+          # Create fresh cache directory
+          rm -rf ./.deno
+          mkdir -p ./.deno
+
           # Ensure temp directories exist with proper permissions
           sudo mkdir -p $TMPDIR
           sudo chmod -R 777 $TMPDIR
@@ -96,17 +100,29 @@ jobs:
           # Create coverage directory
           mkdir -p coverage
 
-          # Run tests and generate coverage in one step
-          deno test --allow-all --coverage=coverage --parallel
+          # Pre-cache test files
+          deno cache mod.ts
+          find tests -name "*.ts" -type f -exec deno cache {} +
 
-          # Wait for file system to sync
-          sleep 1
+          # Run tests with coverage
+          deno test --allow-all --coverage=coverage --parallel --no-check
 
-          # Ensure coverage directory is accessible
-          sudo chown -R $USER:$USER coverage
+          # Post-test cache of dynamically generated files
+          if [ -d "tests/plugins" ]; then
+            find tests/plugins -name "*.ts" -type f -exec deno cache {} +
+          fi
 
-          # Generate coverage report
-          deno coverage coverage --lcov > coverage.lcov
+          # Allow file system to sync
+          sleep 2
+
+          # Generate coverage with retries
+          for i in {1..3}; do
+            if deno coverage coverage --lcov > coverage.lcov; then
+              break
+            fi
+            echo "Retry $i: Waiting for cache to sync..."
+            sleep 2
+          done
 
       - name: Post-Test Format
         run: |

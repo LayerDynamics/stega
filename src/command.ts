@@ -1,10 +1,7 @@
-// src/command.ts
-import { FlagValue } from "./flag.ts"; // Import FlagValue
-import type { Args } from "./types/types.ts"; // Import Args from types.ts
+import { FlagValue } from "./flag.ts";
+import type { Args } from "./types/types.ts";
 
-/**
- * Represents an option for a command.
- */
+// Define interfaces first with export type
 export interface Option {
 	name: string;
 	alias?: string;
@@ -14,9 +11,6 @@ export interface Option {
 	required?: boolean;
 }
 
-/**
- * Represents a command in the CLI.
- */
 export interface Command {
 	name: string;
 	description?: string;
@@ -26,6 +20,7 @@ export interface Command {
 	aliases?: string[];
 }
 
+// Define and export the class
 export class CommandRegistry {
 	private commands: Command[] = [];
 
@@ -54,6 +49,13 @@ export class CommandRegistry {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Clears all registered commands.
+	 */
+	clear(): void {
+		this.commands = [];
 	}
 
 	/**
@@ -105,3 +107,22 @@ export class CommandRegistry {
 		return currentCommand;
 	}
 }
+
+// Define and export the function
+export function createCommand(
+    name: string,
+    options: Omit<Command, 'name'> & { action?: Command['action'] }
+): Command {
+    return {
+        name,
+        description: options.description || '',
+        options: options.options || [],
+        subcommands: options.subcommands || [],
+        action: options.action || (() => {}),
+        aliases: options.aliases || [],
+    };
+}
+
+// Remove redundant exports at the end
+// export type { Command, Option };
+// export { createCommand, CommandRegistry };

@@ -1,23 +1,24 @@
 // src/types.ts
-import type { CLI } from "../core/core.ts"; // Add import for CLI type
+import type {CLI} from "../core/core.ts"; // Add import for CLI type
 
 /**
  * Represents the arguments passed to a command's action.
  */
 export interface Args {
 	command: string[];
-	flags: Record<string, FlagValue>;
+	flags: Record<string,FlagValue>;
 	cli: CLI;
+	[key: string]: unknown; // Changed from 'any' to 'unknown'
 }
 
-export type JsTarget = "es5" | "es6" | "es2017" | "es2020";
-export type ModuleFormat = "esm" | "cjs" | "umd";
+export type JsTarget="es5"|"es6"|"es2017"|"es2020";
+export type ModuleFormat="esm"|"cjs"|"umd";
 
 export interface GeneratedOutput {
 	code: string;
 	map?: string;
 	warnings?: string[];
-	assets?: Map<string, unknown>;
+	assets?: Map<string,unknown>;
 }
 
 export interface CompilerOptions {
@@ -30,7 +31,7 @@ export interface CompilerOptions {
 	module: ModuleFormat; // Changed from string to ModuleFormat
 	platform: string;
 	externals: string[];
-	define: Record<string, string>;
+	define: Record<string,string>;
 	format: ModuleFormat;
 	umdName?: string;
 	experimentalDecorators: boolean;
@@ -98,11 +99,11 @@ export interface Module {
 // Type guard for Module
 export function isModule(value: unknown): value is Module {
 	return (
-		typeof value === "object" &&
-		value !== null &&
-		"path" in value &&
-		"code" in value &&
-		"dependencies" in value &&
+		typeof value==="object"&&
+		value!==null&&
+		"path" in value&&
+		"code" in value&&
+		"dependencies" in value&&
 		"ast" in value
 	);
 }
@@ -114,8 +115,8 @@ export interface BuildOptions {
 	entry: string;
 }
 
-export type ValidatorFn = (value: unknown) => boolean | Promise<boolean>;
-export type CustomValidator = (args: Args) => boolean | Promise<boolean>;
+export type ValidatorFn=(value: unknown) => boolean|Promise<boolean>;
+export type CustomValidator=(args: Args) => boolean|Promise<boolean>;
 
 export interface CommandLifecycle {
 	beforeExecute?: () => Promise<void>;
@@ -125,8 +126,8 @@ export interface CommandLifecycle {
 }
 
 export interface ValidationRules {
-	flags?: Record<string, ValidatorFn>;
-	args?: Record<string, ValidatorFn>;
+	flags?: Record<string,ValidatorFn>;
+	args?: Record<string,ValidatorFn>;
 	custom?: CustomValidator[];
 }
 
@@ -135,7 +136,7 @@ export interface Command {
 	description?: string;
 	options?: Option[];
 	subcommands?: Command[];
-	action: (args: Args) => void | Promise<void>;
+	action: (args: Args) => void|Promise<void>;
 	aliases?: string[];
 	category?: string;
 	permissions?: string[];
@@ -146,14 +147,14 @@ export interface Command {
 // Add Option interface
 export interface Option {
 	name: string;
-	type: "string" | "number" | "boolean" | "array"; // Make type more specific
+	type: "string"|"number"|"boolean"|"array"; // Make type more specific
 	description?: string;
 	required?: boolean;
 	default?: FlagValue; // Change from unknown to FlagValue
 }
 
 export abstract class BaseCommand implements Command {
-	name: string = ""; // Initialize with empty string
+	name: string=""; // Initialize with empty string
 	description?: string;
 	options?: Option[];
 	subcommands?: Command[];
@@ -164,40 +165,40 @@ export abstract class BaseCommand implements Command {
 	validation?: ValidationRules;
 
 	constructor(config: Partial<Command>) {
-		Object.assign(this, config);
+		Object.assign(this,config);
 	}
 
-	abstract action(args: Args): void | Promise<void>;
+	abstract action(args: Args): void|Promise<void>;
 
 	protected async validateArgs(args: Args): Promise<boolean> {
-		if (!this.validation) return true;
+		if(!this.validation) return true;
 
 		// Validate flags
-		if (this.validation.flags) {
-			for (const [flag, validator] of Object.entries(this.validation.flags)) {
-				if (args.flags[flag] !== undefined) {
-					const isValid = await validator(args.flags[flag]);
-					if (!isValid) return false;
+		if(this.validation.flags) {
+			for(const [flag,validator] of Object.entries(this.validation.flags)) {
+				if(args.flags[flag]!==undefined) {
+					const isValid=await validator(args.flags[flag]);
+					if(!isValid) return false;
 				}
 			}
 		}
 
 		// Validate args
-		if (this.validation.args) {
-			for (const [index, validator] of Object.entries(this.validation.args)) {
-				const idx = parseInt(index);
-				if (!isNaN(idx) && args.command[idx] !== undefined) {
-					const isValid = await validator(args.command[idx]);
-					if (!isValid) return false;
+		if(this.validation.args) {
+			for(const [index,validator] of Object.entries(this.validation.args)) {
+				const idx=parseInt(index);
+				if(!isNaN(idx)&&args.command[idx]!==undefined) {
+					const isValid=await validator(args.command[idx]);
+					if(!isValid) return false;
 				}
 			}
 		}
 
 		// Run custom validators
-		if (this.validation.custom) {
-			for (const validator of this.validation.custom) {
-				const isValid = await validator(args);
-				if (!isValid) return false;
+		if(this.validation.custom) {
+			for(const validator of this.validation.custom) {
+				const isValid=await validator(args);
+				if(!isValid) return false;
 			}
 		}
 
@@ -206,47 +207,47 @@ export abstract class BaseCommand implements Command {
 
 	protected async executeWithLifecycle(args: Args): Promise<void> {
 		try {
-			if (this.lifecycle?.beforeExecute) {
+			if(this.lifecycle?.beforeExecute) {
 				await this.lifecycle.beforeExecute();
 			}
 
-			const isValid = await this.validateArgs(args);
-			if (!isValid) {
+			const isValid=await this.validateArgs(args);
+			if(!isValid) {
 				throw new Error("Validation failed");
 			}
 
 			await this.action(args);
 
-			if (this.lifecycle?.afterExecute) {
+			if(this.lifecycle?.afterExecute) {
 				await this.lifecycle.afterExecute();
 			}
-		} catch (error) {
-			if (this.lifecycle?.onError) {
+		} catch(error) {
+			if(this.lifecycle?.onError) {
 				await this.lifecycle.onError(
-					error instanceof Error ? error : new Error(String(error)),
+					error instanceof Error? error:new Error(String(error)),
 				);
 			}
 			throw error;
 		} finally {
-			if (this.lifecycle?.cleanup) {
+			if(this.lifecycle?.cleanup) {
 				await this.lifecycle.cleanup();
 			}
 		}
 	}
 }
 
-export type ValidationFunction<T> = (
+export type ValidationFunction<T>=(
 	value: T,
-) => boolean | string | Promise<boolean | string>;
+) => boolean|string|Promise<boolean|string>;
 
-export type BasePromptOptions = {
+export type BasePromptOptions={
 	message: string;
 	defaultValue?: unknown;
 	validate?: ValidationFunction<unknown>;
 	color?: string;
 };
 
-export type ProgressBarOptions = {
+export type ProgressBarOptions={
 	total: number;
 	width?: number;
 	complete?: string;
@@ -254,7 +255,7 @@ export type ProgressBarOptions = {
 	format?: string;
 };
 
-export type SpinnerOptions = {
+export type SpinnerOptions={
 	text?: string;
 	frames?: string[];
 	interval?: number;
@@ -267,5 +268,5 @@ export interface DatePromptOptions extends BasePromptOptions {
 }
 
 // Export FlagType and FlagValue directly
-export type FlagType = "string" | "number" | "boolean" | "array";
-export type FlagValue = string | number | boolean | Array<string>;
+export type FlagType="string"|"number"|"boolean"|"array";
+export type FlagValue=string|number|boolean|Array<string>;

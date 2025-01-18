@@ -28,6 +28,32 @@ export interface PluginModule {
 	default: Plugin;
 }
 
+/**
+ * A class responsible for loading, managing, and unloading plugins in the application.
+ * Supports loading plugins from local filesystem, remote URLs (GitHub, JSDelivr), and JSR registry.
+ *
+ * @class
+ * @description
+ * The PluginLoader handles:
+ * - Loading plugins from various sources (local, remote, JSR)
+ * - Validating plugin structure and dependencies
+ * - Initializing plugins with CLI context
+ * - Managing plugin lifecycle (load/unload)
+ * - Tracking loaded plugins and their loading states
+ *
+ * @example
+ * ```typescript
+ * const loader = new PluginLoader();
+ * await loader.loadPlugin('plugins/my-plugin.ts', cliInstance);
+ * ```
+ *
+ * @property {Map<string, Plugin>} loadedPlugins - Map of loaded plugins keyed by plugin name
+ * @property {Map<string, Promise<void>>} loadingPromises - Map of plugin loading promises
+ * @property {string[]} allowedPaths - List of allowed paths for loading plugins
+ *
+ * @throws {ValidationError} When plugin loading or validation fails
+ * @throws {Error} When plugin dependencies are missing or plugin structure is invalid
+ */
 export class PluginLoader {
 	private loadedPlugins: Map<string, Plugin> = new Map();
 	private loadingPromises: Map<string, Promise<void>> = new Map();
@@ -38,6 +64,22 @@ export class PluginLoader {
 		"tests/plugins/",
 	];
 
+	/**
+	 * Loads a plugin from the specified path and initializes it with the provided CLI instance.
+	 *
+	 * @param path - The file system path to the plugin
+	 * @param cli - The CLI instance to be used for plugin initialization
+	 * @throws {ValidationError} If the plugin fails to load, is invalid, or has missing dependencies
+	 * @returns Promise that resolves when the plugin is successfully loaded and initialized
+	 *
+	 * The loading process includes:
+	 * - Validating the plugin path
+	 * - Loading the plugin module
+	 * - Validating plugin structure and required fields
+	 * - Checking for duplicate plugins
+	 * - Validating plugin dependencies
+	 * - Initializing the plugin
+	 */
 	async loadPlugin(path: string, cli: CLI): Promise<void> {
 		const pluginName = this.getPluginName(path);
 		try {
@@ -66,6 +108,14 @@ export class PluginLoader {
 		}
 	}
 
+	/**
+	 * Type guard that validates if an unknown object is a valid Plugin.
+	 *
+	 * @param plugin - The object to validate as a Plugin
+	 * @returns True if the object satisfies the Plugin interface requirements:
+	 *          - Has a metadata object containing name and version properties
+	 *          - Has an init method that is a function
+	 */
 	private validatePlugin(plugin: unknown): plugin is Plugin {
 		return Boolean(
 			plugin &&
@@ -207,15 +257,19 @@ export class PluginLoader {
 		// Handle test environment paths
 		if (resolvedPath.includes("tests/plugins/")) {
 			try {
-				let cleanPath = resolvedPath.replace(/^file:\/\//, "");
-				if (
-					!cleanPath.startsWith("/") && !cleanPath.match(/^([A-Za-z]:\\|\\\\)/)
-				) {
-					cleanPath = Deno.cwd() + "/" + cleanPath;
+				const cleanPath = resolvedPath.replace(/^file:\/\//, "");
+				const relativePath = cleanPath.split("tests/plugins/")[1]?.replace(
+					/\.(ts|js)$/,
+					"",
+				);
+
+				if (!relativePath) {
+					throw new Error("Invalid plugin path format");
 				}
-				// Use static import path for analysis
-				const pluginPath = new URL(`file://${cleanPath}`).href;
-				const module = await import(/* @vite-ignore */ pluginPath);
+
+				// Use a static path that can be analyzed
+				const module = await import(`../../tests/plugins/${relativePath}.ts`);
+
 				if (!this.validatePlugin(module.default)) {
 					throw new Error("Invalid plugin format");
 				}
@@ -225,6 +279,7 @@ export class PluginLoader {
 			}
 		}
 
+		// Handle JSR modules
 		if (resolvedPath.startsWith("https://jsr.io/")) {
 			const moduleName = resolvedPath.replace("https://jsr.io/", "");
 			if (this.isValidPluginKey(moduleName)) {
@@ -238,6 +293,7 @@ export class PluginLoader {
 			throw new Error(`Unknown JSR module: ${moduleName}`);
 		}
 
+		// Handle local plugins
 		if (
 			resolvedPath.startsWith("file://") || resolvedPath.includes("/plugins/")
 		) {
@@ -245,6 +301,7 @@ export class PluginLoader {
 				.replace("file://", "")
 				.replace(/\\/g, "/");
 
+			// Split into test and regular plugins
 			if (normalizedPath.includes("/tests/plugins/")) {
 				const localPath = normalizedPath
 					.split("tests/plugins/")[1]
@@ -263,7 +320,7 @@ export class PluginLoader {
 					.split("/plugins/")[1]
 					?.replace(/\.(ts|js)$/, "");
 				try {
-					const module = await import(`./plugins/${localPath}.ts`);
+					const module = await import(`../plugins/${localPath}.ts`);
 					if (!this.validatePlugin(module.default)) {
 						throw new Error("Invalid plugin format");
 					}

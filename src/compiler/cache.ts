@@ -1,8 +1,21 @@
 // /src/compiler/cache.ts
 import { crypto } from "jsr:@std/crypto@0.224.0";
+
 /**
- * Simple caching mechanism to store and retrieve parsed modules to avoid redundant parsing.
- * Enhanced with hash-based invalidation for cache consistency.
+ * A generic caching mechanism that stores values with content-based hash validation.
+ *
+ * This class provides a way to cache values and validate them against their original content
+ * using SHA-256 hashing. This ensures that cached values are only returned when their
+ * associated content remains unchanged.
+ *
+ * @template T - The type of values stored in the cache
+ *
+ * @example
+ * ```typescript
+ * const cache = new Cache<string>();
+ * await cache.set('key', 'value', 'content');
+ * const value = await cache.get('key', 'content');
+ * ```
  */
 export class Cache<T> {
 	private cache: Map<string, { value: T; hash: string }> = new Map();

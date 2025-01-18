@@ -1,3 +1,4 @@
+// src/core/types.ts
 export interface CoreConfig {
 	name: string;
 	version: string;

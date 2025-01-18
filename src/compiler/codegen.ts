@@ -68,13 +68,35 @@ interface CodeFragment {
 	sourceFile?: string;
 }
 
+
 /**
- * The CodeGenerator class is responsible for:
- * 1. Traversing the AST and extracting code fragments.
- * 2. Generating initial source maps from these fragments.
- * 3. Transforming the code (ES5, ES6, etc.) using TypeScript compiler features.
- * 4. Merging source maps from transformations (TypeScript) and minification (Terser).
- * 5. Wrapping code in different module formats (ES6, CommonJS, UMD).
+ * Handles the generation of JavaScript code from TypeScript AST nodes and manages source maps.
+ * 
+ * @remarks
+ * This class is responsible for:
+ * - Generating code from TypeScript AST nodes
+ * - Managing source maps through transformations
+ * - Handling different module formats (CommonJS, UMD, ES6)
+ * - Minifying code when requested
+ * - Managing warnings and assets during code generation
+ * 
+ * @example
+ * ```typescript
+ * const generator = new CodeGenerator({
+ *   target: ts.ScriptTarget.ES2020,
+ *   module: ts.ModuleKind.ESNext,
+ *   entryPoint: "src/index.ts",
+ *   outDir: "dist",
+ *   sourceMaps: true,
+ *   minify: true,
+ *   platform: "browser",
+ *   format: "es6"
+ * });
+ * 
+ * const output = await generator.generate(bundle, genOptions);
+ * ```
+ * 
+ * @public
  */
 export class CodeGenerator {
 	private warnings: string[] = [];
