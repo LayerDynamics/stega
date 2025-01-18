@@ -1,5 +1,5 @@
-import { ensureDir, emptyDir } from "https://deno.land/std/fs/mod.ts";
-import { join } from "https://deno.land/std/path/mod.ts";
+import { ensureDir, emptyDir } from "https://deno.land/std@0.224.0/fs/mod.ts";
+import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
 
 const dirsToClean = [
   // Temp directories

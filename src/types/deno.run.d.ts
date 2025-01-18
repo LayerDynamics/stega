@@ -2,57 +2,50 @@
 
 declare global {
 	interface Deno {
-		run(options: Deno.RunOptions): Deno.Process;
+		Command: {
+			new (name: string | URL, options?: Deno.CommandOptions): Deno.Command;
+			prototype: Deno.Command;
+		};
 	}
 
 	namespace Deno {
-		interface RunOptions {
-			cmd: readonly string[]|[string|URL,...string[]];
-			stdout?: "inherit"|"piped"|"null"|number;
-			stderr?: "inherit"|"piped"|"null"|number;
-			stdin?: "inherit"|"piped"|"null"|number;
-			cwd?: string;
-			env?: Record<string,string>;
-		}
-
 		interface CommandOptions {
-			cmd?: readonly string[]|[string|URL,...string[]];
 			args?: string[];
-			stdout?: "inherit"|"piped"|"null"|number;
-			stderr?: "inherit"|"piped"|"null"|number;
-			stdin?: "inherit"|"piped"|"null"|number;
-			cwd?: string;
-			env?: Record<string,string>;
+			env?: Record<string, string>;
+			stdout?: "inherit" | "piped" | "null";
+			stderr?: "inherit" | "piped" | "null";
+			stdin?: "inherit" | "piped" | "null";
+			cwd?: string | URL;
 		}
 
-		interface Process {
-			status(): Promise<{success: boolean; code: number}>;
-			output(): Promise<Uint8Array>;
-			stderrOutput(): Promise<Uint8Array>;
-			close(): void;
-			kill(signo: number): void;
-			readonly rid: number;
-			readonly stdin: Writer&Closer&{
-				writable: WritableStream<Uint8Array>;
-			}|null;
-			readonly stdout: Reader&Closer&{
-				readable: ReadableStream<Uint8Array>;
-			}|null;
-			readonly stderr: Reader&Closer&{
-				readable: ReadableStream<Uint8Array>;
-			}|null;
+		interface Command {
+			spawn(): Deno.ChildProcess;
+			output(): Promise<CommandOutput>;
 		}
 
-		interface Writer {
-			write(p: Uint8Array): Promise<number>;
+		interface CommandOutput {
+			code: number;
+			success: boolean;
+			signal: Deno.Signal | null;
+			readonly stdout: Uint8Array;
+			readonly stderr: Uint8Array;
 		}
 
-		interface Reader {
-			read(p: Uint8Array): Promise<number|null>;
+		interface ChildProcess {
+			readonly pid: number;
+			readonly status: Promise<CommandStatus>;
+			stdout: ReadableStream<Uint8Array>;
+			stderr: ReadableStream<Uint8Array>;
+			stdin: WritableStream<Uint8Array>;
+			unref(): void;
+			ref(): void;
+			kill(signo?: number): void;
 		}
 
-		interface Closer {
-			close(): void;
+		interface CommandStatus {
+			success: boolean;
+			code: number;
+			signal: Deno.Signal | null;
 		}
 	}
 }
